@@ -161,11 +161,19 @@ namespace ipk24chat_client.Clients.Tcp
                     Console.WriteLine($"Action Failure: {MessageContent}");
                 }
             }
+            else if (msgType == "BYE")
+            {
+                HandleReceivedBYE();
+            }
+            else if (response.Length > 1)
+            {
+                HandeReceivedUnknown();
+            }
 
         }
         public void JoinChannel(string channelName)
         {
-            if (channelName.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(channelName, @"^[\x21-\x7E]+$"))
+            if (channelName.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(channelName, @"^[A-Za-z0-9\-]+$"))
             {
                 WriteInternalError("Too Big ChannelName OR Incorrect");
             }
