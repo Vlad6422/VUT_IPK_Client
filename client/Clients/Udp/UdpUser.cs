@@ -188,7 +188,7 @@ namespace ipk24chat_client.Clients.Udp
         }
         public void JoinChannel(string channelName)
         {
-            if (channelName.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(channelName, @"^[\x21-\x7E]+$"))
+            if (channelName.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(channelName, @"^[A-Za-z0-9\-]+$"))
             {
                 WriteInternalError("Too Big ChannelName OR Incorrect");
             }
