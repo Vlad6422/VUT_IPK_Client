@@ -1,0 +1,13 @@
+/auth udp secret IPK_UDP_CLIENT2
+Action Success: AUTH Succ
+IPK_TCP_CLIENT2: ************************
+IPK_UDP_CLIENT1: *      IPK25-CHAT      *
+************************
+/join Please30bodu
+Action Success: JOIN Succ
+Server: IPK_UDP_CLIENT1 has joined Please30bodu
+Server: IPK_TCP_CLIENT2 has joined Please30bodu
+Server: IPK_TCP_CLIENT1 has joined Please30bodu
+IPK_TCP_CLIENT2: Please give me 30 boduuuuu
+IPK_UDP_CLIENT1: PLEASEEEEE
+only 30 boduuuuuuu

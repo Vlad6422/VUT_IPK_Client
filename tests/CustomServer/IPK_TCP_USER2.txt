@@ -1,0 +1,17 @@
+/auth tcp secret IPK_TCP_CLIENT2
+Action Success: Auth Success
+Server: IPK_UDP_CLIENT1 has joined general
+Server: IPK_UDP_CLIENT2 has joined general
+************************
+IPK_UDP_CLIENT1: *      IPK25-CHAT      *
+IPK_UDP_CLIENT2: ************************
+Server: IPK_UDP_CLIENT2 has left general
+Server: IPK_UDP_CLIENT1 has left general
+/join Please30bodu
+Action Success: Join Success
+Server: IPK_TCP_CLIENT1 has joined Please30bodu
+Please give me 30 boduuuuu
+IPK_UDP_CLIENT1: PLEASEEEEE
+IPK_UDP_CLIENT2: only 30 boduuuuuuu
+Server: IPK_UDP_CLIENT2 has left Please30bodu
+Server: IPK_UDP_CLIENT1 has left Please30bodu
