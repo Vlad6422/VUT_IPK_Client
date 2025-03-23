@@ -651,7 +651,7 @@ All valid commands must be **prefixed** with a forward slash `/` and followed by
 
 The client must handle **user input sequentially**; only one action (command or message) can be processed at a time. Once the action is complete (i.e., the message has been delivered to the server, or the command has been processed), the program is ready to handle the next input.
 
-## Client Error Handling
+### Client Error Handling
 
 If the user attempts to perform an invalid operation (e.g., sending a message in an invalid state), the client will print an appropriate error message and will **not terminate**. Below are a few examples of what may trigger error messages:
 
@@ -659,7 +659,7 @@ If the user attempts to perform an invalid operation (e.g., sending a message in
 - **Malformed command**: If the user provides a command with incorrect syntax, an error message will be printed.
 - **Trying to join a channel in a non-open state**: If the client hasn't successfully authenticated or isn't connected to a server, attempting to join a channel will result in an error.
 
-## Client Program and Connection Termination
+### Client Program and Connection Termination
 
 The client must respond to termination signals (like `Ctrl + C`) by gracefully exiting and closing the connection with the server. The **BYE** message should be sent to the server to signal the termination of the connection.
 
@@ -668,7 +668,7 @@ The client must respond to termination signals (like `Ctrl + C`) by gracefully e
 
 If the client receives an **ERR** or **BYE** message from the server, the client should process these appropriately and terminate the connection gracefully.
 
-## Client Exception Handling
+### Client Exception Handling
 
 The client must handle a variety of exceptional situations during execution. These situations will arise if the client receives unexpected or malformed messages or if there is a communication issue. Here's how the client should behave in such scenarios:
 
@@ -680,7 +680,7 @@ The client must handle a variety of exceptional situations during execution. The
 
 In these cases, the client must be able to **terminate gracefully**, ensuring proper communication is concluded with the server, and no further messages are sent.
 
-## Client Output Formatting
+### Client Output Formatting
 
 The client must format its output correctly for different types of messages. Each type of message received from the server should trigger the corresponding output on the **standard output stream (stdout)**:
 
