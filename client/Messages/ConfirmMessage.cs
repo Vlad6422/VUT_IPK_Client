@@ -1,5 +1,8 @@
 ﻿namespace ipk25_chat.Messages
 {
+    /// <summary>
+    /// Represents an confirm message sent to the server.
+    /// </summary>
     public class ConfirmMessage
     {
         public byte MessageType { get; set; } = 0x00;

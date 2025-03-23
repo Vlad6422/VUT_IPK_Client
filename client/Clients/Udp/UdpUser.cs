@@ -32,8 +32,12 @@ namespace ipk24chat_client.Clients.Udp
             _serverEndPoint = new IPEndPoint(IPAddress.Parse(IpAdress), port);
             thread = new Thread(RecieveUdpPacket);
         }
-       
-        public void Start()
+        /// <summary>
+        /// This method handles the main communication loop for the UDP client.
+        /// It reads user input from the console, processes commands, and sends messages to the server.
+        /// It also handles authentication, joining channels, renaming display names, and other commands.
+        /// </summary>
+        public void EnableChatUDP()
         {
             thread.Start();
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);

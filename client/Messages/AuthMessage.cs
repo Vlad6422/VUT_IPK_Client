@@ -2,6 +2,9 @@
 
 namespace ipk25_chat.Messages
 {
+    /// <summary>
+    /// Represents an authentication message sent to the server.
+    /// </summary>
     public class AuthMessage
     {
         public byte MessageType { get; set; } = 0x02;

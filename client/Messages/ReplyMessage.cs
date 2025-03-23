@@ -2,6 +2,9 @@
 
 namespace ipk25_chat.Messages
 {
+    /// <summary>
+    /// Represents an reply message sent to the server.
+    /// </summary>
     public class ReplyMessage
     {
         public byte MessageType { get; set; } = 0x01;

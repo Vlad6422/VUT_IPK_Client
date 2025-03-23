@@ -3,6 +3,9 @@ using System.Text;
 
 namespace ipk25_chat.Messages
 {
+    /// <summary>
+    /// Represents an error message sent to the server.
+    /// </summary>
     public class ErrMessage
     {
         public byte MessageType { get; set; } = 0xFE;

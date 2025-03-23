@@ -2,6 +2,9 @@
 
 namespace ipk25_chat.Messages
 {
+    /// <summary>
+    /// Represents an bye message sent to the server.
+    /// </summary>
     public class ByeMessage
     {
         public byte MessageType { get; set; } = 0xFF;

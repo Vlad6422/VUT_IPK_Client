@@ -17,7 +17,11 @@ namespace ipk24chat_client.Clients.Tcp
             _receiveThread = new Thread(MessageRecieverThread);
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
         }
-
+        /// <summary>
+        /// This method handles the main communication loop for the TCP client.
+        /// It reads user input from the console, processes commands, and sends messages to the server.
+        /// It also handles authentication, joining channels, renaming display names, and other commands.
+        /// </summary>
         public void EnableChatTcp()
         {
             while (true)
@@ -212,7 +216,7 @@ namespace ipk24chat_client.Clients.Tcp
                     }
                 }
             }
-            catch
+            catch 
             {
                 Environment.Exit(0);
             }
@@ -253,7 +257,7 @@ namespace ipk24chat_client.Clients.Tcp
         {
             try
             {
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[65535];
                 int bytesRead = _networkStream.Read(buffer, 0, buffer.Length);
                 string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                 return response;

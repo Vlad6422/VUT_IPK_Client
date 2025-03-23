@@ -1,5 +1,9 @@
 ﻿namespace ipk25_chat.Clients
 {
+    /// <summary>
+    /// Represents a user with associated properties such as username, secret (password), and display name.
+    /// Provides methods for changing these properties with validation checks.
+    /// </summary>
     public class User
     {
         protected string _username { get; set; } = String.Empty;

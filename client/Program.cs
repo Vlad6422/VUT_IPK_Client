@@ -11,10 +11,10 @@ namespace ipk25_chat
         {
             try
             {
-                ServerSetings serverSetings = new ServerSetings(args);
-                switch (serverSetings.transportProtocol)
+                ServerSetings serverSetings = new ServerSetings(args); // Parse command line arguments
+                switch (serverSetings.transportProtocol) // Choose the right client
                 {
-                    case "tcp":
+                    case "tcp": // Run TCP client
                         using (TcpClient tcpClient = new TcpClient(AddressFamily.InterNetwork))
                         {
                             tcpClient.Connect(serverSetings.serverAddress, serverSetings.serverPort);
@@ -26,9 +26,9 @@ namespace ipk25_chat
                             tcpClient.Close();
                         }
                         break;
-                    case "udp":
+                    case "udp": // Run UDP client
                         UdpUser udpUser = new UdpUser(serverSetings);
-                        udpUser.Start();
+                        udpUser.EnableChatUDP();
                         break;
                 }
             }

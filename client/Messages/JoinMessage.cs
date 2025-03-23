@@ -2,6 +2,9 @@
 
 namespace ipk25_chat.Messages
 {
+    /// <summary>
+    /// Represents an join message sent to the server.
+    /// </summary>
     public class JoinMessage
     {
         public byte MessageType { get; set; } = 0x03;
