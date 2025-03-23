@@ -1,0 +1,2 @@
+Action Success: Authentication successful.
+Server: IntegratTestsRename has joined discord.general.

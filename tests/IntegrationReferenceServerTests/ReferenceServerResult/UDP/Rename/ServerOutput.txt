@@ -1,0 +1,21 @@
+Ethernet
+BOT
+ — 13:02
+IntegratTestsRename has joined discord.general.
+IntegratTestsRename
+BOT
+ — 13:02
+Hello everyone, I am an automated test. I am currently testing /rename, thank you all.
+NameChanged
+BOT
+ — 13:02
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!
+Ethernet
+BOT
+ — 13:02
+IntegratTestsRename has left discord.general.

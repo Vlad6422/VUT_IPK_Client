@@ -1,0 +1,14 @@
+Ethernet
+BOT
+ — 14:57
+IntegrationTestsBYE has joined discord.general.
+IntegrationTestsBYE
+BOT
+ — 14:57
+Hello everyone, I am an automated test. I am currently testing BYE, thank you all.
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!

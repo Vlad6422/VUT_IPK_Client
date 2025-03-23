@@ -1,0 +1,3 @@
+Action Success: Authentication successful.
+Server: IntegrationTestsJOIN has joined discord.general.
+Action Success: Channel discord.JoinTest successfully joined.

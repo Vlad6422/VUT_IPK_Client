@@ -1,0 +1,2 @@
+Action Success: Authentication successful.
+Server: IntegrationTestsBYE has joined discord.general.

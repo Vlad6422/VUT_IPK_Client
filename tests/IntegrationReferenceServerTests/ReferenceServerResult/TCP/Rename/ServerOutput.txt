@@ -1,0 +1,14 @@
+IntegratTestsRename has joined discord.general.
+IntegratTestsRename
+BOT
+ — 15:16
+Hello everyone, I am an automated test. I am currently testing /rename, thank you all.
+NameChanged
+BOT
+ — 15:16
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!

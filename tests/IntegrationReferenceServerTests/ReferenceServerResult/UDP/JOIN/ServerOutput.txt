@@ -1,0 +1,26 @@
+Ethernet
+BOT
+ — 12:37
+IntegrationTestsJOIN has joined discord.general.
+IntegrationTestsJOIN has left discord.general.
+IntegrationTestsJOIN
+BOT
+ — 12:37
+Hello everyone, I am an automated test. I am currently testing the JOIN, thank you all.
+Ethernet
+BOT
+ — 12:37
+IntegrationTestsJOIN has joined discord.jointest.
+IntegrationTestsJOIN
+BOT
+ — 12:37
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!
+Ethernet
+BOT
+ — 12:37
+IntegrationTestsJOIN has left discord.jointest.

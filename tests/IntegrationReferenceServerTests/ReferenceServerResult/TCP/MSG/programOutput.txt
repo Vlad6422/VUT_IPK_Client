@@ -1,0 +1,2 @@
+Action Success: Authentication successful.
+Server: IntegrationTestsAUTH has joined discord.general.

@@ -1,0 +1,3 @@
+note: Errors due to fast sending data throw TCP.
+1. Dont parse several MSG or any type in 1 packet.
+2. If close connection with BYE packet - dont print BYE (*sometimes prints...).
