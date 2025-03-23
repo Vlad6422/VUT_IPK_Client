@@ -39,7 +39,7 @@
                 WriteInternalError("DisplayName contains invalid characters");
                 return false;
             }
-            if (_displayName.Length > 20)
+            if (newName.Length > 20)
             {
                 WriteInternalError("Too Big DisplayName or Incorect");
                 return false;
