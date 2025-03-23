@@ -7,95 +7,102 @@ This document provides an overview of the implemented application, detailing its
 
 ## Table of Contents
 
-- [IPK25-CHAT Theory](#ipk25-chat-theory)  
-  - [TCP (Transmission Control Protocol)](#tcp-transmission-control-protocol)  
-    - [Three-Way Handshake](#three-way-handshake)  
-    - [Data Transmission](#data-transmission)  
-    - [Congestion Control](#congestion-control)  
-    - [Error Detection and Correction](#error-detection-and-correction)  
-    - [Flow Control (Windowing)](#flow-control-windowing)  
-    - [Connection Termination](#connection-termination)  
-    - [Key Features of TCP](#key-features-of-tcp)  
-    - [Applications of TCP](#applications-of-tcp)  
-  - [UDP (User Datagram Protocol)](#udp-user-datagram-protocol)  
-    - [No Connection Setup](#no-connection-setup)  
-    - [Packet Structure (UDP Datagram Format)](#packet-structure-udp-datagram-format)  
-    - [No Acknowledgments or Retransmissions](#no-acknowledgments-or-retransmissions)  
-    - [Error Detection](#error-detection)  
-    - [Low Latency and High Throughput](#low-latency-and-high-throughput)  
-    - [Comparison: UDP vs. TCP](#comparison-udp-vs-tcp)  
-  - [Client](#client)  
-    - [How Clients Work](#how-clients-work)  
-    - [Types of Clients](#types-of-clients)  
-    - [Advantages of Clients](#advantages-of-clients)  
-    - [Challenges for Clients](#challenges-for-clients)  
-  - [Server](#server)  
+# Table of Contents
+
+- [IPK25-CHAT Theory](#ipk25-chat-theory)
+  - [TCP (Transmission Control Protocol)](#tcp-transmission-control-protocol)
+    - [Three-Way Handshake](#three-way-handshake)
+    - [Data Transmission](#data-transmission)
+    - [Congestion Control](#congestion-control)
+    - [Error Detection and Correction](#error-detection-and-correction)
+    - [Flow Control (Windowing)](#flow-control-windowing)
+    - [Connection Termination](#connection-termination)
+    - [Key Features of TCP](#key-features-of-tcp)
+    - [Applications of TCP](#applications-of-tcp)
+  - [UDP (User Datagram Protocol)](#udp-user-datagram-protocol)
+    - [No Connection Setup](#no-connection-setup)
+    - [Packet Structure (UDP Datagram Format)](#packet-structure-udp-datagram-format)
+    - [No Acknowledgments or Retransmissions](#no-acknowledgments-or-retransmissions)
+    - [Error Detection](#error-detection)
+    - [Low Latency and High Throughput](#low-latency-and-high-throughput)
+    - [Comparison: UDP vs. TCP](#comparison-udp-vs-tcp)
+  - [Client](#client)
+    - [How Clients Work](#how-clients-work)
+    - [Types of Clients](#types-of-clients)
+    - [Advantages of Clients](#advantages-of-clients)
+    - [Challenges for Clients](#challenges-for-clients)
+  - [Server](#server)
     - [How Servers Work](#how-servers-work)
-    - [Types of Servers](#types-of-servers)  
-    - [Advantages of Servers](#advantages-of-servers)  
-    - [Challenges for Servers](#challenges-for-servers)  
+    - [Types of Servers](#types-of-servers)
+    - [Advantages of Servers](#advantages-of-servers)
+    - [Challenges for Servers](#challenges-for-servers)
 
-- [Introduction](#introduction)  
+- [Introduction](#introduction)
 
-- [Project Overview](#project-overview)  
-  - [Message Types](#message-types)  
-    - [CONFIRM](#confirm)  
-    - [REPLY](#reply)  
-    - [AUTH](#auth)  
-    - [JOIN](#join)  
-    - [MSG](#msg)  
-    - [ERR](#err)  
-    - [BYE](#bye)  
-    - [PING](#ping)  
-  - [Message Header](#message-header)  
-  - [TCP Variant](#tcp-variant)  
-  - [Message Content Parameter Mapping for TCP](#message-content-parameter-mapping-for-tcp)  
-  - [CLI Arguments and Client Behavior](#cli-arguments-and-client-behavior)  
-    - [CLI Arguments](#cli-arguments)  
-    - [Client Input and Commands](#client-input-and-commands)  
-      - [Command Format](#command-format)  
-      - [Message Input](#message-input)  
-  - [Client Error Handling](#client-error-handling)  
-    - [Client Program and Connection Termination](#client-program-and-connection-termination)  
-    - [Client Exception Handling](#client-exception-handling)  
-    - [Client Output Formatting](#client-output-formatting)  
+- [Project Overview](#project-overview)
+  - [Message Types](#message-types)
+    - [CONFIRM](#confirm)
+    - [REPLY](#reply)
+    - [AUTH](#auth)
+    - [JOIN](#join)
+    - [MSG](#msg)
+    - [ERR](#err)
+    - [BYE](#bye)
+    - [PING](#ping)
+  - [Message Header](#message-header)
+  - [TCP Variant](#tcp-variant)
+  - [Message Content Parameter Mapping for TCP](#message-content-parameter-mapping-for-tcp)
+  - [CLI Arguments and Client Behavior](#cli-arguments-and-client-behavior)
+    - [CLI Arguments](#cli-arguments)
+    - [Client Input and Commands](#client-input-and-commands)
+      - [Command Format](#command-format)
+      - [Message Input](#message-input)
+  - [Client Error Handling](#client-error-handling)
+    - [Client Program and Connection Termination](#client-program-and-connection-termination)
+    - [Client Exception Handling](#client-exception-handling)
+    - [Client Output Formatting](#client-output-formatting)
 
-- [Implementation](#implementation)  
-  - [Overview of the Code Structure](#overview-of-the-code-structure)  
-  - [Key Components and Flow](#key-components-and-flow)  
-  - [Main Program Flow](#main-program-flow)  
-  - [Multithreading in UDP Communication](#multithreading-in-udp-communication)  
-  - [TCP and UDP Client Behavior](#tcp-and-udp-client-behavior)  
-  - [Code Structure and Organization](#code-structure-and-organization)  
-  - [Conclusion](#implementation-conclusion)  
+- [Implementation](#implementation)
+  - [Overview of the Code Structure](#overview-of-the-code-structure)
+  - [Key Components and Flow](#key-components-and-flow)
+  - [Main Program Flow](#main-program-flow)
+  - [Multithreading in UDP Communication](#multithreading-in-udp-communication)
+  - [TCP and UDP Client Behavior](#tcp-and-udp-client-behavior)
+  - [Code Structure and Organization](#code-structure-and-organization)
+  - [Conclusion](#implementation-conclusion)
 
-- [TCP Client Implementation (TcpUser)](#tcp-client-implementation-tcpuser)  
-  - [Key Features](#tcp-client-key-features)  
-  - [Implementation Details](#tcp-client-implementation-details)  
-  - [Conclusion](#tcp-client-conclusion)  
+- [TCP Client Implementation (TcpUser)](#tcp-client-implementation-tcpuser)
+  - [Key Features](#tcp-client-key-features)
+  - [Implementation Details](#tcp-client-implementation-details)
+  - [Conclusion](#tcp-client-conclusion)
 
-- [UDP Client Implementation (UdpUser)](#udp-client-implementation-udpuser)  
-  - [Key Features](#udp-client-key-features)  
-  - [Conclusion](#udp-client-conclusion)  
+- [UDP Client Implementation (UdpUser)](#udp-client-implementation-udpuser)
+  - [Key Features](#udp-client-key-features)
+  - [Conclusion](#udp-client-conclusion)
 
-- [Testing](#testing)  
-  - [Testing with Reference Server](#testing-with-reference-server)  
-    - [Tested Protocols and Operations](#tested-protocols-and-operations)  
-    - [Test Setup and Results](#test-setup-and-results)  
-      - [TCP-AUTH](#tcp-auth)  
-      - [TCP-BYE](#tcp-bye)  
-      - [TCP-JOIN](#tcp-join)  
-      - [TCP-MSG](#tcp-msg)  
-      - [TCP-RENAME](#tcp-rename)  
-      - [UDP-AUTH](#udp-auth)  
-      - [UDP-BYE](#udp-bye)  
-      - [UDP-JOIN](#udp-join)  
-      - [UDP-MSG](#udp-msg)  
-      - [UDP-RENAME](#udp-rename)  
-  - [Testing with Custom Server](#testing-with-custom-server)  
-  - [Closed Python Tests (Simulated Server)](#closed-python-tests-simulated-server)  
+- [Testing](#testing)
+  - [Testing with Reference Server](#testing-with-reference-server)
+    - [Tested Protocols and Operations](#tested-protocols-and-operations)
+    - [Test Setup and Results](#test-setup-and-results)
+      - [TCP-AUTH](#tcp-auth)
+      - [TCP-BYE](#tcp-bye)
+      - [TCP-JOIN](#tcp-join)
+      - [TCP-MSG](#tcp-msg)
+      - [TCP-RENAME](#tcp-rename)
+      - [UDP-AUTH](#udp-auth)
+      - [UDP-BYE](#udp-bye)
+      - [UDP-JOIN](#udp-join)
+      - [UDP-MSG](#udp-msg)
+      - [UDP-RENAME](#udp-rename)
+  - [Testing with Custom Server](#testing-with-custom-server)
+  - [Authentication and Message Exchange Testing](#authentication-and-message-exchange-testing)
+  - [User and Server Logs](#user-and-server-logs)
+  - [Visuals](#visuals)
 
-- [Bibliography](#bibliography)  
+  - [Closed Python Tests (Simulated Server)](#closed-python-tests-simulated-server)
+    - [TESTS RESULTS](#tests-results)
+
+- [Bibliography](#bibliography)
 
 ---
 
@@ -984,9 +991,9 @@ BYE FROM IntegrationTestsJOIN
 - **Predefined stdin**: Simulates a RENAME command to change a name via TCP.
 - **Program Output**: The output generated by the system during the test.
 - **Reference Server Output**:  
-  ![ReferenceServerRENAME](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/RENAME/ReferenceServerRENAME.png)
+  ![ReferenceServerRENAME](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/Rename/ReferenceServerRENAME.png)
 - **Wireshark Screenshot**:  
-  ![WiresharkRename](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/RENAME/Wireshark.png)
+  ![WiresharkRename](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/Rename/Wireshark.png)
 - **Wireshark pcapng**: Captured network traffic during the test.
 ```
 AUTH xmalas04 AS IntegratTestsRename USING 5a798b1c-9425-492f-aca1-439513fb7440
@@ -1045,9 +1052,9 @@ BYE FROM NameChanged
 - **Predefined stdin**: Simulates a RENAME command to change a name via UDP.
 - **Program Output**: The output generated by the system during the test.
 - **Reference Server Output**:  
-  ![ReferenceServerRENAMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/RENAME/ReferenceServerRENAME.png)
+  ![ReferenceServerRENAMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/Rename/ReferenceServerRENAME.png)
 - **Wireshark Screenshot**:  
-  ![WiresharkREANEMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/RENAME/WiresharkRENAME.png)
+  ![WiresharkREANEMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/Rename/WiresharkRENAME.png)
 - **Wireshark pcapng**: Captured network traffic during the test.
 
 This detailed testing setup ensured thorough validation of the system’s behavior across both TCP and UDP protocols. All the test results were analyzed through the generated outputs, Wireshark screenshots, and pcapng files, ensuring that the system functions as expected in real-world conditions.
@@ -1138,6 +1145,20 @@ ERROR FROM SERVER: SOME ERROR ON SERVER SIDE
 Here we tested the correct termination of the application after receiving a packet with an error.
 And you can see that authorization is successful, then we send a message, receive an error, the client outputs it to Stdout, sends BYE and terminates.
 More test: `tests\IntegrationTests\tests.py`
+
+## TESTS RESULTS
+The program has been thoroughly tested across all types of packets and situations, ensuring that it can handle various network scenarios, including both TCP and UDP communication protocols. Here are the key types of packets tested:
+
+- **AUTH**: Used for client authentication (signing in) with user-provided credentials (username, display name, and password).
+- **BYE**: Either party can send this message to indicate that the conversation or connection is to be terminated.
+- **CONFIRM (UDP only)**: Used in specific UDP protocol variants to explicitly confirm the successful delivery of a message on the application level.
+- **ERR**: Indicates that an error occurred while processing the last message, leading to a graceful termination of the communication.
+- **JOIN**: A request message representing the client’s intent to join a chat channel by its identifier.
+- **MSG**: Contains the user’s display name and a message meant for the channel they’re joined in.
+- **PING (UDP only)**: Periodically sent by a server to clients using the UDP variant as an aliveness check mechanism.
+- **REPLY**: Sent in response to requests, confirming positive or negative outcomes.
+
+The program can successfully process and handle these types of packets, managing all situations, including message transmission, connection termination, error handling, and channel joining, for both TCP and UDP protocols.
 
 ---
 
