@@ -943,9 +943,13 @@ BYE FROM IntegrationTestsAUTH
 - **Reference Server Output**:  
    Connected To discord.general.
   ![ReferenceServerJOIN](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/JOIN/ReferenceServerJOIN.png)
+
   Connected To discord.jointest.
+  
   ![ReferenceJOIN1](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/JOIN/ReferenceJOIN1.png)
+
  `Here is strange thing of Reference Server. TCP was tested after UDP. So it Created new channel for TCP (Upper Image), but prints MSG to old one channel with the same name.(That channel was created for UDP)`
+
   ![ReferenceServerJOIN3](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/JOIN/ReferenceServerJOIN3.png)
 - **Wireshark Screenshot**:  
   ![WiresharkJOIN](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/JOIN/WiresharkJOIN.png)
