@@ -36,9 +36,7 @@ This document provides an overview of the implemented application, detailing its
     - [Types of Servers](#types-of-servers)
     - [Advantages of Servers](#advantages-of-servers)
     - [Challenges for Servers](#challenges-for-servers)
-
 - [Introduction](#introduction)
-
 - [Project Overview](#project-overview)
   - [Message Types](#message-types)
     - [CONFIRM](#confirm)
@@ -61,7 +59,6 @@ This document provides an overview of the implemented application, detailing its
     - [Client Program and Connection Termination](#client-program-and-connection-termination)
     - [Client Exception Handling](#client-exception-handling)
     - [Client Output Formatting](#client-output-formatting)
-
 - [Implementation](#implementation)
   - [Overview of the Code Structure](#overview-of-the-code-structure)
   - [Key Components and Flow](#key-components-and-flow)
@@ -70,16 +67,13 @@ This document provides an overview of the implemented application, detailing its
   - [TCP and UDP Client Behavior](#tcp-and-udp-client-behavior)
   - [Code Structure and Organization](#code-structure-and-organization)
   - [Conclusion](#implementation-conclusion)
-
 - [TCP Client Implementation (TcpUser)](#tcp-client-implementation-tcpuser)
   - [Key Features](#tcp-client-key-features)
   - [Implementation Details](#tcp-client-implementation-details)
   - [Conclusion](#tcp-client-conclusion)
-
 - [UDP Client Implementation (UdpUser)](#udp-client-implementation-udpuser)
   - [Key Features](#udp-client-key-features)
   - [Conclusion](#udp-client-conclusion)
-
 - [Testing](#testing)
   - [Testing with Reference Server](#testing-with-reference-server)
     - [Tested Protocols and Operations](#tested-protocols-and-operations)
@@ -98,10 +92,8 @@ This document provides an overview of the implemented application, detailing its
   - [Authentication and Message Exchange Testing](#authentication-and-message-exchange-testing)
   - [User and Server Logs](#user-and-server-logs)
   - [Visuals](#visuals)
-
   - [Closed Python Tests (Simulated Server)](#closed-python-tests-simulated-server)
     - [TESTS RESULTS](#tests-results)
-
 - [Bibliography](#bibliography)
 
 ---
