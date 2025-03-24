@@ -1055,8 +1055,6 @@ BYE FROM NameChanged
 
 This detailed testing setup ensured thorough validation of the system’s behavior across both TCP and UDP protocols. All the test results were analyzed through the generated outputs, Wireshark screenshots, and pcapng files, ensuring that the system functions as expected in real-world conditions.
 
-Got it! Here’s the revised version with your request formatted as image links for the logs:
-
 ---
 
 ### Testing with Custom Server  
@@ -1093,10 +1091,6 @@ Additionally, packet captures (`.pcapng` files) for further network analysis are
 
 #### Visuals  
 ![WiresharkRESULT](tests/CustomServer/Result.png)
-
----
-
-Certainly! Here's the updated text without the code:
 
 ---
 
