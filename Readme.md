@@ -5,8 +5,6 @@ This document provides an overview of the implemented application, detailing its
 
 ---
 
-## Table of Contents
-
 # Table of Contents
 
 - [IPK25-CHAT Theory](#ipk25-chat-theory)
