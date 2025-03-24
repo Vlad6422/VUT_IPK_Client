@@ -1056,6 +1056,8 @@ This detailed testing setup ensured thorough validation of the system’s behavi
 ---
 
 ### Testing with Custom Server  
+**FROM THIS TEST CLEARLY SEEN THAT PROGRAM CAN SEND/RECIEVE&PRINT ALL TYPES OF PACKETS!**
+
 Additionally, custom server configurations were tested to ensure flexibility and adaptability. The **Custom Server** setup included modifications to suit different network environments and protocols. By testing in this controlled environment, we verified that the system could adapt to various server configurations and maintain consistent performance, even under non-standard server conditions.  
 
 #### Authentication and Message Exchange Testing  
