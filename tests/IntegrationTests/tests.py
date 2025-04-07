@@ -66,7 +66,7 @@ def start_tcp_server_fail(host='127.0.0.1', port=4567):
 def run_client_program(additional_command=None):
     """Runs the client program, sends authentication input, and optionally sends another command."""
     process = subprocess.Popen(
-        ['./ipk25-chat', '-t', 'tcp', '-s', 'localhost'],
+        ['./ipk25chat-client', '-t', 'tcp', '-s', 'localhost'],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         text=True
     )
