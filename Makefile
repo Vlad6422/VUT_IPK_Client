@@ -1,5 +1,6 @@
 PROJECT_NAME=client
 APP_NAME=ipk25-chat
+SUBMISSION_NAME=ipk25chat-client
 OUTPUTPATH = .
 
 .PHONY: build publish clean
@@ -12,7 +13,7 @@ build_app:
 
 publish: build_app
 	@echo "Publishing $(APP_NAME)..."
-	dotnet publish $(PROJECT_NAME)/$(APP_NAME).csproj -p:PublishSingleFile=true -c Release -r linux-x64 --self-contained false  -o $(OUTPUTPATH)
+	dotnet publish $(PROJECT_NAME)/$(APP_NAME).csproj -p:PublishSingleFile=true -p:AssemblyName=$(SUBMISSION_NAME) -c Release -r linux-x64 --self-contained false  -o $(OUTPUTPATH)
 	@echo "Publishing $(APP_NAME) done."
 
 clean:
