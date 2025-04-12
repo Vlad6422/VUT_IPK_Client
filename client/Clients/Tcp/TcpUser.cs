@@ -303,7 +303,7 @@ namespace ipk24chat_client.Clients.Tcp
         void HandeReceivedUnknown()
         {
             WriteInternalError("Unknown Packet Type");
-            SendMessage($"ERROR FROM {_displayName}: Unknown Packet Type");
+            SendMessage($"ERROR FROM {_displayName}: Unknown Packet Type"+"\r\n");
             SendMessage("BYE FROM " + _displayName + "\r\n");
             _recieveThreadRunning = false;
             Environment.Exit(1);
