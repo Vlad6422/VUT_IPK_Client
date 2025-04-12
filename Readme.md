@@ -1093,6 +1093,56 @@ Additionally, packet captures (`.pcapng` files) for further network analysis are
 ![WiresharkRESULT](tests/CustomServer/Result.png)
 
 ---
+### Integration Tests
+I will note include source siles of this test due to big size.
+My github repo: https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS
+This is python tests that tests all posible states of application.
+
+#### UDP Tests
+- **udp_hello**: PASSED
+- **udp_not_auth**: PASSED
+- **udp_invalid_command**: PASSED
+- **udp_auth**: PASSED
+- **udp_auth_port**: PASSED
+- **udp_auth_nok**: PASSED
+- **udp_auth_nok_ok**: PASSED
+- **udp_auth_port_change**: PASSED
+- **udp_auth_ok**: PASSED
+- **udp_msg**: PASSED
+- **udp_svr_msg**: PASSED
+- **udp_bye1**: PASSED
+- **udp_bye2**: PASSED
+- **udp_server_err1**: PASSED
+- **udp_server_err2**: PASSED
+- **udp_join_ok**: PASSED
+- **udp_join_nok**: PASSED
+- **udp_multiple_auth**: PASSED
+- **udp_invalid_msg**: PASSED
+- **udp_auth_err**: PASSED
+
+#### TCP Tests
+- **tcp_hello**: PASSED
+- **tcp_not_auth**: PASSED
+- **tcp_invalid_command**: PASSED
+- **tcp_auth**: PASSED
+- **tcp_auth_ok**: PASSED
+- **tcp_auth_nok**: PASSED
+- **tcp_auth_port**: PASSED
+- **tcp_auth_nok_ok**: PASSED
+- **tcp_msg**: PASSED
+- **tcp_svr_msg**: PASSED
+- **tcp_bye**: PASSED
+- **tcp_server_err1**: PASSED
+- **tcp_server_err2**: PASSED
+- **tcp_join_ok**: PASSED
+- **tcp_join_nok**: PASSED
+- **tcp_multiple_auth**: PASSED
+- **tcp_invalid_msg**: PASSED
+- **tcp_auth_err**: PASSED
+
+## Summary
+- **Total Tests Run**: 39
+- **Passed**: 39/39
 
 ### Closed Python Tests (Simulated Server)
 
