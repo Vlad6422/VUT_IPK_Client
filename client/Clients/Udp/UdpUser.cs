@@ -259,6 +259,9 @@ namespace ipk24chat_client.Clients.Udp
                         {
                             ErrMessage errMessage = new ErrMessage(buff);
                             Console.WriteLine("ERROR FROM " + errMessage.DisplayName + ": " + errMessage.MessageContents);
+                            ByeMessage byeMessage = new ByeMessage(_messageId, _displayName);
+                            _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);
+                            Environment.Exit(1);
                         }
                         if (buff[0] == 0xFF)
                         {
