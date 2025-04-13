@@ -22,7 +22,10 @@ namespace ipk25_chat.Messages
             this.Secret = Secret;
         }
 
-        // Method to get the bytes of the message
+        /// <summary>
+        /// Converts the message to a byte array.
+        /// </summary>
+        /// <returns>Byte Array</returns>
         public byte[] GET()
         {
             List<byte> bytes = new List<byte>();

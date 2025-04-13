@@ -28,6 +28,11 @@ namespace ipk25_chat.Messages
             DisplayName = displayName;
             MessageContents = messageContents;
         }
+
+        /// <summary>
+        /// Converts the message to a byte array.
+        /// </summary>
+        /// <returns>Byte Array</returns>
         public byte[] ToByteArray()
         {
             List<byte> bytes = new List<byte>();
