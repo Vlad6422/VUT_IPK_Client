@@ -17,6 +17,7 @@ namespace ipk24chat_client.Clients.Tcp
             _receiveThread = new Thread(MessageRecieverThread);
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
         }
+
         /// <summary>
         /// This method handles the main communication loop for the TCP client.
         /// It reads user input from the console, processes commands, and sends messages to the server.
@@ -144,6 +145,10 @@ namespace ipk24chat_client.Clients.Tcp
             }
 
         }
+
+        /// <summary>
+        /// This method is used to authenticate the user with the server.
+        /// </summary>
         public void Authenticate()
         {
             SendMessage("AUTH " + _username + " AS " + _displayName + " USING " + _secret + "\r\n");
@@ -179,6 +184,11 @@ namespace ipk24chat_client.Clients.Tcp
             }
 
         }
+
+        /// <summary>
+        /// This method is used to join a channel.
+        /// </summary>
+        /// <param name="channelName">Channel Name</param>
         public void JoinChannel(string channelName)
         {
             if (channelName.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(channelName, @"^[A-Za-z0-9\-]+$"))
@@ -192,6 +202,9 @@ namespace ipk24chat_client.Clients.Tcp
 
         }
 
+        /// <summary>
+        /// This method runs in a separate thread and continuously listens for incoming messages from the server.
+        /// </summary>
         public void MessageRecieverThread()
         {
             try
@@ -226,6 +239,10 @@ namespace ipk24chat_client.Clients.Tcp
             }
         }
 
+        /// <summary>
+        /// Processes the received message from the server.
+        /// </summary>
+        /// <param name="response">Message to process</param>
         private void ProcessMessage(string response)
         {
             response = response.TrimEnd('\r', '\n');
@@ -252,11 +269,21 @@ namespace ipk24chat_client.Clients.Tcp
                     break;
             }
         }
+
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">Message to send</param>
         public void SendMessage(string message)
         {
             byte[] data = Encoding.ASCII.GetBytes(message);
             _networkStream.Write(data, 0, data.Length);
         }
+
+        /// <summary>
+        /// Receives a message from the server.
+        /// </summary>
+        /// <returns>Message</returns>
         public string RecieveMessage()
         {
             try
@@ -272,25 +299,44 @@ namespace ipk24chat_client.Clients.Tcp
             }
 
         }
+
+        /// <summary>
+        /// Handles the case BYE message from the server.
+        /// </summary>
         void HandleReceivedBYE()
         {
             _networkStream.Close();
             Environment.Exit(0);
         }
+
+        /// <summary>
+        /// Handles the received MSG message from the server.
+        /// </summary>
+        /// <param name="parts">Packet word by word</param>
         void HandleReceivedMSG(string[] parts)
         {
             string displayName = parts[2];
             string messageContent = string.Join(" ", parts[4..]);
             Console.WriteLine($"{displayName}: {messageContent}");
         }
+
+        /// <summary>
+        /// Handles the received ERR message from the server.
+        /// </summary>
+        /// <param name="parts">Packet word by word</param>
         void HandleReceivedERR(string[] parts)
         {
             string errorDisplayName = parts[2];
             string errorContent = string.Join(" ", parts[4..]);
             Console.WriteLine($"ERROR FROM {errorDisplayName}: {errorContent}");
-            SendMessage("BYE FROM " + _displayName + "\r\n");
+            // SendMessage("BYE FROM " + _displayName + "\r\n"); // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
             Environment.Exit(0);
         }
+
+        /// <summary>
+        /// Handles the received REPLY message from the server.
+        /// </summary>
+        /// <param name="parts">Packet word by word</param>
         void HandleReceivedREPLY(string[] parts)
         {
             string resultType = parts[1];
@@ -304,14 +350,19 @@ namespace ipk24chat_client.Clients.Tcp
                 Console.WriteLine($"Action Failure: {MessageContent}");
             }
         }
+
+        /// <summary>
+        /// Handles the case when an unknown packet type is received.
+        /// </summary>
         void HandeReceivedUnknown()
         {
             WriteInternalError("Unknown Packet Type");
             SendMessage($"ERR FROM {_displayName} IS Unknown Packet Type"+"\r\n");
-            SendMessage("BYE FROM " + _displayName + "\r\n");
+            // SendMessage("BYE FROM " + _displayName + "\r\n"); // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
             _recieveThreadRunning = false;
             Environment.Exit(1);
         }
+
         // Event handler for console cancel key press
         void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {

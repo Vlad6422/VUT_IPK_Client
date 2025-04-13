@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using ipk25_chat.Clients;
 using ipk25_chat.CommandLineParser;
@@ -32,6 +31,7 @@ namespace ipk24chat_client.Clients.Udp
             _serverEndPoint = new IPEndPoint(IPAddress.Parse(IpAdress), port);
             thread = new Thread(RecieveUdpPacket);
         }
+
         /// <summary>
         /// This method handles the main communication loop for the UDP client.
         /// It reads user input from the console, processes commands, and sends messages to the server.
@@ -169,6 +169,10 @@ namespace ipk24chat_client.Clients.Udp
                 }
             }
         }
+
+        /// <summary>
+        /// This method sends an authentication message to the server.
+        /// </summary>
         void Authenticate()
         {
             AuthMessage authMessage = new AuthMessage(_messageId, _username, _displayName, _secret);
@@ -190,6 +194,11 @@ namespace ipk24chat_client.Clients.Udp
             }
             _messageId++;
         }
+
+        /// <summary>
+        /// This method sends a message to the server to join a specific channel.
+        /// </summary>
+        /// <param name="channelName">Channel name to join</param>
         public void JoinChannel(string channelName)
         {
             if (channelName.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(channelName, @"^[A-Za-z0-9\-]+$"))
@@ -203,6 +212,11 @@ namespace ipk24chat_client.Clients.Udp
                 _messageId++;
             }
         }
+
+        /// <summary>
+        /// This method sends a message to the server.
+        /// </summary>
+        /// <param name="message">Message to Send</param>
         public void SendMessage(string message)
         {
             MsgMessage msgMessage = new MsgMessage(_messageId, _displayName, message);
@@ -224,6 +238,10 @@ namespace ipk24chat_client.Clients.Udp
             _messageId++;
 
         }
+
+        /// <summary>
+        /// This method handles the reception of UDP packets from the server.
+        /// </summary>
         void RecieveUdpPacket()
         {
             while (true)
@@ -232,7 +250,9 @@ namespace ipk24chat_client.Clients.Udp
                 {
                     byte[] buff = _client.Receive(ref _serverEndPoint);
                     ushort result = BitConverter.ToUInt16(buff, 1);
+                    
                     ConfirmMessage confirmMessage = new ConfirmMessage(result);
+
                     if (buff[0] != 0x00)
                     {
                         _client.Send(confirmMessage.GET(), confirmMessage.GET().Length, _serverEndPoint);
@@ -259,8 +279,8 @@ namespace ipk24chat_client.Clients.Udp
                         {
                             ErrMessage errMessage = new ErrMessage(buff);
                             Console.WriteLine("ERROR FROM " + errMessage.DisplayName + ": " + errMessage.MessageContents);
-                            ByeMessage byeMessage = new ByeMessage(_messageId, _displayName);
-                            _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);
+                            /*ByeMessage byeMessage = new ByeMessage(_messageId, _displayName);
+                            _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);*/ // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
                             Environment.Exit(1);
                         }
                         if (buff[0] == 0xFF)
@@ -272,9 +292,10 @@ namespace ipk24chat_client.Clients.Udp
                         {
                             ErrMessage errMessage = new ErrMessage(_messageId,_displayName,"Incorrect packet Type");
                             _client.Send(errMessage.ToByteArray(), errMessage.ToByteArray().Length, _serverEndPoint);
-                            ByeMessage byeMessage = new ByeMessage(_messageId, _displayName);
-                            _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);
+                            /*ByeMessage byeMessage = new ByeMessage(_messageId, _displayName);
+                            _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);*/ // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
                             WriteInternalError("Unknown message type" + buff[0]);
+                            Environment.Exit(1);
                         }
                     }
                     else if (buff[0] == 0x00)
@@ -290,6 +311,10 @@ namespace ipk24chat_client.Clients.Udp
                 }
             }
         }
+
+        /// <summary>
+        /// This method handles the cancellation of the console application.
+        /// </summary>
         void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {
             ByeMessage byeMessage = new ByeMessage(_messageId,_displayName);
