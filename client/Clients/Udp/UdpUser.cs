@@ -17,6 +17,8 @@ namespace ipk24chat_client.Clients.Udp
         private IPEndPoint _serverEndPoint;
         List<ushort> confirmedMessages = new List<ushort>();
         Thread thread;
+        // This dictionary is used to track messages that have already been received, preventing duplicate processing.
+        private Dictionary<ushort, bool> _alreadyRecievedMessages = new Dictionary<ushort, bool>();
         public UdpUser(ServerSetings server)
         {
             udpConfirmationTimeout = server.udpConfirmationTimeout;
@@ -252,10 +254,20 @@ namespace ipk24chat_client.Clients.Udp
                     ushort result = BitConverter.ToUInt16(buff, 1);
                     
                     ConfirmMessage confirmMessage = new ConfirmMessage(result);
-
+                    // Check if the message is a confirmation message
                     if (buff[0] != 0x00)
                     {
                         _client.Send(confirmMessage.GET(), confirmMessage.GET().Length, _serverEndPoint);
+                        // Check if the message has already been received
+                        if (_alreadyRecievedMessages.ContainsKey(result))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            _alreadyRecievedMessages.Add(result, true);
+                        }
+                        // Process the message based on its type
                         if (buff[0] == 0x01)
                         {
                             ReplyMessage replyMessage = new ReplyMessage(buff);
