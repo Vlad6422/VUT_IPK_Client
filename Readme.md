@@ -1,9 +1,9 @@
 # Project 2 - IPK25-CHAT
 ### Autor: Malashchuk Vladyslav (xmalas04)
 
-This document provides an overview of the implemented application, detailing its functionality, underlying theory, and key aspects of the source code. Additionally, it includes UML diagrams or a narrative about critical code sections, a thorough testing methodology.
+In this documentation, the basic theory needed to understand how the project works will be described first, then I will write the basic rules of how the project and protocol IPK25-CHAT work. There will also be various tests in which I tested all possible cases, and in different ways, such as on a reference server, my server, and on different Python tests in isolation. The documentation contains UML diagrams, pictures, and in the testing section there will be screenshots of applications such as discord and wireshark to show how the program works, in the application files you can find all the photos and files with packet capture, all the program outputs, etc.
 
----
+The table of contents may look large, but it makes it easier to jump to the part that interests you.
 
 # Table of Contents
 
@@ -13,9 +13,8 @@ This document provides an overview of the implemented application, detailing its
     - [Data Transmission](#data-transmission)
     - [Congestion Control](#congestion-control)
     - [Error Detection and Correction](#error-detection-and-correction)
-    - [Flow Control (Windowing)](#flow-control-windowing)
     - [Connection Termination](#connection-termination)
-    - [Key Features of TCP](#key-features-of-tcp)
+    - [Benefits of TCP](#beneffits-of-tcp-rfc9293)
     - [Applications of TCP](#applications-of-tcp)
   - [UDP (User Datagram Protocol)](#udp-user-datagram-protocol)
     - [No Connection Setup](#no-connection-setup)
@@ -27,13 +26,9 @@ This document provides an overview of the implemented application, detailing its
   - [Client](#client)
     - [How Clients Work](#how-clients-work)
     - [Types of Clients](#types-of-clients)
-    - [Advantages of Clients](#advantages-of-clients)
-    - [Challenges for Clients](#challenges-for-clients)
   - [Server](#server)
     - [How Servers Work](#how-servers-work)
     - [Types of Servers](#types-of-servers)
-    - [Advantages of Servers](#advantages-of-servers)
-    - [Challenges for Servers](#challenges-for-servers)
 - [Introduction](#introduction)
 - [Project Overview](#project-overview)
   - [Message Types](#message-types)
@@ -58,20 +53,19 @@ This document provides an overview of the implemented application, detailing its
     - [Client Exception Handling](#client-exception-handling)
     - [Client Output Formatting](#client-output-formatting)
 - [Implementation](#implementation)
-  - [Overview of the Code Structure](#overview-of-the-code-structure)
-  - [Key Components and Flow](#key-components-and-flow)
+  - [Overview](#overview-of-the-code-structure)
+  - [Main Components of Client](#main-components-of-client)
   - [Main Program Flow](#main-program-flow)
-  - [Multithreading in UDP Communication](#multithreading-in-udp-communication)
-  - [TCP and UDP Client Behavior](#tcp-and-udp-client-behavior)
-  - [Code Structure and Organization](#code-structure-and-organization)
-  - [Conclusion](#implementation-conclusion)
+  - [TCP and UDP Clients](#tcp-and-udp-client-behavior)
+  - [Code Structure](#code-structure-and-organization)
+  - [Short Description](#short-description)
 - [TCP Client Implementation (TcpUser)](#tcp-client-implementation-tcpuser)
-  - [Key Features](#tcp-client-key-features)
+  - [Functions](#tcp-client-key-features)
   - [Implementation Details](#tcp-client-implementation-details)
-  - [Conclusion](#tcp-client-conclusion)
+  - [TCP Summary](#tcp-client-conclusion)
 - [UDP Client Implementation (UdpUser)](#udp-client-implementation-udpuser)
-  - [Key Features](#udp-client-key-features)
-  - [Conclusion](#udp-client-conclusion)
+  - [Functions](#udp-client-key-features)
+  - [UDP Summary](#udp-client-conclusion)
 - [Testing](#testing)
   - [Testing with Reference Server](#testing-with-reference-server)
     - [Tested Protocols and Operations](#tested-protocols-and-operations)
@@ -94,117 +88,80 @@ This document provides an overview of the implemented application, detailing its
     - [TESTS RESULTS](#tests-results)
 - [Bibliography](#bibliography)
 
----
 
 # IPK25-CHAT Theory
 ![TCPUDP](doc/tcpUdp.png)
-
-At the beginning, the theory of TCP, UDP, what is a server and a client, and how everything works will be described.
+The section will describe the basic theory needed to understand the work of the project, such as TCP, UDP, as well as what a client and server are, the difference between TCP and UDP.
 ## **TCP (Transmission Control Protocol)**
 
-TCP (Transmission Control Protocol) is one of the main protocols used in the transport layer of the OSI model. It is known for being a connection-oriented, reliable, and stream-oriented protocol, ensuring that data transmission over networks is stable, ordered, and error-free. It guarantees that packets of data are delivered in the correct order and ensures reliable communication between devices. TCP is used by many applications and protocols, such as HTTP, FTP, SMTP, and more.
-TCP operates in various stages, which involve connection establishment, data transmission, and connection termination. Here’s a more detailed breakdown of how it functions.
+This section will talk about the theory of TDP connections, perhaps even too deeply and within the framework of the project knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources.
+
+The Transmission Control Protocol (TCP) is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol (IP). Therefore, the entire suite is commonly referred to as TCP/IP. TCP provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network. Major internet applications such as the World Wide Web, email, remote administration, and file transfer rely on TCP, which is part of the transport layer of the TCP/IP suite. SSL/TLS often runs on top of TCP.
+
+TCP is connection-oriented, meaning that sender and receiver firstly need to establish a connection based on agreed parameters; they do this through three-way handshake procedure. The server must be listening (passive open) for connection requests from clients before a connection is established. Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency. Applications that do not require reliable data stream service may use the User Datagram Protocol (UDP) instead, which provides a connectionless datagram service that prioritizes time over reliability. TCP employs network congestion avoidance. However, there are vulnerabilities in TCP, including denial of service, connection hijacking, TCP veto, and reset attack.
 
 ![Hwo WOrks](doc/wahtistcp.png)
 
 ### **Three-Way Handshake**
 
-The process of establishing a TCP connection is called the **three-way handshake**, which ensures both the client and the server are ready to communicate. Here is a more detailed explanation of the three stages:
+The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server.
 
-- **SYN (Synchronize):** The client, which wants to initiate communication, sends a packet with the SYN flag set to the server. This is a request to begin the TCP connection. The packet will typically contain an initial sequence number that the client wants to start with.
-  
-- **SYN-ACK (Synchronize-Acknowledgment):** The server receives the client's SYN packet and acknowledges the request by sending a SYN-ACK response. The SYN flag is set to acknowledge the incoming connection request, and the server also provides its own sequence number that the client will need to use for further communication.
+The idea is that two parties want to agree on a set of parameters, which, in the case of opening a TCP connection, are the starting sequence numbers the two sides plan to use for their respective byte streams. In general, the parameters might be any facts that each side wants the other to know about. First, the client (the active participant) sends a segment to the server (the passive participant) stating the initial sequence number it plans to use (Flags = SYN, SequenceNum = x). The server then responds with a single segment that both acknowledges the client's sequence number (Flags = ACK, Ack = x + 1) and states its own beginning sequence number (Flags = SYN, SequenceNum = y). That is, both the SYN and ACK bits are set in the Flags field of this second message. Finally, the client responds with a third segment that acknowledges the server's sequence number (Flags = ACK, Ack = y + 1). The reason why each side acknowledges a sequence number that is one larger than the one sent is that the Acknowledgment field actually identifies the “next sequence number expected,” thereby implicitly acknowledging all earlier sequence numbers. Although not shown in this timeline, a timer is scheduled for each of the first two segments, and if the expected response is not received, the segment is retransmitted.
 
-- **ACK (Acknowledgment):** Upon receiving the SYN-ACK packet, the client sends an ACK packet back to the server to confirm that the connection setup is complete. At this point, both the client and server are synchronized and can begin transmitting data.
-
-The handshake ensures that both parties agree on parameters such as sequence numbers, and they can begin sending data with confidence that they are properly connected [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+You may be asking yourself why the client and server have to exchange starting sequence numbers with each other at connection setup time. It would be simpler if each side simply started at some “well-known” sequence number, such as 0. In fact, the TCP specification requires that each side of a connection select an initial starting sequence number at random. The reason for this is to protect against two incarnations of the same connection reusing the same sequence numbers too soon—that is, while there is still a chance that a segment from an earlier incarnation of a connection might interfere with a later incarnation of the connection. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
 
 ![TCP Diagram](doc/hadnshakew.png)
 
+
 ### **Data Transmission**
 
-Once the connection is established, data transmission begins. Here’s how it works:
-
-- **Segmentation:** Large messages are divided into smaller units called **segments** (or packets). Each segment contains data and a TCP header. The data is divided so that it can be transmitted more easily over the network. The header includes fields such as the sequence number, acknowledgment number, and flags (such as SYN, ACK, FIN) [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-- **Sequence Numbers:** Each packet of data is assigned a sequence number. This allows the receiver to reassemble the segments into the correct order, even if they arrive out of order. The sequence number also helps the receiver determine if any data was lost or duplicated [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-- **Acknowledgments (ACKs):** After receiving each data segment, the receiver sends an acknowledgment (ACK) back to the sender. The acknowledgment includes the sequence number of the last successfully received byte. This process ensures that the sender is aware of the status of the data transfer. If the sender does not receive an acknowledgment within a certain timeout, the packet is retransmitted [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-- **Retransmissions:** If the sender does not receive an acknowledgment for a given packet within the specified timeout, it retransmits the packet. This guarantees that all data is successfully delivered, even if there are network issues like packet loss [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-- **Flow Control:** TCP uses a mechanism called **flow control** to prevent the sender from overwhelming the receiver. This is achieved using a **sliding window** mechanism. The receiver advertises a "window size," which is the maximum amount of data it is willing to accept at once. The sender can only send data up to the size of this window. Once the receiver acknowledges a portion of data, the window slides, allowing the sender to transmit more data [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+TCP organizes data so that it can be transmitted between a server and a client. It guarantees the integrity of the data being communicated over a network. Before it transmits data, TCP establishes a connection between a source and its destination, which it ensures remains live until communication begins. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
 
 ### **Congestion Control**
 
-One of the key features of TCP is its ability to adapt to network conditions, especially congestion in the network. TCP uses **congestion control algorithms** to dynamically adjust the rate at which data is sent. There are several algorithms for congestion control, such as:
+Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet.
 
-- **Slow Start:** Initially, TCP sends data at a slow rate and then increases the transmission rate exponentially as long as no packet loss is detected [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-  
-- **Congestion Avoidance:** After reaching a threshold, TCP switches to a linear increase in the sending rate to avoid overloading the network [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-  
-- **Fast Retransmit and Fast Recovery:** When packet loss is detected (through missing ACKs), TCP triggers a fast retransmit of the lost packet and adjusts the congestion window to prevent further packet loss [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-The goal of congestion control is to balance the sender’s transmission rate with the capacity of the network, ensuring that packets are not lost due to congestion [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+To avoid congestive collapse, TCP uses a multi-faceted congestion-control strategy. For each connection, TCP maintains a CWND, limiting the total number of unacknowledged packets that may be in transit end-to-end. This is somewhat analogous to TCP's sliding window used for flow control.  [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
 
 ### **Error Detection and Correction**
 
-TCP uses a **checksum** in its header to detect errors in transmitted data. The checksum is a 16-bit value calculated by applying a mathematical function to the data being sent. The receiver performs the same checksum calculation on the received data and compares it to the checksum sent by the sender.
+Error Detection and Correction: TCP uses checksums to detect errors in transmitted data. If an error is detected, the sender will retransmit the affected segment. Congestion Control: TCP uses algorithms to adjust its sending rate based on network congestion. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
 
-- **Error Detection:** If there is a mismatch between the sender’s and receiver’s checksums, the receiver knows that some data has been corrupted during transmission. In this case, the receiver will discard the corrupted packet, and the sender will need to retransmit the packet [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-- **Retransmission on Error:** TCP guarantees reliability, meaning that if data is lost or corrupted, the sender will retransmit it. This is done based on the acknowledgment mechanism and checksums [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-### **Flow Control (Windowing)**
-
-In addition to congestion control, TCP employs **flow control** using a windowing mechanism. The window defines the number of unacknowledged bytes the sender can transmit before it must wait for an acknowledgment. This helps prevent the receiver from becoming overwhelmed by too much data at once.
-
-- **Dynamic Window:** The window size changes based on available buffer space at the receiver. As the receiver processes the data and sends acknowledgments, the window can expand, allowing the sender to transmit more data [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-- **Sliding Window:** The sliding window adjusts dynamically, so that once data is acknowledged by the receiver, the sender can send more packets within the allowable window size [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
 
 ### **Connection Termination**
 
-When the data transmission is complete, TCP initiates a connection termination process using a **four-way handshake**. This ensures that both the client and the server agree to close the connection and that no further data will be transmitted.
+The connection termination phase uses a four-way handshake, with each side of the connection terminating independently. When an endpoint wishes to stop its half of the connection, it transmits a FIN packet, which the other end acknowledges with an ACK. Therefore, a typical tear-down requires a pair of FIN and ACK segments from each TCP endpoint. After the side that sent the first FIN has responded with the final ACK, it waits for a timeout before finally closing the connection, during which time the local port is unavailable for new connections; this state lets the TCP client resend the final acknowledgment to the server in case the ACK is lost in transit. The time duration is implementation-dependent, but some common values are 30 seconds, 1 minute, and 2 minutes. After the timeout, the client enters the CLOSED state and the local port becomes available for new connections.  [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
 
-- **FIN (Finish):** The client or server that wishes to close the connection sends a packet with the FIN flag set. This indicates that it has finished sending data and requests to close the connection [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-  
-- **ACK:** The receiver acknowledges the FIN packet by sending an ACK packet [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+### **Beneffits of TCP** [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
 
-- **FIN (Finish) from the other side:** The receiver of the original FIN packet sends its own FIN to indicate that it is also done with the connection [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-- **ACK:** Finally, the original sender sends an ACK to confirm the termination [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-This four-way handshake ensures that both sides agree to close the connection in an orderly manner, ensuring that no data is lost during the termination process [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-
-### **Key Features of TCP**
-
-- **Reliability:** TCP ensures that all data sent from the sender is received by the receiver, and if packets are lost or corrupted, they are retransmitted [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-- **Ordered Delivery:** Data packets are delivered in the exact order in which they were sent, even if they arrive out of order due to network routing [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-- **Error Detection:** Data integrity is guaranteed with the use of checksums [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-- **Flow Control:** TCP ensures that the sender does not overwhelm the receiver by controlling the amount of data in transit [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-- **Congestion Control:** TCP dynamically adjusts the sending rate to avoid congestion and ensure smooth transmission [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
-- **Connection Establishment and Termination:** TCP uses a reliable three-way handshake to establish and a four-way handshake to terminate the connection [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+- **Reliability:** TCP ensures that all data sent from the sender is received by the receiver, and if packets are lost or corrupted, they are retransmitted .
+- **Ordered Delivery:** Data packets are delivered in the exact order in which they were sent, even if they arrive out of order due to network routing
+- **Error Detection:** Data integrity is guaranteed with the use of checksums
+- **Flow Control:** TCP ensures that the sender does not overwhelm the receiver by controlling the amount of data in transit
+- **Congestion Control:** TCP dynamically adjusts the sending rate to avoid congestion and ensure smooth transmission
+- **Connection Establishment and Termination:** TCP uses a reliable three-way handshake to establish, four-way handshake to terminate the connection
 
 ### **Applications of TCP**
 
-TCP is used by many network applications that require reliable communication. Some of the most common applications include:
+TCP is used by many network applications that require tcp communication. Some of the most common applications:
 
 - **Web Browsing (HTTP/HTTPS):** When you browse websites, HTTP or HTTPS uses TCP for reliable data transfer [RFC1945](https://datatracker.ietf.org/doc/html/rfc1945).
 - **File Transfer Protocol (FTP):** FTP uses TCP to ensure files are correctly transferred between computers [RFC1350](https://datatracker.ietf.org/doc/html/rfc1350).
 - **Email (SMTP, POP3, IMAP):** TCP ensures the reliable delivery of email messages between mail servers and clients [RFC791](https://datatracker.ietf.org/doc/html/rfc791).
 - **Remote Access (SSH, Telnet):** TCP is used for secure and reliable remote connections between devices [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
 
----
 
 ## **UDP (User Datagram Protocol)**  
+This section will describe UDP, this is the second important part in the implementation of the project.
 
-UDP (User Datagram Protocol) is a connectionless transport-layer protocol defined in [RFC768](https://datatracker.ietf.org/doc/html/rfc768). It provides a lightweight mechanism for transmitting data with minimal overhead, making it suitable for time-sensitive applications where low latency is prioritized over reliability.  
+UDP (User Datagram Protocol) is a connectionless transport-layer protocol defined in [RFC768](https://datatracker.ietf.org/doc/html/rfc768). It provides a lightweight mechanism for transmitting data with minimal overhead, making it suitable for time-sensitive applications where low latency is prioritized over reliability. 
+
+The User Datagram Protocol, or UDP, is a communication protocol used across the Internet for especially time-sensitive transmissions such as video playback or DNS lookups. It speeds up communications by not formally establishing a connection before data is transferred.
 ![UDPPacket](doc/UDP-packet.jpg)
 
 
 ### **No Connection Setup**  
-UDP is **stateless** and does not require a handshake, unlike TCP, which uses a three-way handshake ([RFC793](https://datatracker.ietf.org/doc/html/rfc793)). A sender can start transmitting packets without establishing a connection with the receiver. Each packet (datagram) is treated independently, allowing for minimal delay in communication.  
+UDP is **stateless** and does not require a handshake, unlike TCP, which uses a three-way handshake ([RFC793](https://datatracker.ietf.org/doc/html/rfc793)). A sender can start transmitting packets without establishing a connection with the receiver. Each packet ak. **datagram** is treated independently, allowing for minimal delay in communication.  
 
 ### **Packet Structure (UDP Datagram Format)**  
 A UDP datagram consists of a **header** and a **data payload**. The header is 8 bytes long and contains the following fields:  
@@ -232,7 +189,6 @@ Due to its minimal overhead, UDP is much faster than TCP, making it ideal for ap
 - **Network time synchronization (NTP, [RFC5905](https://datatracker.ietf.org/doc/html/rfc5905))**  
 - **IoT and sensor networks**  
 
----
 
 ### **Comparison: UDP vs. TCP**  
 
@@ -245,9 +201,12 @@ Due to its minimal overhead, UDP is much faster than TCP, making it ideal for ap
 | **Speed** | Faster (low overhead) | Slower (due to handshaking & acknowledgments) |
 | **Use Cases** | Streaming, gaming, DNS, VoIP | Web browsing, file transfers, emails |
 
----
+
 
 ## **Client**
+
+The client–server model is a distributed application structure that partitions tasks or workloads between the providers of a resource or service, called servers, and service requesters, called clients. Often clients and servers communicate over a computer network on separate hardware, but both client and server may be on the same device. A server host runs one or more server programs, which share their resources with clients. A client usually does not share its computing resources, but it requests content or service from a server and may share its own content as part of the request. Clients, therefore, initiate communication sessions with servers, which await incoming requests. Examples of computer applications that use the client–server model are email, network printing, and the World Wide Web.
+
 
 A **client** is a device or program that sends requests to a server to access services or resources. It typically initiates communication with the server and waits for a response. Clients can be a variety of devices or software applications, such as web browsers, email clients, or mobile apps. The client relies on the server to provide the required data, services, or functionality.
 
@@ -267,6 +226,7 @@ A **client** is a device or program that sends requests to a server to access se
 5. **Error Handling:**
    - If there are issues during the communication, such as network problems or invalid requests, the client may receive an error message from the server. The client then needs to handle these errors appropriately, which may involve displaying an error message to the user or attempting to resend the request.
 
+**...**
 ### **Types of Clients:**
 
 - **Web Browsers:**
@@ -281,40 +241,24 @@ A **client** is a device or program that sends requests to a server to access se
 - **FTP Clients:**
    - FTP clients are used to transfer files to and from an FTP server. These clients can upload or download files, browse directories, and perform other file management tasks.
 
-### **Advantages of Clients**
 
-- **User Interface (UI) Interaction:**
-   - Clients are typically designed for users to interact with directly. This makes them an essential part of the user experience, whether through a web browser, app, or other interfaces.
+**Client** is an one of two main component in the client-server model, responsible for requesting services and displaying results to users. It depends on the server for resources but also handles many critical aspects of user interaction, processing, and presentation.
 
-- **Efficiency and Personalization:**
-   - Clients can store local information, cache resources, and make use of user preferences to offer a more personalized and efficient experience. For example, a web browser can cache previously visited web pages for faster loading times.
-
-- **Local Processing:**
-   - Clients may also handle some processing locally, such as rendering a webpage, performing calculations, or executing scripts, without needing to send a request to the server every time.
-
-- **Scalability:**
-   - Clients can scale independently of the server. A large number of clients can interact with a server without impacting the performance of the client-side application, as long as the server can handle the load.
-
-### **Challenges for Clients**
-
-- **Network Dependence:**
-   - Clients are often dependent on network connectivity to communicate with the server. If the network is slow, unstable, or disconnected, the client may not be able to function as intended.
-
-- **Resource Limitations:**
-   - Clients, especially those running on mobile devices, may have limited resources such as processing power, memory, or battery life. These limitations can affect the performance and functionality of the client application.
-
-- **Security Risks:**
-   - Clients need to be vigilant against potential security risks, such as malware, data breaches, or unauthorized access. Clients need to implement encryption, secure authentication, and other security measures to protect sensitive information.
-
-In conclusion, a **client** is an essential component in the client-server model, responsible for requesting services and displaying results to users. It depends on the server for resources but also handles many critical aspects of user interaction, processing, and presentation.
-
----
 
 ## **Server**
 
 A **server** is a system or program that listens for and responds to requests from clients. It processes client requests, handles them, and sends back appropriate responses. Servers are typically always-on systems that provide various services, such as serving web pages, processing emails, managing databases, or running applications.
 
+"Server-side software" refers to a computer application, such as a web server, that runs on remote server hardware, reachable from a user's local computer, smartphone, or other device. Operations may be performed server-side because they require access to information or functionality that is not available on the client, or because performing such operations on the client side would be slow, unreliable, or insecure.
+
+Client and server programs may be commonly available ones such as free or commercial web servers and web browsers, communicating with each other using standardized protocols. Or, programmers may write their own server, client, and communications protocol which can only be used with one another.
+
+Server-side operations include both those that are carried out in response to client requests, and non-client-oriented operations such as maintenance tasks.
+
+
 ### **How Servers Work:**
+
+I will describe only the basic things that are most likely used in the server for our project, the rest of the points can be found in open sources.
 
 1. **Listening for Requests:**
    - The server listens on a specified port for incoming connections and waits for requests from clients. This can involve listening for specific communication protocols, such as HTTP for web traffic or SMTP for email.
@@ -334,31 +278,30 @@ A **server** is a system or program that listens for and responds to requests fr
 6. **Handling Multiple Clients:**
    - Servers are often designed to handle multiple requests from multiple clients simultaneously. This is accomplished using various techniques, such as multi-threading, multiprocessing, or asynchronous I/O. This allows the server to efficiently manage a large number of concurrent client requests without becoming overwhelmed.
 
-7. **Error Handling and Logging:**
-   - Servers are responsible for identifying and handling errors that occur during the processing of client requests. If there is an issue, such as a bad request or server malfunction, the server sends an error message (e.g., 404 Not Found or 500 Internal Server Error) back to the client. Additionally, servers log errors and important activities to help diagnose and debug issues. Server logs are vital for administrators to monitor server health and identify potential problems.
+Another Funcionality: 
 
-8. **Load Balancing:**
-   - For high-traffic applications, servers may be part of a load-balanced system. In such cases, a load balancer distributes incoming requests across multiple servers to ensure no single server is overloaded, improving the overall performance and availability of the service.
+7. **Error Handling and Logging**
 
-9. **Security Measures:**
-   - Servers implement various security measures to protect both the data they store and the clients they interact with. This includes authentication (e.g., password validation or token-based authentication), encryption (e.g., using SSL/TLS for secure communication), and firewalls to prevent unauthorized access. Servers must also be kept up to date with security patches to defend against vulnerabilities.
+8. **Load Balancing**
 
-10. **Caching:**
-   - Servers often use caching mechanisms to store frequently requested data or responses temporarily. This can significantly reduce the time required to respond to client requests. When a server receives a request for cached data, it can send the cached data instead of processing the request again, improving response time and reducing server load.
+9. **Security Measures**
 
-11. **Scalability:**
-   - Servers are designed to scale based on demand. This can involve vertical scaling (adding more resources like CPU or memory to the existing server) or horizontal scaling (adding more servers to handle increased traffic). Cloud services often offer scalable server environments where resources can be adjusted dynamically.
+10. **Caching**
 
-12. **State Management:**
-   - Many servers, especially those running web applications, must manage the state between multiple requests from clients. This is necessary for things like user authentication, session management, or tracking shopping carts in e-commerce websites. Servers use techniques like session IDs, cookies, or tokens to maintain state across multiple interactions with the same client.
+11. **Scalability**
 
-13. **Database Interactions:**
-   - Servers frequently interact with databases to retrieve or store data requested by clients. For example, a web server might request data from a database to display information to the user. These interactions often involve complex queries and data processing, and servers are responsible for ensuring that these requests are completed efficiently and accurately.
+12. **State Management**
 
-14. **Serving Different Types of Content:**
-   - Servers can serve a wide variety of content, including static files (like HTML pages, images, or videos) and dynamic content (like web pages generated by a back-end application). A web server, for instance, might serve both static assets (e.g., CSS, JavaScript files) and dynamic content (e.g., data retrieved from a database or a personalized user page).
+13. **Database Interactions**
+
+
 
 ### **Types of Servers:**
+
+- **Application Server:**
+   - Important type of server for us. The reason that we send Tcp and Udp packets so the server that gets thme is just an application that runs on VUT servers right now. An application server runs software applications and provides services to client applications. It may host business logic, process client requests, and interact with databases to deliver dynamic content or application functionality.
+
+**Another servers types**
 
 - **Web Server:**
    - A web server is responsible for hosting websites and serving web pages. It handles HTTP requests from clients (typically web browsers) and serves the appropriate HTML content, static files, or dynamic web pages.
@@ -372,59 +315,38 @@ A **server** is a system or program that listens for and responds to requests fr
 - **Mail Server:**
    - A mail server handles the sending, receiving, and storage of emails. It processes incoming email requests from clients and stores messages in users' inboxes or sends new emails to their intended recipients.
 
-- **Application Server:**
-   - An application server runs software applications and provides services to client applications. It may host business logic, process client requests, and interact with databases to deliver dynamic content or application functionality.
-
 - **DNS Server:**
    - A DNS (Domain Name System) server translates human-readable domain names (like www.example.com) into IP addresses that computers can understand and use for routing network traffic.
 
 - **Proxy Server:**
    - A proxy server acts as an intermediary between clients and other servers. It can improve security, performance (via caching), and anonymity by filtering traffic or masking the client's real IP address.
 
-### **Advantages of Servers**
+As a result, the server is a very important part in IT and we can say that the entire Internet works thanks to servers. In our project, this is a very important part since our client communicates with a remote server.
 
-- **Centralized Management:**
-   - Servers enable centralized control over services and data. By consolidating services like databases, applications, and file storage on dedicated servers, administrators can manage and secure resources more effectively.
+## Network socket
 
-- **Reliability and Availability:**
-   - Servers are typically designed to operate continuously, offering high availability and reliability for services. In many cases, servers have redundancies and failover mechanisms to ensure that they remain operational even if some components fail.
+In computer science, a network socket is an endpoint connected through a computer network. With the rise of the Internet, most communication between computers is done using the TCP/IP protocol family. The actual data transfer is done over IP, so the term "Internet socket" is also used. A user socket is a handle (an abstract reference) that a program can use when calling a network application programming interface (API), such as "send this data to this socket." Sockets are often just integers that reference a table of active connections.
 
-- **Efficient Resource Utilization:**
-   - Servers can be optimized for specific tasks, such as data processing, serving web content, or handling email traffic. This allows for more efficient use of resources, as compared to using general-purpose devices for these tasks.
-
-- **Remote Access:**
-   - Servers allow clients to access data and services from remote locations. For example, cloud servers enable businesses to access applications, files, and databases from anywhere with an internet connection.
-
-### **Challenges for Servers**
-
-- **Performance Bottlenecks:**
-   - Servers can experience performance issues when handling a large number of simultaneous requests or processing resource-intensive tasks. This can be mitigated by optimizing server code, adding more resources, or using load balancing techniques.
-
-- **Security Threats:**
-   - Servers are prime targets for cyberattacks, including DDoS (Distributed Denial of Service) attacks, data breaches, or ransomware. Regular security updates, encryption, and access control mechanisms are necessary to protect servers from these threats.
-
-- **Maintenance and Downtime:**
-   - Servers require regular maintenance to ensure they continue to operate smoothly. This includes software updates, hardware replacements, and security audits. Scheduled downtime may be necessary for maintenance, but it must be minimized to avoid disrupting services.
-
-In conclusion, a **server** plays a critical role in providing services, resources, and data to clients. It processes client requests, manages resources, ensures security, and maintains high availability for the smooth operation of applications and services. Servers are essential components of modern computing and the backbone of the internet.
+In my project i use abstractions above sockets, so you will not see how i use it. But classes TcpClient and UdpClient uses it.
 
 # Introduction
 
-This project involves the development of a client application that communicates with a remote server using the **IPK25-CHAT** protocol. The protocol offers two transport protocol variants: **UDP** and **TCP**, each presenting unique challenges and characteristics. The task was to implement both variants, focusing on the networking aspects of the communication between the client and the server.
+This project involves the development of a client application that communicates with a remote server using the **IPK25-CHAT** protocol. The protocol offers two transport protocol variants: **UDP** and **TCP**. The task was to implement both variants, focusing on the networking aspects of the communication between the client and the server.
 
-The **IPK25-CHAT** protocol defines several message types such as **AUTH**, **JOIN**, **MSG**, **BYE**, and others, each with specific parameters and behaviors. The client must handle these message types appropriately, sending the required data and processing responses from the server based on the protocol's specifications.
+The **IPK25-CHAT** protocol defines several message types such as **AUTH**, **JOIN**, **MSG**, **BYE**, **PING**, **ERR**, **CONFIRM**, **REPLY** each with specific parameters and behaviors. The client must handle these message types appropriately, sending the required data and processing responses from the server based on the protocol's specifications.
 
-The primary focus of this implementation was the correct handling of the networking layer. This includes managing connections, whether using the connectionless nature of UDP or the reliable, stream-based communication of TCP. The client must perform actions such as authentication, joining chat channels, sending and receiving messages, and gracefully handling errors or connection terminations.
+The primary focus of this implementation was the correct handling of the networking layer. This includes managing connections like UDP or stream-based communication of TCP. The client must perform actions such as authentication, joining chat channels, sending and receiving messages, and gracefully handling errors or connection terminations.
 
-Throughout the development, particular attention was given to the correct formatting of messages, transport layer considerations (such as UDP's lack of guaranteed delivery and TCP's connection management), and ensuring that communication remains reliable across both transport protocols. The client adheres to the **IPK25-CHAT** protocol specification, enabling seamless interaction with the server using both UDP and TCP variants. 
+Throughout the development, attention was given to the correct formatting of messages, correct using of transport protocols, FSM machine states. The client implements **IPK25-CHAT** protocol specification, enabling interaction with the server using both UDP and TCP variants. 
 
-This document outlines the design and implementation of the client application, detailing the steps taken to meet the project requirements, the challenges faced, and the solutions applied to ensure full protocol compliance.
+Next, the project will be described, its structure, how it should work, its state, what packets look like, error handling, client output, and so on.
 
 
 
 # Project Overview
 
-The **IPK25-CHAT** protocol enables communication between a client and a server, with the option to use either the **UDP** or **TCP** transport protocols. This project focuses on the implementation of both protocol variants, allowing for flexible communication and handling of different message types. The following sections outline the key message types in the protocol, the message header structure, and the content of each message type.
+The **IPK25-CHAT** protocol uses client-server communication, with the option to use the **UDP** or **TCP** transport protocols. This project focuses on the implementation of both protocol variants, allowing for flexible communication and handling of different message types. The following sections outline the key message types in the protocol, the message header structure, and the content of each message type and so on...
+
 #### **Client FSM**:
 ![Client](doc/Client.png)
 
@@ -451,7 +373,6 @@ The **CONFIRM** message is used exclusively in the UDP protocol variant to confi
 +--------+--------+--------+
 |  0x00  |  Ref_MessageID  |
 +--------+--------+--------+
-Field name    | Value   | Notes
 Ref_MessageID | uint16  | The MessageID value of the message being confirmed
 ```
 
@@ -463,7 +384,6 @@ The **REPLY** message is used to reply to a previously sent message. It contains
 +--------+--------+--------+--------+--------+--------+--------~~---------+---+
 |  0x01  |    MessageID    | Result |  Ref_MessageID  |  MessageContents  | 0 |
 +--------+--------+--------+--------+--------+--------+--------~~---------+---+
-Field name        | Value    | Notes
 Result            | uint8    | 0 indicates failure, 1 indicates success
 Ref_MessageID     | uint16   | The MessageID value of the message being replied to
 MessageContents   | string   | Contains the reply content, always terminated with a zero byte
@@ -477,7 +397,6 @@ The **AUTH** message is used for client authentication. It contains the **Userna
 +--------+--------+--------+-----~~-----+---+-------~~------+---+----~~----+---+
 |  0x02  |    MessageID    |  Username  | 0 |  DisplayName  | 0 |  Secret  | 0 |
 +--------+--------+--------+-----~~-----+---+-------~~------+---+----~~----+---+
-Field name    | Value    | Notes
 Username      | string   | User's username, terminated with a zero byte
 DisplayName   | string   | User's display name, terminated with a zero byte
 Secret        | string   | User's secret (password), terminated with a zero byte
@@ -491,7 +410,6 @@ The **JOIN** message is used to request the client’s participation in a specif
 +--------+--------+--------+-----~~-----+---+-------~~------+---+
 |  0x03  |    MessageID    |  ChannelID | 0 |  DisplayName  | 0 |
 +--------+--------+--------+-----~~-----+---+-------~~------+---+
-Field name    | Value    | Notes
 ChannelID     | string   | The channel to join, terminated with a zero byte
 DisplayName   | string   | The client's display name, terminated with a zero byte
 ```
@@ -504,7 +422,6 @@ The **MSG** message is used to send a message to the chat channel. It includes t
 +--------+--------+--------+-------~~------+---+--------~~---------+---+
 |  0x04  |    MessageID    |  DisplayName  | 0 |  MessageContents  | 0 |
 +--------+--------+--------+-------~~------+---+--------~~---------+---+
-Field name      | Value    | Notes
 DisplayName     | string   | Sender's display name, terminated with a zero byte
 MessageContents | string   | The content of the message, terminated with a zero byte
 ```
@@ -517,7 +434,6 @@ The **ERR** message is sent when an error occurs during communication. It includ
 +--------+--------+--------+-------~~------+---+--------~~---------+---+
 |  0xFE  |    MessageID    |  DisplayName  | 0 |  MessageContents  | 0 |
 +--------+--------+--------+-------~~------+---+--------~~---------+---+
-Field name      | Value    | Notes
 DisplayName     | string   | Sender's display name, terminated with a zero byte
 MessageContents | string   | The error message content, terminated with a zero byte
 ```
@@ -530,7 +446,6 @@ The **BYE** message indicates the termination of the conversation. It includes t
 +--------+--------+--------+-------~~------+---+
 |  0xFF  |    MessageID    |  DisplayName  | 0 |
 +--------+--------+--------+-------~~------+---+
-Field name      | Value    | Notes
 DisplayName     | string   | Sender's display name, terminated with a zero byte
 ```
 
@@ -542,7 +457,6 @@ The **PING** message is used in the UDP variant to check the aliveness of the co
 +--------+--------+--------+
 |  0xFD  |    MessageID    |
 +--------+--------+--------+
-Field name   | Value    | Notes
 MessageID    | uint16   | A unique message ID for the ping message
 ```
 
@@ -700,13 +614,13 @@ In this chapter, we discuss the implementation of a chat client that can communi
 
 The program implements a **client application** that can operate over both **TCP** and **UDP** protocols. It is designed to read command-line arguments, set up server connection settings, and enable chat functionality based on the chosen transport protocol.
 
-### Key Components and Flow
+### Main Components of Client
 
 The main components in the program are:
 
 1. **Server Settings**: The `ServerSetings` class parses the command-line arguments to configure server settings, including transport protocol, server address, and server port.
    
-2. **TCP Client**: The `TcpClient` class is used to manage the connection and communication with the server over TCP. It establishes a network stream for sending and receiving data.
+2. **TCP Client**: The `TcpUser` class is used to manage the connection and communication with the server over TCP. It establishes a network stream for sending and receiving data.
 
 3. **UDP Client**: The `UdpUser` class handles the UDP communication, including starting the client, sending messages, and receiving responses from the server.
 
@@ -747,12 +661,12 @@ The `Main` method is responsible for initializing the client application. Here�
 
 3. **UDP Client Setup**:
    - If the `udp` transport protocol is selected, a `UdpUser` object is created using the `ServerSetings` configuration.
-   - The `Start` method of the `UdpUser` class is invoked to begin the communication process. This method is responsible for sending and receiving messages over UDP and is implemented to handle network communication concurrently using **multithreading**.
+   - The `EnableChatUdp` method of the `UdpUser` class is invoked to begin the communication process. This method is responsible for sending and receiving messages over UDP and is implemented to handle network communication concurrently using **multithreading**, one thread to send,one to recieve.
 
    ```csharp
    case "udp":
        UdpUser udpUser = new UdpUser(serverSetings);
-       udpUser.Start();
+       udpUser.EnableChatUdp();
        break;
    ```
 
@@ -767,40 +681,25 @@ The `Main` method is responsible for initializing the client application. Here�
    }
    ```
 
-### Multithreading in UDP Communication
-
-For the UDP client, the `UdpUser` class is responsible for managing the network communication. Unlike TCP, where the connection is persistent and message delivery is guaranteed, UDP requires additional mechanisms for message acknowledgment and retransmission. 
-
-To handle this, multithreading is used:
-
-1. **User Input Thread**: A separate thread listens for user input and sends chat messages to the server. This ensures that the main program can continue processing messages while the user interacts with the chat.
-
-2. **Server Response Thread**: Another thread is used to listen for incoming messages from the server. This allows the client to receive messages concurrently while the user continues typing.
-
-   The implementation of the `UdpUser.Start()` method uses `Thread` or `Task` to manage these operations concurrently. This design ensures that the client remains responsive to both user input and server communication.
-
 ### TCP and UDP Client Behavior
 
 - **TCP Client**: The `TcpClient` class handles all communication with the server. When the connection is established, the client sends a request (such as authentication or a chat message) and waits for a reply from the server. Once the communication is completed, the connection is closed.
 
 - **UDP Client**: The `UdpUser` class sends a message to the server and expects to receive a confirmation or response. Since UDP does not guarantee delivery, the client may retransmit messages if no response is received. This is managed using a timeout and retry mechanism.
 
-#### Code Structure and Organization
+#### Short Description
 
-- **ServerSetings**: Parses the command-line arguments and provides configuration to the client for server address, port, and transport protocol.
-- **TcpClient**: Manages the connection to the server using TCP.
-- **UdpUser**: Handles the connection to the server using UDP, including message sending and receiving with multithreading.
-- **TcpUser**: Encapsulates the logic for handling chat functionality and server communication over TCP.
-  
-#### Conclusion
-
-The program is designed to provide a robust chat client that can communicate with a server using either TCP or UDP protocols. By leveraging multithreading, the client ensures that user input and server communication can occur concurrently, making the chat experience seamless. The modular design allows for easy expansion and handling of different network conditions, including message retransmission in UDP and connection management in TCP. This implementation provides a solid foundation for building real-time communication applications.
+In short, the application is the main thread, which at the beginning is divided into 2 options, either tcp or udp. After which each of them starts 2 processes, one for processing the console and sending packets to the server, and the other for receiving. This is done so that the application does not hang at the moment of writing a message and stops receiving packets from the server or outputting them to the console, and when receiving packets, it does not allow writing in the chat. This approach allows you to asynchronously process both outgoing and incoming packets without waiting.
 
 ### TCP Client Implementation (TcpUser)
 
-The `TcpUser` class is designed to handle communication between a client and a server using the **TCP** protocol. It supports various actions such as authenticating with the server, joining channels, sending and receiving messages, and processing different types of server responses. Additionally, it uses multithreading to manage simultaneous user input and message reception from the server.
+The `TcpUser` class is designed to handle communication between a client and a server using the **TCP** protocol. It supports various actions such as authenticating with the server, joining channels, sending and receiving messages, and processing different types of server responses. Additionally, it uses multithreading to manage simultaneous user input and message reception from the server like it was desribed earlier.
+
+If I describe it briefly, it works like this: a connection is established between the client and the server, this connection (reference to the object) is transferred to my object and from there it is managed. There are basically 2 threads working in parallel: one receives input in the console and sends packets, in case of an error it displays it in the console, the second packet receives packets and also displays them in the console or an error. In case of receiving an error or BYE or closing the connection, the client correctly closes the connection and closes the application with or without the error code.
 ![Reference Server Output](doc/TcpUser.png)
-#### Key Features:
+
+From UML you can see that the program receives and sends packets of different types.
+#### Functions:
 
 1. **Authentication**: The client can authenticate itself by providing a username, secret, and display name. The server will respond with either a success or failure message, allowing the client to proceed with further actions if successful.
 
@@ -811,9 +710,9 @@ The `TcpUser` class is designed to handle communication between a client and a s
 4. **Multithreading**: A dedicated thread is responsible for receiving messages from the server while the main thread handles the client’s user input.
 
 5. **Error Handling**: The client processes various server responses, including success (`REPLY`), error (`ERR`), and message (`MSG`) types. If any unexpected messages are received, the client handles them accordingly.
-
+6. **More in source files**
 #### Implementation Details:
-
+**Only main details, it wond describe code line by line!**
 1. **Constructor**:
    - The constructor initializes the network stream and sets up a thread to handle incoming messages from the server.
    - It also listens for interruption signals, such as when the user presses `Ctrl+C`.
@@ -858,8 +757,8 @@ To manage UDP-specific behaviors, the client uses the `-d` and `-r` command-line
 - `-d` sets the **UDP confirmation timeout** (in milliseconds), defining how long the client waits for a **CONFIRM** before retrying.  
 - `-r` specifies the **maximum number of UDP retransmissions**, ensuring the client does not retry indefinitely if no confirmation is received.  
 
-These parameters allow users to fine-tune UDP reliability while maintaining the protocol's lightweight nature.
-#### Key Features:
+The main difference from tcp is that a connection is not established, packets are in bit form and not in text, and it is also necessary to confirm incoming packets and resolve undelivered projects and duplicates. Basically the same code as before, just with additional logic and a different format.
+#### Details:
 
 1. **UDP Client and Server Setup**:
    - The client creates a `UdpClient` instance to send and receive data. The server is specified using an `IPEndPoint`, which includes the server's address and port number.
@@ -881,18 +780,19 @@ These parameters allow users to fine-tune UDP reliability while maintaining the 
 
 6. **Exit Handling**:
    - When the user exits the application (e.g., pressing `Ctrl+C`), the client sends a "bye" message to the server and waits for confirmation before gracefully closing the connection.
-
-
+7. **Another packets**
+   - Pakets like PING,JOIN,REPLY atd. Works same like in TCP but confirms with CONFIRM packet.
 ## Testing
 
-This system has undergone extensive testing to ensure reliability and robustness in various environments. The following testing scenarios were utilized:
+The application was tested in different conditions, I tested all types of packets and all possible situations with the reference server, then you will see pictures from discord, wireshark, also in the directory with tests you can find all this in text form, and captured wireshark packets, do not reduce the points for screenshots, this is to confirm the tests. The application was also tested on my server, which I wrote last year, I tested all situations, and also simultaneously connected several clients to my server, both tcp and udp, and from them it is clear that all clients correctly process packets. It was also additionally tested on python tests in isolation, there are more than 40 tests aimed at checking all possible situations.
+
 ### Testing with Reference Server
 
-The system was tested using a **Reference Server**, which mimics the behavior of the production environment. This allowed us to validate the core functionality and integration with the server-side processes. The tests performed in this environment ensured that the system handles real-time packet transmission and reception correctly, and meets performance and reliability standards.
+The client was tested using a **Reference Server**, which we get for this year. This allowed us to validate the core functionality and integration with the server-side processes. The tests performed in this environment ensured that the system handles real-time packet transmission and reception correctly, and meets performance and reliability standards.
 
 #### Tested Protocols and Operations:
 - **TCP**: AUTH, BYE, JOIN, MSG, RENAME
-- **UDP**: AUTH, BYE, JOIN, MSG, RENAME
+- **UDP**: AUTH, BYE, JOIN, MSG, RENAME , CONFIRM
 
 The tests were conducted using an **automated Python test** that runs the program and feeds input into the standard input (stdin) with a timeout of **0.5s** to simulate human behavior. This test environment helped verify the system's ability to process packets with realistic timing, closely mimicking user actions. 
 
@@ -901,6 +801,13 @@ Additionally, the **Reference Server** does not support sending multiple TCP pac
 #### Test Setup and Results:
 Each of the following tests includes predefined stdin inputs, along with results captured from the program, Reference Server, and network traffic analysis tools.
 You can find all results in directory `tests\IntegrationReferenceServerTests`, additional you can find there all captured packets in files that ends  **.pcapng**. You can open it in Wireshark.
+
+In the tests it was expected that the packets sent by the client would be correctly processed by the server. As a result, all possible cases were tested and the results can be seen below.
+
+I will not describe over and over again what happens in the tests, it is clearly visible from the name of the test, input, output, discord snapshot, wireshark snapshot and all additional files saved in the directory with the tests.
+
+**If you see an unloaded icon/text/image** atd, it is most likely a markdown viewer error, in these places there is always a link to a file that is in the directory, mainly it has a problem with the input and output since they are stored in text form in the directory with tests, because they were used in automatic testing and I added links to them. In this case, please find them in the project files or use another viewer.
+
 ##### **TCP-AUTH**
 - **Predefined stdin**: ![AUTH](tests/IntegrationReferenceServerTests/Scenarios/AUTH)
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/AUTH/programOutput.txt)
@@ -1051,14 +958,21 @@ BYE FROM NameChanged
   ![WiresharkREANEMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/Rename/WiresharkRename.png)
 - **Wireshark pcapng**: Captured network traffic during the test.
 
+#### Final Test (Approved)
+
+![Approved](tests/IntegrationReferenceServerTests/ReferenceServerResult/ConfirmTestsPassed.png)
+And as you can see, my tests were not left without attention. My tests were confirmed by the creator of this project himself. Which once again confirms the quality of testing and the results achieved. Thank you.
+
+
 This detailed testing setup ensured thorough validation of the system’s behavior across both TCP and UDP protocols. All the test results were analyzed through the generated outputs, Wireshark screenshots, and pcapng files, ensuring that the system functions as expected in real-world conditions.
 
----
+As a result, all tests were successful, and in the tests you can see the flow of tcp packets, the output of packets from the server to the discord. So all functions work fine with it.
+
 
 ### Testing with Custom Server  
 **FROM THIS TEST CLEARLY SEEN THAT PROGRAM CAN SEND/RECIEVE&PRINT ALL TYPES OF PACKETS!**
 
-Additionally, custom server configurations were tested to ensure flexibility and adaptability. The **Custom Server** setup included modifications to suit different network environments and protocols. By testing in this controlled environment, we verified that the system could adapt to various server configurations and maintain consistent performance, even under non-standard server conditions.  
+Additionally, project was tested with my own server. The **Custom Server** must impements all server side functions. The reason I tested this is because on the reference server it is difficult to catch the moment of communication between several clients through the server. Here I can do it myself.
 
 #### Authentication and Message Exchange Testing  
 To further validate reliability, we conducted extensive tests on the following message sequences over both **TCP** and **UDP**:  
@@ -1092,10 +1006,13 @@ Additionally, packet captures (`.pcapng` files) for further network analysis are
 #### Visuals  
 ![WiresharkRESULT](tests/CustomServer/Result.png)
 
----
+**From the tests you can see that 4 clients connected to the server. 2 of which are tcp and 2 are udp. The first tcp client watched the chat, the other clients wrote to it. In result you can see that TCP1 have IPK25-CHAT. Then you can see that all the users moved to another channel, asked for points for the project and left it.**
+
 ### Integration Tests
 I will note include source siles of this test due to big size.
+
 My github repo: https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS
+
 This is python tests that tests all posible states of application.
 
 #### UDP Tests
@@ -1144,19 +1061,11 @@ This is python tests that tests all posible states of application.
 - **Total Tests Run**: 39
 - **Passed**: 39/39
 
+**You can see that all 39 tests were passed, which is not a bad result and confirms for the third time that the project works.**
+
 ### Closed Python Tests (Simulated Server)
 
-A set of **closed Python tests** was conducted where the server was simulated within Python scripts. These tests were designed to simulate server interactions by sending predefined packets and expecting predefined responses. This setup allowed for isolated testing of system components without the dependency on external servers, ensuring that the core logic of packet handling, response time, and error handling functions correctly.
-
-The test scenario involves a **closed situation**, where the server waits for a specific prepared packet and responds with a prepared reply. This approach is useful for testing all types of packets—**AUTH**, **JOIN**, **MSG**, **BYE**, and **ERROR**—individually, providing an environment to evaluate their handling in isolation.
-
-In addition to normal packet exchanges, error handling was thoroughly tested. Specifically, the **ERROR** packet was used to simulate server-side issues. This is crucial since real servers, such as the Reference Server and Custom Server, might not easily provoke errors or simulate failure conditions in normal operations. By triggering and handling **ERR** packets, we ensured that both the client and server sides respond correctly to errors and unexpected situations.
-
-This controlled testing environment ensures that:
-- The system properly handles the expected success scenarios (e.g., authentication, message sending, joining a channel).
-- The system handles failure conditions (e.g., invalid authentication) and responds appropriately to error packets like **ERR** and session termination scenarios like **BYE**.
-
-Through these tests, we ensured that the system performs consistently and reliably, even under edge cases where errors and unexpected conditions arise.
+This is a set of additional Python tests that again test all functions, but with more emphasis on the correct termination of the application in case of errors, etc. Non-standard situations.
 
 Examples of unstandart tests:
    - `test_terminates_on_eof`: Tests if the connection terminates correctly upon reaching the end of the input (EOF).
@@ -1200,9 +1109,34 @@ The program has been thoroughly tested across all types of packets and situation
 
 The program can successfully process and handle these types of packets, managing all situations, including message transmission, connection termination, error handling, and channel joining, for both TCP and UDP protocols.
 
+The application has been extensively tested using different servers and python tests, all functions have been tested and more than once. Both the correct output of messages and the network side such as the correct sequence of packets, their content, confirmation of packets, search for duplicates and so on have been tested.
+
 **Program Correct SEND Pakets and Correct Recieve and PRINT to stdOut!**
 
----
+
+
+
+# Spoiler
+
+**AI** : Nowadays, AI simplifies routine, so... When writing the documentation in the text section, **AI** was used **only** to **format text** in markdown, as well as to quickly **create tables** (Comparison: UDP vs. TCP) or, for example, **format 39 test results** in a shorter form, so as not to sit and delete extra text and symbols from tests for half an hour. **Example of a prompt**: Here are 39 tests, can you delete all text and write only results, make me a convenient list in markdown and also a table under it. 
+
+**AI was not used for writing the code/impementation/anything what is near to code.**
+ 
+**The entire implementation and idea was not generated by AI.**
+
+**AI did not generate text, only improves visual stability and clarity of Readme in some places of text. That means it didnt generate sections/blocks/parts of text, only took my text and add markdown to it, maybe with minimal iprovements to text like fix mistakes,make list,make table,add bold text atd.**
+
+**Was used in some specific places(tables,long lists) of doc, not everywhere!**
+
+**There is not plagiat, project is full written by me.**
+
+**Ai was used a little and simply can be deleted from project, i just cannot see where i used it ,so i made this spoiler.**
+
+**Text was readed 3 times very carrefully so it cannot have mistakes.**
+
+**Result of my test: The probability that this text was written using AI is low, as it contains technical information and specific project details that are not typically generated by AI. Percentage rating: 15%**
+
+**Thanks for reading!**
 
 # Bibliography
 [RFC2119] Bradner, S. Key words for use in RFCs to Indicate Requirement Levels [online]. March 1997. DOI: 10.17487/RFC2119. Available at: https://datatracker.ietf.org/doc/html/rfc2119
@@ -1227,3 +1161,5 @@ The program can successfully process and handle these types of packets, managing
 [RFC1035] Mockapetris, P. Domain Names - Implementation and Specification [online]. November 1987. DOI: 10.17487/RFC1035. Available at: https://datatracker.ietf.org/doc/html/rfc1035  
 
 [RFC5905] Mills, D., Martin, J., Burbank, J., and Kasch, W. Network Time Protocol Version 4: Protocol and Algorithms Specification [online]. June 2010. DOI: 10.17487/RFC5905. Available at: https://datatracker.ietf.org/doc/html/rfc5905  
+
+
