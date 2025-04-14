@@ -1015,20 +1015,28 @@ My github repo: https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS
 
 This is python tests that tests all posible states of application.
 
-#### UDP Tests
+## UDP Tests:
+- **udp_help_command**: PASSED
 - **udp_hello**: PASSED
 - **udp_not_auth**: PASSED
 - **udp_invalid_command**: PASSED
 - **udp_auth**: PASSED
 - **udp_auth_port**: PASSED
 - **udp_auth_nok**: PASSED
+- **udp_rename_multiple**: PASSED
 - **udp_auth_nok_ok**: PASSED
 - **udp_auth_port_change**: PASSED
 - **udp_auth_ok**: PASSED
 - **udp_msg**: PASSED
 - **udp_svr_msg**: PASSED
+- **udp_ping**: PASSED
 - **udp_bye1**: PASSED
 - **udp_bye2**: PASSED
+- **udp_server_bye**: PASSED
+- **udp_send_receive_multiple**: PASSED
+- **udp_retransmit_missing_confirm1**: PASSED
+- **udp_retransmit_missing_confirm2**: PASSED
+- **udp_ignore_duplicate_server_msg**: PASSED
 - **udp_server_err1**: PASSED
 - **udp_server_err2**: PASSED
 - **udp_join_ok**: PASSED
@@ -1037,7 +1045,15 @@ This is python tests that tests all posible states of application.
 - **udp_invalid_msg**: PASSED
 - **udp_auth_err**: PASSED
 
-#### TCP Tests
+## TCP Tests:
+- **tcp_sigint**: PASSED
+- **tcp_server_bye**: PASSED
+- **tcp_rename**: PASSED
+- **tcp_rename_multiple**: PASSED
+- **tcp_help_command**: PASSED
+- **tcp_send_receive_multiple**: PASSED
+- **tcp_multiple_messages_single_segment**: PASSED
+- **tcp_single_message_multiple_segments**: PASSED
 - **tcp_hello**: PASSED
 - **tcp_not_auth**: PASSED
 - **tcp_invalid_command**: PASSED
@@ -1046,6 +1062,7 @@ This is python tests that tests all posible states of application.
 - **tcp_auth_nok**: PASSED
 - **tcp_auth_port**: PASSED
 - **tcp_auth_nok_ok**: PASSED
+- **tcp_auth_ok**: PASSED
 - **tcp_msg**: PASSED
 - **tcp_svr_msg**: PASSED
 - **tcp_bye**: PASSED
@@ -1057,11 +1074,12 @@ This is python tests that tests all posible states of application.
 - **tcp_invalid_msg**: PASSED
 - **tcp_auth_err**: PASSED
 
-## Summary
-- **Total Tests Run**: 39
-- **Passed**: 39/39
+## Summary:
+- **Total Tests Run**: 55
+- **Tests Passed**: 55/55
 
-**You can see that all 39 tests were passed, which is not a bad result and confirms for the third time that the project works.**
+
+**You can see that all 55 tests were passed, which is not a bad result and confirms for the third time that the project works.**
 
 ### Closed Python Tests (Simulated Server)
 
@@ -1161,5 +1179,3 @@ The application has been extensively tested using different servers and python t
 [RFC1035] Mockapetris, P. Domain Names - Implementation and Specification [online]. November 1987. DOI: 10.17487/RFC1035. Available at: https://datatracker.ietf.org/doc/html/rfc1035  
 
 [RFC5905] Mills, D., Martin, J., Burbank, J., and Kasch, W. Network Time Protocol Version 4: Protocol and Algorithms Specification [online]. June 2010. DOI: 10.17487/RFC5905. Available at: https://datatracker.ietf.org/doc/html/rfc5905  
-
-
