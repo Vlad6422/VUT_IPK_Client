@@ -1114,16 +1114,29 @@ And you can see that authorization is successful, then we send a message, receiv
 More test: `tests\IntegrationTests\tests.py`
 
 ## TESTS RESULTS
-The program has been thoroughly tested across all types of packets and situations, ensuring that it can handle various network scenarios, including both TCP and UDP communication protocols. Here are the key types of packets tested:
+The program has been thoroughly tested across all types of packets and situations, ensuring that it can handle various network scenarios, including both TCP and UDP communication protocols. Here are the key types of packets tested and results of this:
 
-- **AUTH**: Used for client authentication (signing in) with user-provided credentials (username, display name, and password).
-- **BYE**: Either party can send this message to indicate that the conversation or connection is to be terminated.
-- **CONFIRM (UDP only)**: Used in specific UDP protocol variants to explicitly confirm the successful delivery of a message on the application level.
-- **ERR**: Indicates that an error occurred while processing the last message, leading to a graceful termination of the communication.
-- **JOIN**: A request message representing the client’s intent to join a chat channel by its identifier.
-- **MSG**: Contains the user’s display name and a message meant for the channel they’re joined in.
-- **PING (UDP only)**: Periodically sent by a server to clients using the UDP variant as an aliveness check mechanism.
-- **REPLY**: Sent in response to requests, confirming positive or negative outcomes.
+- **AUTH**: Authorization was tested on different servers in different states, as a result, the application correctly processes input to the console, correctly assembles the packet and sends it to the server. It also correctly returns an error if the user is already authorized and tries to authorize again. It also correctly processes the server's response to authorization.
+
+- **BYE**: The last packet in communication between the server and the client was tested in all states in different conditions, the client correctly sends the packet in such cases as the end of input, interruption in the console, etc. It also correctly terminates work upon receiving this packet from the server.
+
+- **CONFIRM (UDP only)**: It has been tested, it is sent in response to any packet (including PING), in case of duplicates it sends a confirmation packet (CONFIRM) and ignores the incoming packet.
+
+- **ERR**: Both sending this packet and correct display upon receiving it were tested. It was also tested that upon receiving this packet the application correctly terminates its work, during testing it was found that upon receiving this type of packet a BYE packet is sent in response, after analyzing all the states described in the project task it was decided to remove sending BYE. Otherwise it works correctly.
+
+- **JOIN**: It was tested, on the reference server it correctly connects to the channel and also exits from it. In my tests it also correctly sent and processed REPLY after that.
+
+- **MSG**: Correctly sends and receives all messages. Also, the application does not hang when accepting it and does not break at the moment when a message arrives while printing. The maximum size works correctly.
+
+- **PING (UDP only)**: Correctly responds with a packet CONFIRM.
+
+- **REPLY**: Correct outputs result of it.
+
+It was also additionally tested that the application in the case of tcp can correctly process packets in a stream, which means that 1 message can come in several packets, or dozens of messages/message types in one packet, like AUTH, MSG, JOIN, MSG, BYE will all come in one packet, or they will be scattered over 1000 packets, the application correctly processes them.
+
+Also, in udp, the processing of duplicates and resending of packets in case of non-confirmation of their delivery were tested.
+
+Perhaps I forgot something, but it seems like everything was tested.
 
 The program can successfully process and handle these types of packets, managing all situations, including message transmission, connection termination, error handling, and channel joining, for both TCP and UDP protocols.
 
