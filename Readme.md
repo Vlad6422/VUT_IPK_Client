@@ -22,83 +22,29 @@ I wrote documentation throughout the entire project and it turned out to be, to 
 
 - [IPK25-CHAT Theory](#ipk25-chat-theory)
   - [TCP (Transmission Control Protocol)](#tcp-transmission-control-protocol)
-    - [Three-Way Handshake](#three-way-handshake)
-    - [Data Transmission](#data-transmission)
-    - [Congestion Control](#congestion-control)
-    - [Error Detection and Correction](#error-detection-and-correction)
-    - [Connection Termination](#connection-termination)
-    - [Benefits of TCP](#beneffits-of-tcp-rfc9293)
-    - [Applications of TCP](#applications-of-tcp)
   - [UDP (User Datagram Protocol)](#udp-user-datagram-protocol)
-    - [No Connection Setup](#no-connection-setup)
-    - [Packet Structure (UDP Datagram Format)](#packet-structure-udp-datagram-format)
-    - [No Acknowledgments or Retransmissions](#no-acknowledgments-or-retransmissions)
-    - [Error Detection](#error-detection)
-    - [Low Latency and High Throughput](#low-latency-and-high-throughput)
-    - [Comparison: UDP vs. TCP](#comparison-udp-vs-tcp)
   - [Client](#client)
-    - [How Clients Work](#how-clients-work)
-    - [Types of Clients](#types-of-clients)
   - [Server](#server)
-    - [How Servers Work](#how-servers-work)
-    - [Types of Servers](#types-of-servers)
+  - [Socket](#network-socket)
 - [Introduction](#introduction)
-- [Project Overview](#project-overview)
-  - [Message Types](#message-types)
-    - [CONFIRM](#confirm)
-    - [REPLY](#reply)
-    - [AUTH](#auth)
-    - [JOIN](#join)
-    - [MSG](#msg)
-    - [ERR](#err)
-    - [BYE](#bye)
-    - [PING](#ping)
-  - [Message Header](#message-header)
-  - [TCP Variant](#tcp-variant)
-  - [Message Content Parameter Mapping for TCP](#message-content-parameter-mapping-for-tcp)
+- [Project Overview (IPK25-CHAT Documentation Shorted)](#project-overview)
+  - [Message Types (UDP)](#message-types)
+  - [TCP Variant of Messages](#tcp-variant)
   - [CLI Arguments and Client Behavior](#cli-arguments-and-client-behavior)
-    - [CLI Arguments](#cli-arguments)
-    - [Client Input and Commands](#client-input-and-commands)
-      - [Command Format](#command-format)
-      - [Message Input](#message-input)
   - [Client Error Handling](#client-error-handling)
-    - [Client Program and Connection Termination](#client-program-and-connection-termination)
-    - [Client Exception Handling](#client-exception-handling)
-    - [Client Output Formatting](#client-output-formatting)
 - [Implementation](#implementation)
-  - [Overview](#overview-of-the-code-structure)
-  - [Main Components of Client](#main-components-of-client)
+  - [Main Components of Program](#main-components-of-client)
   - [Main Program Flow](#main-program-flow)
-  - [TCP and UDP Clients](#tcp-and-udp-client-behavior)
-  - [Code Structure](#code-structure-and-organization)
-  - [Short Description](#short-description)
-- [TCP Client Implementation (TcpUser)](#tcp-client-implementation-tcpuser)
-  - [Functions](#tcp-client-key-features)
-  - [Implementation Details](#tcp-client-implementation-details)
-  - [TCP Summary](#tcp-client-conclusion)
-- [UDP Client Implementation (UdpUser)](#udp-client-implementation-udpuser)
-  - [Functions](#udp-client-key-features)
-  - [UDP Summary](#udp-client-conclusion)
+  - [TCP Implementation](#tcp-client-implementation-tcpuser)
+  - [UDP Implementation](#main-program-flow)
 - [Testing](#testing)
   - [Testing with Reference Server](#testing-with-reference-server)
-    - [Tested Protocols and Operations](#tested-protocols-and-operations)
-    - [Test Setup and Results](#test-setup-and-results)
-      - [TCP-AUTH](#tcp-auth)
-      - [TCP-BYE](#tcp-bye)
-      - [TCP-JOIN](#tcp-join)
-      - [TCP-MSG](#tcp-msg)
-      - [TCP-RENAME](#tcp-rename)
-      - [UDP-AUTH](#udp-auth)
-      - [UDP-BYE](#udp-bye)
-      - [UDP-JOIN](#udp-join)
-      - [UDP-MSG](#udp-msg)
-      - [UDP-RENAME](#udp-rename)
   - [Testing with Custom Server](#testing-with-custom-server)
   - [Authentication and Message Exchange Testing](#authentication-and-message-exchange-testing)
   - [User and Server Logs](#user-and-server-logs)
   - [Visuals](#visuals)
   - [Closed Python Tests (Simulated Server)](#closed-python-tests-simulated-server)
-    - [TESTS RESULTS](#tests-results)
+  - [TESTS RESULTS](#tests-results)
 - [Bibliography](#bibliography)
 
 
@@ -106,15 +52,15 @@ I wrote documentation throughout the entire project and it turned out to be, to 
 ![TCPUDP](doc/tcpUdp.png)
 The section will describe the basic theory needed to understand the work of the project, such as TCP, UDP, as well as what a client and server are, the difference between TCP and UDP.
 
-The theory was taken not only from RFC, but also from basic sources such as articles, Wikipedia, and training materials. I will quote RFC where I see that it is possible, I will not leave quotes on the theory from open sources.
+The theory was taken not only from RFC, but also from basic sources such as articles, Wikipedia, and studying materials. I will quote RFC where I see that it is possible, I will leave quotes on the theory from open sources where i thing it needs to be.
 
 ## **TCP (Transmission Control Protocol)**
 
-This section will talk about the theory of TDP connections, perhaps even too deeply and within the framework of the project knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
+This section will talk about the theory of TDP connections, perhaps even too deeply and knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
 
 The Transmission Control Protocol (TCP) is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol (IP). Therefore, the entire suite is commonly referred to as TCP/IP. TCP provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network. Major internet applications such as the World Wide Web, email, remote administration, and file transfer rely on TCP, which is part of the transport layer of the TCP/IP suite. SSL/TLS often runs on top of TCP.
 
-TCP is connection-oriented, meaning that sender and receiver firstly need to establish a connection based on agreed parameters; they do this through three-way handshake procedure. The server must be listening (passive open) for connection requests from clients before a connection is established. Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency.
+TCP is connection-oriented, meaning that sender and receiver firstly need to establish a connection based on agreed parameters, they do this through three-way handshake procedure. The server must be listening (passive open) for connection requests from clients before a connection is established. Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency.
 Source: [Link](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=Transmission%20Control%20Protocol%20(TCP)%20is,data%20and%20messages%20over%20networks.)
 
 ![Hwo WOrks](doc/wahtistcp.png)
@@ -135,7 +81,7 @@ TCP organizes data so that it can be transmitted between a server and a client. 
 
 ### **Congestion Control**
 
-Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet.
+Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet. [Wiki](https://en.wikipedia.org/wiki/TCP_congestion_control)
 
 To avoid congestive collapse, TCP uses a multi-faceted congestion-control strategy. For each connection, TCP maintains a CWND, limiting the total number of unacknowledged packets that may be in transit end-to-end. This is somewhat analogous to TCP's sliding window used for flow control.  [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
 
@@ -146,7 +92,7 @@ Error Detection and Correction: TCP uses checksums to detect errors in transmitt
 
 ### **Connection Termination**
 
-The connection termination phase uses a four-way handshake, with each side of the connection terminating independently. When an endpoint wishes to stop its half of the connection, it transmits a FIN packet, which the other end acknowledges with an ACK. Therefore, a typical tear-down requires a pair of FIN and ACK segments from each TCP endpoint. After the side that sent the first FIN has responded with the final ACK, it waits for a timeout before finally closing the connection, during which time the local port is unavailable for new connections; this state lets the TCP client resend the final acknowledgment to the server in case the ACK is lost in transit. The time duration is implementation-dependent, but some common values are 30 seconds, 1 minute, and 2 minutes. After the timeout, the client enters the CLOSED state and the local port becomes available for new connections.  [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
+The connection termination phase uses a four-way handshake, with each side of the connection terminating independently. When an endpoint wishes to stop its half of the connection, it transmits a FIN packet, which the other end acknowledges with an ACK. Therefore, a typical tear-down requires a pair of FIN and ACK segments from each TCP endpoint. After the side that sent the first FIN has responded with the final ACK, it waits for a timeout before finally closing the connection, during which time the local port is unavailable for new connections, this state lets the TCP client resend the final acknowledgment to the server in case the ACK is lost in transit. The time duration is implementation-dependent, but some common values are 30 seconds, 1 minute, and 2 minutes. After the timeout, the client enters the CLOSED state and the local port becomes available for new connections.  [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293), [Good Source](https://www.geeksforgeeks.org/tcp-connection-termination/)
 
 ### **Beneffits of TCP** [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
 
@@ -340,32 +286,34 @@ Another Funcionality:
    - A mail server handles the sending, receiving, and storage of emails. It processes incoming email requests from clients and stores messages in users' inboxes or sends new emails to their intended recipients.
 
 - **DNS Server:**
-   - A DNS (Domain Name System) server translates human-readable domain names (like www.example.com) into IP addresses that computers can understand and use for routing network traffic.
+   - A DNS (Domain Name System) server translates human-readable domain names (like "www.example.com") into IP addresses that computers can understand and use for routing network traffic.
 
 - **Proxy Server:**
    - A proxy server acts as an intermediary between clients and other servers. It can improve security, performance (via caching), and anonymity by filtering traffic or masking the client's real IP address.
 
-As a result, the server is a very important part in IT and we can say that the entire Internet works thanks to servers. In our project, this is a very important part since our client communicates with a remote server.
+As a result, the server is a very important part in IT and we can say that the entire Internet works thanks to servers. In our project, this is a very important part since our client communicates with a remote server. In IPK25 project we use standart approach when client is .NET application in my situation or C,C++ that is running on client side and server is application that runs far from client (We dont know in what language, it is not important we comunicate using packets) and they communicate using Sockets. Next esction about sockets and it will be more that enough to understnand background of project.
 
 ## Network socket
 
-In computer science, a network socket is an endpoint connected through a computer network. With the rise of the Internet, most communication between computers is done using the TCP/IP protocol family. The actual data transfer is done over IP, so the term "Internet socket" is also used. A user socket is a handle (an abstract reference) that a program can use when calling a network application programming interface (API), such as "send this data to this socket." Sockets are often just integers that reference a table of active connections.
+In computer science, a network socket is an endpoint connected through a computer network. With the rise of the Internet, most communication between computers is done using the TCP/IP protocol family. The actual data transfer is done over IP, so the term "Internet socket" is also used. A user socket is a handle (an abstract reference) that a program can use when calling a network application programming interface (API), such as "send this data to this socket."
 
-In my project i use abstractions above sockets, so you will not see how i use it. But classes TcpClient and UdpClient uses it.
+For more information use open-sources. Also will be good to read Microsoft [System.Net.Sockets Namespace](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) for better understanding how to use it in .NET applications.
+
+In my project i use abstractions above sockets, so you will not see how i use it. But classes [TcpClient](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-9.0) and [UdpClient](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0) uses it. **They are part of Sockets namespace.**
 
 # Introduction
 
-This project involves the development of a client application that communicates with a remote server using the **IPK25-CHAT** protocol. The protocol offers two transport protocol variants: **UDP** and **TCP**. The task was to implement both variants, focusing on the networking aspects of the communication between the client and the server.
+This project involves the development of a client application that communicates with a remote server using the **IPK25-CHAT** protocol like it was desribed in Theory section. The protocol offers two transport protocol variants **UDP** and **TCP**. The task/project was to implement both variants, focusing on the networking aspects of the communication between the client and the server.
 
-The **IPK25-CHAT** protocol defines several message types such as **AUTH**, **JOIN**, **MSG**, **BYE**, **PING**, **ERR**, **CONFIRM**, **REPLY** each with specific parameters and behaviors. The client must handle these message types appropriately, sending the required data and processing responses from the server based on the protocol's specifications.
+The **IPK25-CHAT** protocol defines several message types such as **AUTH**, **JOIN**, **MSG**, **BYE**, **PING**, **ERR**, **CONFIRM**, **REPLY** each with specific parameters and behaviors. The client must handle these message types appropriately, sending the required data and processing responses from the server based on the protocol/project's specifications.
 
-The primary focus of this implementation was the correct handling of the networking layer. This includes managing connections like UDP or stream-based communication of TCP. The client must perform actions such as authentication, joining chat channels, sending and receiving messages, and gracefully handling errors or connection terminations.
+The primary focus of this implementation was the correct handling of the networking layer, message processing, error handling, correct outputs, correct termination atd. This includes managing connections like UDP or stream-based communication of TCP. The client must perform actions such as authentication, joining chat channels, sending and receiving messages, and gracefully handling errors or connection terminations as described before.
 
 Throughout the development, attention was given to the correct formatting of messages, correct using of transport protocols, FSM machine states. The client implements **IPK25-CHAT** protocol specification, enabling interaction with the server using both UDP and TCP variants. 
 
-Next, the project will be described, its structure, how it should work, its state, what packets look like, error handling, client output, and so on. 
+Next, the project will be described, its structure, how it should work, its state, what packets look like, error handling, client output, and so on it was taken from documentaion to project. 
 
-*You can skip it to Implementation...
+***You can skip it to Implementation...**
 
 
 
@@ -392,7 +340,7 @@ The **IPK25-CHAT** protocol defines several message types, each with specific fu
 - **BYE**
 - **PING**
 
-Each message type has its own unique purpose in the communication flow, such as authentication, sending messages, confirming receipt, or indicating an error.
+Each message type has its own unique purpose in the communication flow, such as authentication, sending messages, confirming receipt, or indicating an error. More information about packets in next sections. They are refer to UDP variant, Tcp will be desribed after it from TCP Variant section.
 
 ### **CONFIRM**
 The **CONFIRM** message is used exclusively in the UDP protocol variant to confirm the successful delivery of a message. This message contains the **Ref_MessageID**, which is the identifier of the message being confirmed.
@@ -489,8 +437,6 @@ The **PING** message is used in the UDP variant to check the aliveness of the co
 MessageID    | uint16   | A unique message ID for the ping message
 ```
 
----
-
 ## Message Header
 
 Each message sent via the **IPK25-CHAT** protocol begins with a uniform 3-byte header, followed by message-specific content. The header consists of two fields: **Type** (1 byte) and **MessageID** (2 bytes). The **Type** field identifies the type of the message, while the **MessageID** provides a unique identifier for each message. The remaining content of the message varies based on the type and can range from no content (in the case of a **PING**) to variable-length data (such as the **MessageContents** in **MSG**).
@@ -516,7 +462,7 @@ The **MessageID** field is a 2-byte number that uniquely identifies a message in
 
 ## TCP Variant
 
-The **TCP variant** of the **IPK25-CHAT** protocol ensures reliable communication between the client and server by utilizing the inherent features of the **Transmission Control Protocol (TCP)**. TCP provides connection-oriented communication, ensuring that messages are delivered in the correct order and without loss. Unlike the **UDP variant**, the **CONFIRM** and **PING** message types are not required in the **TCP variant** because TCP guarantees the delivery and reliability of messages. 
+The **TCP variant** of the **IPK25-CHAT** protocol ensures communication between the client and server by utilizing the inherent features of the **Transmission Control Protocol (TCP)** (like connection between server and client). TCP provides connection-oriented communication, ensuring that messages are delivered in the correct order and without loss. (When UDP dont connect and just send packets in any order) Unlike the **UDP variant**, the **CONFIRM** and **PING** message types are not required in the **TCP variant** because TCP guarantees the delivery and reliability of messages. 
 
 ### Message Content Parameter Mapping for TCP
 
@@ -539,7 +485,7 @@ These message parameter templates specify how the data should be structured for 
   
 - **REPLY**: A reply message is formatted as `REPLY {"OK" | "NOK"} IS {MessageContent}\r\n`, where `{"OK" | "NOK"}` indicates the success or failure of the operation, and `{MessageContent}` holds any additional information.
 
-- **AUTH**: For authentication, the message is formatted as `AUTH {Username} AS {DisplayName} USING {Secret}\r\n`, where `{Username}` is the client’s username, `{DisplayName}` is the display name, and `{Secret}` is the password or authentication token.
+- **AUTH**: For authentication, the message is formatted as `AUTH {Username} AS {DisplayName} USING {Secret}\r\n`, where `{Username}` is the client’s username (in our situatuion, like xlogin00), `{DisplayName}` is the display name, and `{Secret}` is the password or authentication token (we used API-TOKEN when testing application).
 
 - **JOIN**: When a client requests to join a chat channel, the message is structured as `JOIN {ChannelID} AS {DisplayName}\r\n`, where `{ChannelID}` is the unique identifier for the channel and `{DisplayName}` is the name of the client.
 
@@ -550,9 +496,12 @@ These message parameter templates specify how the data should be structured for 
 In the **TCP variant**, **CONFIRM** and **PING** messages are not used because TCP inherently ensures the reliability and delivery of messages. As a result, there is no need to confirm message delivery or periodically check the status of the connection.
 
 By using TCP, this protocol variant focuses on message reliability, eliminating the need for extra mechanisms like **CONFIRM** and **PING**, which are crucial in the UDP variant where reliability is not inherently guaranteed by the transport layer. This makes the TCP variant simpler and more efficient for scenarios where message delivery assurance is required.
+
+I also want to point out that packets have limitations, such as the length of messages, the characters that can be used in them, there are also many states and options when and how packets are sent, received, errors are processed, all this can be seen with the [FSM](#client-fsm) that I added to the project, and you can also read in more detail in the documentation for the **IPK25-CHAT** protocol.
+
 ## CLI Arguments and Client Behavior
 
-This section outlines the behavior of the **client application** with respect to **command-line arguments (CLI)** and the **standard input (stdin)**. The client will handle the provided arguments to establish a connection with the server and support different client commands and chat messages.
+This section have the behavior of the **client application** with respect to **command-line arguments (CLI)** and the **standard input (stdin)**. The client will handle the provided arguments to establish a connection with the server and support different client commands and chat messages.
 
 ### CLI Arguments
 
@@ -589,7 +538,7 @@ All valid commands must be **prefixed** with a forward slash `/` and followed by
   
 **Note**: All chat messages must be terminated with a newline character (`\n`).
 
-The client must handle **user input sequentially**; only one action (command or message) can be processed at a time. Once the action is complete (i.e., the message has been delivered to the server, or the command has been processed), the program is ready to handle the next input.
+The client must handle **user input sequentially**, only one action (command or message) can be processed at a time. Once the action is complete (i.e., the message has been delivered to the server, or the command has been processed), the program is ready to handle the next input.
 
 ### Client Error Handling
 
@@ -598,19 +547,20 @@ If the user attempts to perform an invalid operation (e.g., sending a message in
 - **Sending a message in a non-open state**: If the client hasn't authenticated, or if the channel hasn't been joined yet, sending a message should display an error.
 - **Malformed command**: If the user provides a command with incorrect syntax, an error message will be printed.
 - **Trying to join a channel in a non-open state**: If the client hasn't successfully authenticated or isn't connected to a server, attempting to join a channel will result in an error.
+- **...**
 
-### Client Program and Connection Termination
+### Connection Termination
 
 The client must respond to termination signals (like `Ctrl + C`) by gracefully exiting and closing the connection with the server. The **BYE** message should be sent to the server to signal the termination of the connection.
 
-- For **TCP connections**, ensure that the connection is properly finalized, and the connection closure does not contain the **RST flag** (which indicates an abrupt termination).
-- For **UDP connections**, the client must wait for the **BYE** or **ERR** message from the server before shutting down. If the **CONFIRM** message is lost in transit, the client should retry and handle retransmissions.
+- For **TCP connections**, ensure that the connection is properly finalized.
+- For **UDP connections**, the client must right process packet and if need send CONFIRM several times to be sure.
 
 If the client receives an **ERR** or **BYE** message from the server, the client should process these appropriately and terminate the connection gracefully.
 
 ### Client Exception Handling
 
-The client must handle a variety of exceptional situations during execution. These situations will arise if the client receives unexpected or malformed messages or if there is a communication issue. Here's how the client should behave in such scenarios:
+The client must handle a variety of exceptional situations during execution. These situations will arise if the client receives unexpected or malformed messages or if there is a communication issue. Here's how the client should behave in such scenarios(From IPK25-CHAT protocol Documentation): 
 
 | Situation | Category | Expected Client Behavior |
 |-----------|----------|--------------------------|
@@ -630,11 +580,6 @@ The client must format its output correctly for different types of messages. Eac
   - If successful: `"Action Success: {MessageContent}\n"`
   - If failure: `"Action Failure: {MessageContent}\n"`
 - **Internal Client Errors**: `"ERROR: {MessageContent}\n"`
-
-For **local client errors**, ensure the message is printed in a clear, descriptive manner, showing the nature of the error encountered during execution.
-
-By following the above behaviors, the client ensures that its interaction with the server is correct and reliable while providing a seamless experience for users interacting through the command-line interface and handling chat messages.
-
 ## Implementation
 
 In this chapter, we discuss the implementation of a chat client that can communicate with a server over TCP or UDP. The client can be configured to use either transport protocol via command-line arguments, and the application leverages multithreading to handle network communication and user input concurrently.
@@ -655,11 +600,11 @@ The main components in the program are:
 
 4. **Multithreading**: The program utilizes multithreading to manage the simultaneous execution of client-side operations, such as handling user input and maintaining the connection with the server. Actually can be changed to Async, working with Thread a little harder but gives more controll, this is for old programmers on C# old-school.
 
-I want to note that TcpClient,TcpUser is not the same as TcpUser,UdpUser. The first pair goes to [System.Net.Sockets Namespace](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) it just deals with sockets, connections, packages, essentially an abstraction over sockets. In its turn, a couple with the User endings, these are my classes that are responsible for logic. In truth, they could have been written better using more abstraction and techniques, for example, like [Strategy](https://refactoring.guru/design-patterns/strategy) in order to write one logic for two and then simply substitute a solution, this would be more in line with OOP and would be more abstract and polymorphic. But the problem is that the Udp logic is still slightly different and it would be necessary to write additional logic only for it and insert it into the middle of the general solution. So, as the classic said and what all companies use now, it is better to write code quickly and working, than to write it for 10 years and get a very complex architecture where no senior can figure it out.
+I want to note that TcpClient, UdpClient is not the same as TcpUser,UdpUser. The first pair goes to [System.Net.Sockets Namespace](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) it just deals with sockets, connections, packages, essentially an abstraction over sockets. In its turn, a couple with the User endings, these are my classes that are responsible for logic. In truth, they could have been written better using more abstraction and techniques, for example, like [Strategy](https://refactoring.guru/design-patterns/strategy) in order to write one logic for two and then simply substitute a solution, this would be more in line with OOP and would be more abstract and polymorphic. But the problem is that the Udp logic is still slightly different and it would be necessary to write additional logic only for it and insert it into the middle of the general solution. So, as the classic said and what all companies use now, it is better to write code quickly and working, than to write it for 10 years and get a very complex architecture where no senior can figure it out.
 
 ### Main Program Flow
 ![FLOW](doc/Flow.png)
-The `Main` method is responsible for initializing the client application. Here’s a detailed breakdown of its operation:
+The `Main` method is responsible for initializing the client application. The text can be confusing, **Tcp Client** and **Udp Client** in text do not belong to classes such as **TcpClient and UdpClient**, it only means that these are clients for TCP and UDP applications. That is, these words in my text and code are different things, one is a class, the other is a client that works with this protocols:
 
 1. **Parse Command-Line Arguments**:
    The program begins by parsing the command-line arguments through the `ServerSetings` class. This class processes arguments related to transport protocol (`tcp` or `udp`), server address, and port number. If an error occurs during this process, the program displays an error message and terminates.
@@ -711,13 +656,6 @@ The `Main` method is responsible for initializing the client application. Here�
        Environment.Exit(1);
    }
    ```
-
-### TCP and UDP Client Behavior
-
-- **TCP Client**: The `TcpClient` class handles all communication with the server. When the connection is established, the client sends a request (such as authentication or a chat message) and waits for a reply from the server. Once the communication is completed, the connection is closed.
-
-- **UDP Client**: The `UdpUser` class sends a message to the server and expects to receive a confirmation or response. Since UDP does not guarantee delivery, the client may retransmit messages if no response is received. This is managed using a timeout and retry mechanism.
-
 #### Short Description
 
 In short, the application is the main thread, which at the beginning is divided into 2 options, either tcp or udp. After which each of them starts 2 processes, one for processing the console and sending packets to the server, and the other for receiving. This is done so that the application does not hang at the moment of writing a message and stops receiving packets from the server or outputting them to the console, and when receiving packets, it does not allow writing in the chat. This approach allows you to asynchronously process both outgoing and incoming packets without waiting.
@@ -817,6 +755,8 @@ The main difference from tcp is that a connection is not established, packets ar
 
 The application was tested in different conditions, I tested all types of packets and all possible situations with the reference server, then you will see pictures from discord, wireshark, also in the directory with tests you can find all this in text form, and captured wireshark packets, do not reduce the points for screenshots, this is to confirm the tests. The application was also tested on my server, which I wrote last year, I tested all situations, and also simultaneously connected several clients to my server, both tcp and udp, and from them it is clear that all clients correctly process packets. It was also additionally tested on python tests in isolation, there are more than 40 tests aimed at checking all possible situations.
 
+The tests were made on **VirtualBox with IPK25_Ubuntu24.ova** installed on it, i used and used [NIX development environment](https://git.fit.vutbr.cz/NESFIT/dev-envs#starting-development-environment).
+
 ### Testing with Reference Server
 
 The client was tested using a **Reference Server**, which we get for this year. This allowed us to validate the core functionality and integration with the server-side processes. The tests performed in this environment ensured that the system handles real-time packet transmission and reception correctly, and meets performance and reliability standards.
@@ -835,7 +775,11 @@ You can find all results in directory `tests\IntegrationReferenceServerTests`, a
 
 In the tests it was expected that the packets sent by the client would be correctly processed by the server. As a result, all possible cases were tested and the results can be seen below.
 
-I will not describe over and over again what happens in the tests, it is clearly visible from the name of the test, input, output, discord snapshot, wireshark snapshot and all additional files saved in the directory with the tests.
+It will not describe over and over again what happens in the tests, it is clearly visible from the name of the test, input, output, discord snapshot, wireshark snapshot and all additional files saved in the directory with the tests.
+
+Every test have structure like **Protocol-PacketType, stdin, stdout, image from Reference Discord Server, Wireshark Screenshot(with pcapng file in directory), for TCP I added FLOW in text**. Stdin and Stdout is links to txt files in directory, they are mostly same and was used during auto testing, dont see reasons to copy-paste it 10 times. All results in text/captured packets/images and so on can be finded in directory **tests**.
+
+Based on the comments on the forum about using images, they will be used only in tests with the REFERENCE server to show the correct processing of packets by it. In further tests, all examples and results will be in text.
 
 **If you see an unloaded icon/text/image** atd, it is most likely a markdown viewer error, in these places there is always a link to a file that is in the directory, mainly it has a problem with the input and output since they are stored in text form in the directory with tests, because they were used in automatic testing and I added links to them. In this case, please find them in the project files or use another viewer.
 
@@ -846,7 +790,6 @@ I will not describe over and over again what happens in the tests, it is clearly
   ![ReferenceServerAUTH](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/AUTH/ReferenceServerAUTH.png)
 - **Wireshark Screenshot**:  
   ![WiresharkAUTH](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/AUTH/WiresharkAUTH.png)
-- **Wireshark pcapng**: Captured network traffic during the test.
 - **Wireshark FLOW**: 
 ```
 AUTH xmalas04 AS IntegrationTestsAUTH USING 5a798b1c-9425-492f-aca1-439513fb7440
@@ -871,7 +814,6 @@ BYE FROM IntegrationTestsAUTH
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/BYE/programOutput.txt)
 - **Reference Server Output**: Same as previous.
 - **Wireshark Screenshot**: Same as previous.
-- **Wireshark pcapng**: Captured network traffic during the test.
 
 ##### **TCP-JOIN**
 - **Predefined stdin**: ![JOIN](tests/IntegrationReferenceServerTests/Scenarios/JOIN)
@@ -910,14 +852,14 @@ MSG FROM IntegrationTestsJOIN IS Test Done!
 BYE FROM IntegrationTestsJOIN
 
 ```
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 
 ##### **TCP-MSG**
 - **Predefined stdin**: ![MSG](tests/IntegrationReferenceServerTests/Scenarios/MSG)
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/MSG/programOutput.txt)
 - **Reference Server Output**: Was tested in other tests. 
 - **Wireshark Screenshot**:  Same as another tests.
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 
 ##### **TCP-RENAME**
 - **Predefined stdin**: ![RENAME](tests/IntegrationReferenceServerTests/Scenarios/RENAME)
@@ -926,7 +868,7 @@ BYE FROM IntegrationTestsJOIN
   ![ReferenceServerRenameTCP](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/Rename/ReferenceServerRename.png)
 - **Wireshark Screenshot**:  
   ![WiresharkRename](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/Rename/Wireshark.png)
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 ```
 AUTH xmalas04 AS IntegratTestsRename USING 5a798b1c-9425-492f-aca1-439513fb7440
 
@@ -951,7 +893,7 @@ BYE FROM NameChanged
   ![ReferenceServerAUTHUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/AUTH/ReferenceServerAUTH.png)
 - **Wireshark Screenshot**:  
   ![WiresharkAUTHUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/AUTH/WiresharkAUTH.png)
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 
 ##### **UDP-BYE**
 - **Predefined stdin**: ![BYE](tests/IntegrationReferenceServerTests/Scenarios/BYE)
@@ -960,7 +902,7 @@ BYE FROM NameChanged
   ![ReferenceServerBYEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/BYE/ReferenceServerBYE.png)
 - **Wireshark Screenshot**:  
   ![WiresharkBYEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/BYE/WiresharkBYE.png)
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 
 ##### **UDP-JOIN**
 - **Predefined stdin**: ![JOIN](tests/IntegrationReferenceServerTests/Scenarios/JOIN)
@@ -969,7 +911,7 @@ BYE FROM NameChanged
   ![ReferenceServerJOINUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/JOIN/ReferenceServerJOIN.png)
 - **Wireshark Screenshot**:  
   ![WiresharkJOINUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/JOIN/WiresharkJOIN.png)
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 
 ##### **UDP-MSG**
 - **Predefined stdin**: ![MSG](tests/IntegrationReferenceServerTests/Scenarios/MSG)
@@ -978,7 +920,7 @@ BYE FROM NameChanged
   ![ReferenceServerMSGUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/MSG/ReferenceServerMSG.png)
 - **Wireshark Screenshot**:  
   ![WiresharkMSGUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/MSG/WiresharkMSG.png)
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 
 ##### **UDP-RENAME**
 - **Predefined stdin**: ![RENAME](tests/IntegrationReferenceServerTests/Scenarios/RENAME)
@@ -987,7 +929,7 @@ BYE FROM NameChanged
   ![ReferenceServerRENAMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/Rename/ReferenceServerRename.png)
 - **Wireshark Screenshot**:  
   ![WiresharkREANEMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/Rename/WiresharkRename.png)
-- **Wireshark pcapng**: Captured network traffic during the test.
+
 
 #### Final Test (Approved)
 
@@ -1004,8 +946,6 @@ As a result, all tests were successful, and in the tests you can see the flow of
 **FROM THIS TEST CLEARLY SEEN THAT PROGRAM CAN SEND/RECIEVE&PRINT ALL TYPES OF PACKETS!**
 
 Additionally, project was tested with my own server. The **Custom Server** must impements all server side functions. The reason I tested this is because on the reference server it is difficult to catch the moment of communication between several clients through the server. Here I can do it myself.
-
-#### Authentication and Message Exchange Testing  
 To further validate reliability, we conducted extensive tests on the following message sequences over both **TCP** and **UDP**:  
 - **AUTH** (Authentication)  
 - **MSG** (Message exchange)  
@@ -1014,9 +954,9 @@ To further validate reliability, we conducted extensive tests on the following m
 - **CONFIRM** (Acknowledgment mechanism)  
 - **BYE** (Session termination)  
 
-These tests confirmed that both **TCP** and **UDP** communication worked perfectly, with expected behavior across all tested scenarios.  
+These tests confirmed that both **TCP** and **UDP** communication worked perfectly, with expected behavior across all tested scenarios. Basically, tests are needed to test packages like MSG, JOIN so that it is clearly visible that the client is processing messages from the server, it is harder to wait MSG from reference server to test it.
 
-#### User and Server Logs  
+#### Users and Server Logs  
 Client-side interactions were captured in the following logs:  
 - **TCP Clients:**
    - **IPK_TCP_USER1**
@@ -1196,7 +1136,7 @@ The application has been extensively tested using different servers and python t
 
 **Text was readed 3 times very carrefully so it cannot have mistakes.**
 
-**Result of my test: The probability that this text was written using AI is low, as it contains technical information and specific project details that are not typically generated by AI. Percentage rating: 15%**
+**Result of my test: The probability that this text was written using AI is low, as it contains specific technical details and personal experiences related to a project. Percentage rating: 10%**
 
 **Thanks for reading!**
 
