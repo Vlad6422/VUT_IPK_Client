@@ -12,6 +12,11 @@ Initially the application was written in .NET 8 with the switch **--self-contain
 I used these commands to run the environment, I am writing this because initially the environment has .NET 8, but after the last commit it overwrites the original environment with .NET 9. I am adding this because I do not know what version you will be testing this on. But 4 days before the deadline, the condition and task changed and .NET 8+ was changed to .NET 9+, so I assume that the tests will be run on 9. I reserve the right to change the .NET version at any time after the project is submitted, without deducting additional points, in case of non-compilation, non-launch of the application due to problems with .NET. Before the last commit, the application worked only on .NET 8, after the last one it will be on 9 due to the task update.
 
 The table of contents may look large, but it makes it easier to jump to the part that interests you.
+The theory was taken from RFS and open sources, Project overview was taken from the Giteo Repo itself and almost completely copied. I wrote the tests myself.
+
+Last year I got points deducted because of screenshots in the documentation, but I think it is necessary to show that the project is fully functional and this is the best example, because you can extend files, text, but it is unlikely that someone will photoshop dozens of clippings from Discord, because it is faster to implement this functionality.
+
+I wrote documentation throughout the entire project and it turned out to be, to put it mildly, large. To save your time, I would advise you to familiarize yourself with such parts as [Implementation](#implementation), [Testing](#testing). I advise you not to read too much into parts(they are big and have basic info that you read like 300x times before) like Project overview, this part is due to the fact that it is completely taken from our documentation and only non-internet parts are removed, the Theory mainly contains paraphrased text from RFC or open sources, of course, with their notation. The theory also contains possibly unnecessary things like examples and areas of use of protocols or clients and servers. You can also skip these parts. But I attached the links where they were taken from and whoever wants can read them. I know that this stretches the already not small documentation, but since I have added it, I do not consider it necessary to delete it, whoever wants to read it will, whoever does not will not. A translator was also used, so it is possible that some statements may not sound natural.
 
 # Table of Contents
 
@@ -100,23 +105,26 @@ The table of contents may look large, but it makes it easier to jump to the part
 # IPK25-CHAT Theory
 ![TCPUDP](doc/tcpUdp.png)
 The section will describe the basic theory needed to understand the work of the project, such as TCP, UDP, as well as what a client and server are, the difference between TCP and UDP.
+
+The theory was taken not only from RFC, but also from basic sources such as articles, Wikipedia, and training materials. I will quote RFC where I see that it is possible, I will not leave quotes on the theory from open sources.
+
 ## **TCP (Transmission Control Protocol)**
 
-This section will talk about the theory of TDP connections, perhaps even too deeply and within the framework of the project knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources.
+This section will talk about the theory of TDP connections, perhaps even too deeply and within the framework of the project knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
 
 The Transmission Control Protocol (TCP) is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol (IP). Therefore, the entire suite is commonly referred to as TCP/IP. TCP provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network. Major internet applications such as the World Wide Web, email, remote administration, and file transfer rely on TCP, which is part of the transport layer of the TCP/IP suite. SSL/TLS often runs on top of TCP.
 
-TCP is connection-oriented, meaning that sender and receiver firstly need to establish a connection based on agreed parameters; they do this through three-way handshake procedure. The server must be listening (passive open) for connection requests from clients before a connection is established. Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency. Applications that do not require reliable data stream service may use the User Datagram Protocol (UDP) instead, which provides a connectionless datagram service that prioritizes time over reliability. TCP employs network congestion avoidance. However, there are vulnerabilities in TCP, including denial of service, connection hijacking, TCP veto, and reset attack.
+TCP is connection-oriented, meaning that sender and receiver firstly need to establish a connection based on agreed parameters; they do this through three-way handshake procedure. The server must be listening (passive open) for connection requests from clients before a connection is established. Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency.
+Source: [Link](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=Transmission%20Control%20Protocol%20(TCP)%20is,data%20and%20messages%20over%20networks.)
 
 ![Hwo WOrks](doc/wahtistcp.png)
 
 ### **Three-Way Handshake**
 
-The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server.
+The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
 
-The idea is that two parties want to agree on a set of parameters, which, in the case of opening a TCP connection, are the starting sequence numbers the two sides plan to use for their respective byte streams. In general, the parameters might be any facts that each side wants the other to know about. First, the client (the active participant) sends a segment to the server (the passive participant) stating the initial sequence number it plans to use (Flags = SYN, SequenceNum = x). The server then responds with a single segment that both acknowledges the client's sequence number (Flags = ACK, Ack = x + 1) and states its own beginning sequence number (Flags = SYN, SequenceNum = y). That is, both the SYN and ACK bits are set in the Flags field of this second message. Finally, the client responds with a third segment that acknowledges the server's sequence number (Flags = ACK, Ack = y + 1). The reason why each side acknowledges a sequence number that is one larger than the one sent is that the Acknowledgment field actually identifies the “next sequence number expected,” thereby implicitly acknowledging all earlier sequence numbers. Although not shown in this timeline, a timer is scheduled for each of the first two segments, and if the expected response is not received, the segment is retransmitted.
+The idea is that two parties want to agree on a set of parameters, which, in the case of opening a TCP connection, are the starting sequence numbers the two sides plan to use for their respective byte streams. In general, the parameters might be any facts that each side wants the other to know about. First, the client (the active participant) sends a segment to the server (the passive participant) stating the initial sequence number it plans to use (Flags = SYN, SequenceNum = x). The server then responds with a single segment that both acknowledges the client's sequence number (Flags = ACK, Ack = x + 1) and states its own beginning sequence number (Flags = SYN, SequenceNum = y). That is, both the SYN and ACK bits are set in the Flags field of this second message. Finally, the client responds with a third segment that acknowledges the server's sequence number (Flags = ACK, Ack = y + 1). The reason why each side acknowledges a sequence number that is one larger than the one sent is that the Acknowledgment field actually identifies the “next sequence number expected,” thereby implicitly acknowledging all earlier sequence numbers. Although not shown in this timeline, a timer is scheduled for each of the first two segments, and if the expected response is not received, the segment is retransmitted. If you not interested in reading RFC Wiki gives good basic with references to it. [Link](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
 
-You may be asking yourself why the client and server have to exchange starting sequence numbers with each other at connection setup time. It would be simpler if each side simply started at some “well-known” sequence number, such as 0. In fact, the TCP specification requires that each side of a connection select an initial starting sequence number at random. The reason for this is to protect against two incarnations of the same connection reusing the same sequence numbers too soon—that is, while there is still a chance that a segment from an earlier incarnation of a connection might interfere with a later incarnation of the connection. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
 
 ![TCP Diagram](doc/hadnshakew.png)
 
@@ -148,9 +156,10 @@ The connection termination phase uses a four-way handshake, with each side of th
 - **Flow Control:** TCP ensures that the sender does not overwhelm the receiver by controlling the amount of data in transit
 - **Congestion Control:** TCP dynamically adjusts the sending rate to avoid congestion and ensure smooth transmission
 - **Connection Establishment and Termination:** TCP uses a reliable three-way handshake to establish, four-way handshake to terminate the connection
+- [More](https://www.techtarget.com/searchnetworking/definition/TCP)
 
 ### **Applications of TCP**
-
+I took information from this website [Click](https://www.techtarget.com/searchnetworking/definition/TCP), but you can freely use any of open sources for it.
 TCP is used by many network applications that require tcp communication. Some of the most common applications:
 
 - **Web Browsing (HTTP/HTTPS):** When you browse websites, HTTP or HTTPS uses TCP for reliable data transfer [RFC1945](https://datatracker.ietf.org/doc/html/rfc1945).
@@ -164,7 +173,7 @@ This section will describe UDP, this is the second important part in the impleme
 
 UDP (User Datagram Protocol) is a connectionless transport-layer protocol defined in [RFC768](https://datatracker.ietf.org/doc/html/rfc768). It provides a lightweight mechanism for transmitting data with minimal overhead, making it suitable for time-sensitive applications where low latency is prioritized over reliability. 
 
-The User Datagram Protocol, or UDP, is a communication protocol used across the Internet for especially time-sensitive transmissions such as video playback or DNS lookups. It speeds up communications by not formally establishing a connection before data is transferred.
+The User Datagram Protocol, or UDP, is a communication protocol used across the Internet for especially time-sensitive transmissions such as video playback or DNS lookups. [Source](https://www.cloudflare.com/ru-ru/learning/ddos/glossary/user-datagram-protocol-udp/) It speeds up communications by not formally establishing a connection before data is transferred.
 ![UDPPacket](doc/UDP-packet.jpg)
 
 
@@ -209,9 +218,16 @@ Due to its minimal overhead, UDP is much faster than TCP, making it ideal for ap
 | **Speed** | Faster (low overhead) | Slower (due to handshaking & acknowledgments) |
 | **Use Cases** | Streaming, gaming, DNS, VoIP | Web browsing, file transfers, emails |
 
+Additional source : [Link](https://www.techtarget.com/searchnetworking/definition/TCP)
+Good website, you can take accually full theory from that to this project.
+
 
 
 ## **Client**
+
+[Source for Client and Server Theory](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) The following parts of the text will not have citations as they are taken from this website.
+
+There are many articles on this topic and the explanations in them are correct, so you can take from any resources. I took it from the link above and I recommend it to you.
 
 The client–server model is a distributed application structure that partitions tasks or workloads between the providers of a resource or service, called servers, and service requesters, called clients. Often clients and servers communicate over a computer network on separate hardware, but both client and server may be on the same device. A server host runs one or more server programs, which share their resources with clients. A client usually does not share its computing resources, but it requests content or service from a server and may share its own content as part of the request. Clients, therefore, initiate communication sessions with servers, which await incoming requests. Examples of computer applications that use the client–server model are email, network printing, and the World Wide Web.
 
@@ -255,7 +271,7 @@ A **client** is a device or program that sends requests to a server to access se
 
 ## **Server**
 
-A **server** is a system or program that listens for and responds to requests from clients. It processes client requests, handles them, and sends back appropriate responses. Servers are typically always-on systems that provide various services, such as serving web pages, processing emails, managing databases, or running applications.
+A **server** [Source](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) is a system or program that listens for and responds to requests from clients. It processes client requests, handles them, and sends back appropriate responses. Servers are typically always-on systems that provide various services, such as serving web pages, processing emails, managing databases, or running applications.
 
 "Server-side software" refers to a computer application, such as a web server, that runs on remote server hardware, reachable from a user's local computer, smartphone, or other device. Operations may be performed server-side because they require access to information or functionality that is not available on the client, or because performing such operations on the client side would be slow, unreliable, or insecure.
 
@@ -347,13 +363,18 @@ The primary focus of this implementation was the correct handling of the network
 
 Throughout the development, attention was given to the correct formatting of messages, correct using of transport protocols, FSM machine states. The client implements **IPK25-CHAT** protocol specification, enabling interaction with the server using both UDP and TCP variants. 
 
-Next, the project will be described, its structure, how it should work, its state, what packets look like, error handling, client output, and so on.
+Next, the project will be described, its structure, how it should work, its state, what packets look like, error handling, client output, and so on. 
+
+*You can skip it to Implementation...
 
 
 
 # Project Overview
 
 The **IPK25-CHAT** protocol uses client-server communication, with the option to use the **UDP** or **TCP** transport protocols. This project focuses on the implementation of both protocol variants, allowing for flexible communication and handling of different message types. The following sections outline the key message types in the protocol, the message header structure, and the content of each message type and so on...
+
+All tables and theory were taken from the task, some parts were removed, some were shortened. Who is not interested in reading the task a second time, please go to the next chapter with my implementation. [Click](#implementation)
+Source of Project Overview Section: https://git.fit.vutbr.cz/NESFIT/IPK-Projects/src/branch/master/Project_2
 
 #### **Client FSM**:
 ![Client](doc/Client.png)
@@ -628,11 +649,13 @@ The main components in the program are:
 
 1. **Server Settings**: The `ServerSetings` class parses the command-line arguments to configure server settings, including transport protocol, server address, and server port.
    
-2. **TCP Client**: The `TcpUser` class is used to manage the connection and communication with the server over TCP. It establishes a network stream for sending and receiving data.
+2. **TCP Client** [Microsoft](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-9.0): The `TcpUser` class is used to manage the connection and communication with the server over TCP. It establishes a network stream for sending and receiving data.
 
-3. **UDP Client**: The `UdpUser` class handles the UDP communication, including starting the client, sending messages, and receiving responses from the server.
+3. **UDP Client** [Microsoft](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0): The `UdpUser` class handles the UDP communication, including starting the client, sending messages, and receiving responses from the server.
 
-4. **Multithreading**: The program utilizes multithreading to manage the simultaneous execution of client-side operations, such as handling user input and maintaining the connection with the server.
+4. **Multithreading**: The program utilizes multithreading to manage the simultaneous execution of client-side operations, such as handling user input and maintaining the connection with the server. Actually can be changed to Async, working with Thread a little harder but gives more controll, this is for old programmers on C# old-school.
+
+I want to note that TcpClient,TcpUser is not the same as TcpUser,UdpUser. The first pair goes to [System.Net.Sockets Namespace](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) it just deals with sockets, connections, packages, essentially an abstraction over sockets. In its turn, a couple with the User endings, these are my classes that are responsible for logic. In truth, they could have been written better using more abstraction and techniques, for example, like [Strategy](https://refactoring.guru/design-patterns/strategy) in order to write one logic for two and then simply substitute a solution, this would be more in line with OOP and would be more abstract and polymorphic. But the problem is that the Udp logic is still slightly different and it would be necessary to write additional logic only for it and insert it into the middle of the general solution. So, as the classic said and what all companies use now, it is better to write code quickly and working, than to write it for 10 years and get a very complex architecture where no senior can figure it out.
 
 ### Main Program Flow
 ![FLOW](doc/Flow.png)
@@ -703,10 +726,10 @@ In short, the application is the main thread, which at the beginning is divided 
 
 The `TcpUser` class is designed to handle communication between a client and a server using the **TCP** protocol. It supports various actions such as authenticating with the server, joining channels, sending and receiving messages, and processing different types of server responses. Additionally, it uses multithreading to manage simultaneous user input and message reception from the server like it was desribed earlier.
 
-If I describe it briefly, it works like this: a connection is established between the client and the server, this connection (reference to the object) is transferred to my object and from there it is managed. There are basically 2 threads working in parallel: one receives input in the console and sends packets, in case of an error it displays it in the console, the second packet receives packets and also displays them in the console or an error. In case of receiving an error or BYE or closing the connection, the client correctly closes the connection and closes the application with or without the error code.
+If I describe it briefly, it works like this: a connection is established between the client and the server, this connection (reference to the object) is transferred to my object and from there it is managed. There are basically 2 threads working in parallel: one receives input in the console and sends packets, in case of an error it displays it in the console, the second packet receives packets and also displays them in the console or an error. In case of receiving an error or BYE or closing the connection, the client correctly closes the connection and closes the application with or without the error code. Also implemented is the support of several messages in one packet and also one message divided into several packets. I will not describe the work line by line, only its basics, for more detailed things like processing each packet, look in the source code, but it works so that the packets are read, then they are divided by \r\n and these packets are processed separately, for each packet there is a separate HandlePacket method that handles it.
 ![Reference Server Output](doc/TcpUser.png)
 
-From UML you can see that the program receives and sends packets of different types.
+From UML you can see that the program receives and sends packets of different types. [Project Overview Packet Types](#message-content-parameter-mapping-for-tcp)
 #### Functions:
 
 1. **Authentication**: The client can authenticate itself by providing a username, secret, and display name. The server will respond with either a success or failure message, allowing the client to proceed with further actions if successful.
@@ -1178,9 +1201,6 @@ The application has been extensively tested using different servers and python t
 **Thanks for reading!**
 
 # Bibliography
-[RFC2119] Bradner, S. Key words for use in RFCs to Indicate Requirement Levels [online]. March 1997. DOI: 10.17487/RFC2119. Available at: https://datatracker.ietf.org/doc/html/rfc2119
-
-[RFC5234] Crocker, D. and Overell, P. Augmented BNF for Syntax Specifications: ABNF [online]. January 2008. DOI: 10.17487/RFC5234. Available at: https://datatracker.ietf.org/doc/html/rfc5234
 
 [RFC9293] Eddy, W. Transmission Control Protocol (TCP) [online]. August 2022. DOI: 10.17487/RFC9293. Available at: https://datatracker.ietf.org/doc/html/rfc9293
 
