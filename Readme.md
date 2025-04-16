@@ -3,6 +3,14 @@
 
 In this documentation, the basic theory needed to understand how the project works will be described first, then I will write the basic rules of how the project and protocol IPK25-CHAT work. There will also be various tests in which I tested all possible cases, and in different ways, such as on a reference server, my server, and on different Python tests in isolation. The documentation contains UML diagrams, pictures, and in the testing section there will be screenshots of applications such as discord and wireshark to show how the program works, in the application files you can find all the photos and files with packet capture, all the program outputs, etc.
 
+Initially the application was written in .NET 8 with the switch **--self-contained false** in MakeFile to not include the .NET 8 runtime in the binary file, thereby not increasing its size. I made the last commit, changed the **csproj to net9.0** and tested it on a virtual machine, a virtual environment, I went through all the tests again in this environment.
+
+`git clone https://git.fit.vutbr.cz/NESFIT/dev-envs.git`
+`nix develop ./dev-envs/ipk#c`
+`nix develop "git+https://git.fit.vutbr.cz/NESFIT/dev-envs.git?dir=ipk#csharp"`
+
+I used these commands to run the environment, I am writing this because initially the environment has .NET 8, but after the last commit it overwrites the original environment with .NET 9. I am adding this because I do not know what version you will be testing this on. But 4 days before the deadline, the condition and task changed and .NET 8+ was changed to .NET 9+, so I assume that the tests will be run on 9. I reserve the right to change the .NET version at any time after the project is submitted, without deducting additional points, in case of non-compilation, non-launch of the application due to problems with .NET. Before the last commit, the application worked only on .NET 8, after the last one it will be on 9 due to the task update.
+
 The table of contents may look large, but it makes it easier to jump to the part that interests you.
 
 # Table of Contents
