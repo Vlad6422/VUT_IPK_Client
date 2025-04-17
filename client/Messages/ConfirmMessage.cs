@@ -1,7 +1,7 @@
 ﻿namespace ipk25_chat.Messages
 {
     /// <summary>
-    /// Represents an confirm message sent to the server.
+    /// Confirm message sent to the server. (CONFIRM)
     /// </summary>
     public class ConfirmMessage
     {
@@ -15,9 +15,8 @@
         }
 
         /// <summary>
-        /// Converts the message to a byte array.
+        /// Converts the message to a byte array. (UDP)
         /// </summary>
-        /// <returns>Byte Array</returns>
         public byte[] GET()
         {
             List<byte> bytes = new List<byte>();

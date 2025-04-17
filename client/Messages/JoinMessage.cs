@@ -3,7 +3,7 @@
 namespace ipk25_chat.Messages
 {
     /// <summary>
-    /// Represents an join message sent to the server.
+    /// Join message sent to the server. (JOIN)
     /// </summary>
     public class JoinMessage
     {
@@ -20,9 +20,8 @@ namespace ipk25_chat.Messages
         }
 
         /// <summary>
-        /// Converts the message to a byte array.
+        /// Converts the message to a byte array. (UDP)
         /// </summary>
-        /// <returns>Byte Array</returns>
         public byte[] GET()
         {
             List<byte> bytes = new List<byte>();

@@ -4,7 +4,7 @@ using System.Text;
 namespace ipk25_chat.Messages
 {
     /// <summary>
-    /// Represents an error message sent to the server.
+    /// Error message sent to the server. (ERR)
     /// </summary>
     public class ErrMessage
     {
@@ -32,7 +32,6 @@ namespace ipk25_chat.Messages
         /// <summary>
         /// Converts the message to a byte array.
         /// </summary>
-        /// <returns>Byte Array</returns>
         public byte[] ToByteArray()
         {
             List<byte> bytes = new List<byte>();

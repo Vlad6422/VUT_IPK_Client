@@ -3,7 +3,7 @@
 namespace ipk25_chat.Messages
 {
     /// <summary>
-    /// Represents an authentication message sent to the server.
+    /// Authentication message sent to the server. (AUTH)
     /// </summary>
     public class AuthMessage
     {
@@ -13,7 +13,6 @@ namespace ipk25_chat.Messages
         public string DisplayName { get; set; }
         public string Secret { get; set; }
 
-        // Constructor
         public AuthMessage(ushort MessageID, string Username, string DisplayName, string Secret)
         {
             this.MessageID = MessageID;
@@ -23,9 +22,8 @@ namespace ipk25_chat.Messages
         }
 
         /// <summary>
-        /// Converts the message to a byte array.
+        /// Converts the message to a byte array. (UDP)
         /// </summary>
-        /// <returns>Byte Array</returns>
         public byte[] GET()
         {
             List<byte> bytes = new List<byte>();

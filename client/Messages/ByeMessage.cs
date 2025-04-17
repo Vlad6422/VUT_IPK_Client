@@ -3,7 +3,7 @@
 namespace ipk25_chat.Messages
 {
     /// <summary>
-    /// Represents an bye message sent to the server.
+    /// Bye message sent to the server. (BYE)
     /// </summary>
     public class ByeMessage
     {
@@ -17,9 +17,8 @@ namespace ipk25_chat.Messages
         }
 
         /// <summary>
-        /// Converts the message to a byte array.
+        /// Converts the message to a byte array. (UDP)
         /// </summary>
-        /// <returns>Byte Array</returns>
         public byte[] GET()
         {
             List<byte> bytes = new List<byte>();

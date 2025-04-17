@@ -3,7 +3,7 @@
 namespace ipk25_chat.Messages
 {
     /// <summary>
-    /// Represents an reply message sent to the server.
+    /// Reply message sent to the server. (REPLY)
     /// </summary>
     public class ReplyMessage
     {
@@ -12,7 +12,7 @@ namespace ipk25_chat.Messages
         public byte Result { get; set; }
         public ushort RefMessageID { get; set; }
         public string MessageContents { get; set; }
-        public ReplyMessage(byte[] buff)
+        public ReplyMessage(byte[] buff) // Have only constructor, becouse client only receive this message. 
         {
             MessageType = buff[0];
             MessageID = BitConverter.ToUInt16(buff, 1);

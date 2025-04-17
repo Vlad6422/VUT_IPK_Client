@@ -3,7 +3,7 @@
 namespace ipk25_chat.Messages
 {
     /// <summary>
-    /// Represents a message sent to the server.
+    /// Message sent to the server. (MSG)
     /// </summary>
     public class MsgMessage
     {
@@ -31,9 +31,8 @@ namespace ipk25_chat.Messages
         }
 
         /// <summary>
-        /// Converts the message to a byte array.
-        /// </summary>
-        /// <returns>Byte Array</returns>
+        /// Converts the message to a byte array. (UDP)
+        /// </summary>>
         public byte[] GET()
         {
             List<byte> bytes = new List<byte>();
