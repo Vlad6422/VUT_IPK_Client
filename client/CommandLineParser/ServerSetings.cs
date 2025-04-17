@@ -1,22 +1,31 @@
 ﻿using System.Net;
 
-
 namespace ipk25_chat.CommandLineParser
 {
     public class ServerSetings
     {
+        // Properties to hold command line arguments
         public string transportProtocol { get; } = "";
         public string serverAddress { get; } = "";
         public ushort serverPort { get; } = 4567;
         public ushort udpConfirmationTimeout { get; } = 250;
         public byte maxUdpRetransmissions { get; } = 3;
 
+        /// <summary>
+        /// Constructor to parse command line arguments and initialize properties.
+        /// It takes an array of strings as input, which are the command line arguments.
+        /// And you can use object properties to get the values.
+        /// it handles Errors with Argument processing and prints help information.
+        /// Eazy to use. Eazy to understand. Eazy to change.
+        /// </summary>
+        /// <param name="args">Arguments from console.</param>
+        /// <exception cref="ArgumentException">Some Error with Argument processing(check message in it).</exception>
         public ServerSetings(string[] args)
         {
             // Parse command line arguments
             for (int i = 0; i < args.Length; i += 2)
             {
-                switch (args[i])
+                switch (args[i]) // All arguments switch
                 {
                     case "-t":
                         switch(args[i + 1].ToLower())
@@ -62,7 +71,7 @@ namespace ipk25_chat.CommandLineParser
                         if (byte.TryParse(args[i + 1], out byte maxUdpRetransmissions)) this.maxUdpRetransmissions = maxUdpRetransmissions;
                         break;
                     case "-h":
-                        PrintHelp();
+                        PrintHelp(); // Print help information
                         Environment.Exit(0);
                         break;
                     default:
@@ -75,6 +84,7 @@ namespace ipk25_chat.CommandLineParser
                 throw new ArgumentException("Mandatory arguments -t and -s must be specified.");
             }
         }
+        // Print help information
         private static void PrintHelp()
         {
             Console.WriteLine("Program Help:");
