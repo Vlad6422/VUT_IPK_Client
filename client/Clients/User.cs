@@ -1,8 +1,11 @@
 ﻿namespace ipk25_chat.Clients
 {
     /// <summary>
-    /// Represents a user with associated properties such as username, secret (password), and display name.
+    /// Represents a user. Username, secret (password), and display name.
     /// Provides methods for changing these properties with validation checks.
+    /// Same for Tcp and Udp.
+    /// All properties are protected, so they can be used in TcpUser and UdpUser classes.
+    /// Eazy to change in the future.
     /// </summary>
     public class User
     {
