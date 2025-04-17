@@ -6,11 +6,11 @@ namespace ipk24chat_client.Clients.Tcp
 {
     public class TcpUser : User
     {
-        private string _message = String.Empty;
-        private bool _isAuthorized;
-        private NetworkStream _networkStream;
-        private Thread _receiveThread;
-        private bool _recieveThreadRunning = true;
+        private string _message = String.Empty; // Message to be sent to the server. It is set when user types a message in the console.
+        private bool _isAuthorized; // Flag to check if the user is authorized. Used to prevent sending messages before authentication and reciving messages from the server.
+        private NetworkStream _networkStream; // Network stream for sending and receiving messages. Passed from the main program to the client in constructor.
+        private Thread _receiveThread; // Thread for receiving messages from the server.
+        private bool _recieveThreadRunning = true; // Flag to control the thread loop, this is used to stop the thread when client gets BYE or ERR message to prevent it from processing messages after those packets.
         public TcpUser(NetworkStream networkStream)
         {
             _networkStream = networkStream;
@@ -19,28 +19,28 @@ namespace ipk24chat_client.Clients.Tcp
         }
 
         /// <summary>
-        /// This method handles the main communication loop for the TCP client.
-        /// It reads user input from the console, processes commands, and sends messages to the server.
-        /// It also handles authentication, joining channels, renaming display names, and other commands.
+        /// The main loop is responsible for user actions, console inputs, commands, etc.
+        /// Just loop that uses switch case to handle commands(auth,join,rename...)
+        /// if user input is not a command, it sends the message to the server. Before sending the message, it checks if the user is authorized,size,symbols in message.
         /// </summary>
         public void EnableChatTcp()
         {
             while (true)
             {
-                string? userInput = Console.ReadLine();
+                string? userInput = Console.ReadLine(); // Read user input from the console.
                 if (string.IsNullOrEmpty(userInput))
                 {
-                    if (userInput == null)
+                    if (userInput == null) // This is used to check if the user closed the console or pressed Ctrl+C. Ignores the empty input, it will just print it.
                     {
                         SendMessage("BYE FROM " + _displayName + "\r\n");
                         _recieveThreadRunning = false;
                         _networkStream.Close();
                         Environment.Exit(0);
                     }
-                    WriteInternalError("Empty input. Please enter a command or message.");
+                    WriteInternalError("Empty input. Please enter a command or message."); // This is used to prevent empty input from being sent to the server.
                     continue;
                 }
-                if (userInput.StartsWith("/"))
+                if (userInput.StartsWith("/")) // Check if the input command or not.
                 {
                     // Handle commands
                     string[] commandParts = userInput.Substring(1).Split(' ');
@@ -53,7 +53,7 @@ namespace ipk24chat_client.Clients.Tcp
 
                     string commandName = commandParts[0].ToLower();
 
-                    switch (commandName)
+                    switch (commandName) // Switch case for commands
                     {
                         case "auth":
                             if (_isAuthorized)
@@ -66,15 +66,15 @@ namespace ipk24chat_client.Clients.Tcp
                                 WriteInternalError("Invalid number of parameters for /auth command.");
                                 continue;
                             }
-                            if (
+                            if ( // Initializing the username, secret and display name
                             ChangeUserName(commandParts[1]) &&
                             ChangeSecret(commandParts[2]) &&
                             ChangeDisplayName(commandParts[3]))
                             {
-                                Authenticate();
+                                Authenticate(); // Authenticate the user with the server.
                                 if (_isAuthorized)
                                 {
-                                    _receiveThread.Start();
+                                    _receiveThread.Start(); // Start the thread for receiving messages from the server.
                                 }
                             }
                             break;
@@ -89,16 +89,15 @@ namespace ipk24chat_client.Clients.Tcp
                                 WriteInternalError("You are not Authorized");
                                 continue;
                             }
-                            JoinChannel(commandParts[1]);
+                            JoinChannel(commandParts[1]); // Join the channel with the given name.
                             break;
-
                         case "rename":
                             if (commandParts.Length != 2)
                             {
                                 WriteInternalError("Invalid number of parameters for /rename command.");
                                 continue;
                             }
-                            ChangeDisplayName(commandParts[1]);
+                            ChangeDisplayName(commandParts[1]); // Change the display name of the user.
                             break;
 
                         case "help":
@@ -114,7 +113,7 @@ namespace ipk24chat_client.Clients.Tcp
                             break;
                     }
                 }
-                else
+                else // Logic for non command input (Messages)
                 {
                     if (!_isAuthorized)
                     {
@@ -139,7 +138,7 @@ namespace ipk24chat_client.Clients.Tcp
                     }
                     if (_message != null && _message.Length > 0)
                     {
-                        SendMessage("MSG FROM " + _displayName + " IS " + _message + "\r\n");
+                        SendMessage("MSG FROM " + _displayName + " IS " + _message + "\r\n"); // Only one place in code where message is sent to the server.
                     }
                 }
             }
@@ -148,6 +147,9 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// This method is used to authenticate the user with the server.
+        /// It handles all situations is AUTH state like ERR, BYE, REPLY, etc.
+        /// It will run logic for UknownPacketType if gets any type of packet that is not expected. Server shouldn't send any other packet (like MSG) in AUTH state.
+        /// It will change the _isAuthorized flag to true if the authentication is successful. And in method EnableChatTcp it will start the thread for receiving messages from the server.
         /// </summary>
         public void Authenticate()
         {
@@ -160,16 +162,16 @@ namespace ipk24chat_client.Clients.Tcp
             {
                 string resultType = parts[1];
                 string MessageContent = string.Join(" ", parts[3..]);
-                if (resultType == "OK")
+                if (resultType == "OK") // Authentication success
                 {
                     Console.WriteLine($"Action Success: {MessageContent}");
                     _isAuthorized = true;
                 }
-                else if (resultType == "NOK")
+                else if (resultType == "NOK") // Not success
                 {
                     Console.WriteLine($"Action Failure: {MessageContent}");
                 }
-            }
+            } // Additional states illustrated in FSM
             else if (msgType == "BYE")
             {
                 HandleReceivedBYE();
@@ -187,6 +189,7 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// This method is used to join a channel.
+        /// Checks if the channel name is valid (length and symbols).
         /// </summary>
         /// <param name="channelName">Channel Name</param>
         public void JoinChannel(string channelName)
@@ -204,6 +207,11 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// This method runs in a separate thread and continuously listens for incoming messages from the server.
+        /// Runs after the user is authenticated.
+        /// Split the message by \r\n and processes each message.
+        /// It splits the message becouse TCP is stream based protocol and it can send multiple messages in one packet or one message in multiple packets.
+        /// It works like this: if the message is not ended with \r\n, it will append the message to the buffer and wait for the next message. When it gets the next message, it will split the buffer by \r\n and process each message.
+        /// So SrtingBuilder is not in while loop, it is outside and it will be cleared after processing the message.
         /// </summary>
         public void MessageRecieverThread()
         {
@@ -241,6 +249,8 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// Processes the received message from the server.
+        /// Just switch case for the first word of the message.
+        /// Delete the last \r\n from the message.
         /// </summary>
         /// <param name="response">Message to process</param>
         private void ProcessMessage(string response)
@@ -272,8 +282,11 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// Sends a message to the server.
+        /// This is simle StreamWriter that writes the message to the network stream.
+        /// This function is used to send all types of messages to the server.
+        /// Example of message: "MSG FROM user IS Hello\r\n"
         /// </summary>
-        /// <param name="message">Message to send</param>
+        /// <param name="message">Message to send in format desribed in IPK25-CHAT Protocol Documenattion</param>
         public void SendMessage(string message)
         {
             byte[] data = Encoding.ASCII.GetBytes(message);
@@ -282,6 +295,7 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// Receives a message from the server.
+        /// Used in 2 places, in MessageRecieverThread and Authenticate method.
         /// </summary>
         /// <returns>Message</returns>
         public string RecieveMessage()
@@ -300,8 +314,13 @@ namespace ipk24chat_client.Clients.Tcp
 
         }
 
+
+        // Bottom is logic for handling messages from the server.
+
+
         /// <summary>
-        /// Handles the case BYE message from the server.
+        /// Handles BYE message from the server.
+        /// Just closes the network stream and terminates the program with code 0.
         /// </summary>
         void HandleReceivedBYE()
         {
@@ -312,7 +331,7 @@ namespace ipk24chat_client.Clients.Tcp
         /// <summary>
         /// Handles the received MSG message from the server.
         /// </summary>
-        /// <param name="parts">Packet word by word</param>
+        /// <param name="parts">Packet word by word ({MSG} {FROM} {NAME} {IS} ....)</param>
         void HandleReceivedMSG(string[] parts)
         {
             string displayName = parts[2];
@@ -322,8 +341,10 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// Handles the received ERR message from the server.
+        /// Displays the error message and terminates the program.
+        /// It changed from last year project, last year it was sending BYE message to server and then terminating, now from FSM it seems that is not required.
         /// </summary>
-        /// <param name="parts">Packet word by word</param>
+        /// <param name="parts">Packet word by word ({ERR} {FROM} {SERVER} {IS} ....)</param>
         void HandleReceivedERR(string[] parts)
         {
             string errorDisplayName = parts[2];
@@ -335,8 +356,9 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// Handles the received REPLY message from the server.
+        /// Writes {OK|NOK}.
         /// </summary>
-        /// <param name="parts">Packet word by word</param>
+        /// <param name="parts">Packet word by word ({REPLY} ....)</param>
         void HandleReceivedREPLY(string[] parts)
         {
             string resultType = parts[1];
@@ -353,6 +375,8 @@ namespace ipk24chat_client.Clients.Tcp
 
         /// <summary>
         /// Handles the case when an unknown packet type is received.
+        /// Writes Internal Error and sends a ERR packet to the server.
+        /// Correct terminates with code 1.
         /// </summary>
         void HandeReceivedUnknown()
         {
@@ -363,7 +387,11 @@ namespace ipk24chat_client.Clients.Tcp
             Environment.Exit(1);
         }
 
-        // Event handler for console cancel key press
+        /// <summary>
+        /// Event handler for console cancel key press.
+        /// Called when the user presses Ctrl+C.
+        /// It sends a BYE message to the server and closes the network stream with code 0.
+        /// </summary>
         void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {
             SendMessage("BYE FROM " + _displayName + "\r\n");

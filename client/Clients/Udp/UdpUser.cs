@@ -8,17 +8,17 @@ namespace ipk24chat_client.Clients.Udp
 {
     public class UdpUser : User
     {
-        private string _message { get; set; } = string.Empty;
+        // if field dont have comment, find it in TcpUser class
+        private string _message { get; set; } = string.Empty; 
         private ushort _messageId { get; set; } = 0;
-        private ushort udpConfirmationTimeout { get; }
-        private byte maxUdpRetransmissions { get; }
+        private ushort udpConfirmationTimeout { get; } // Timeout for UDP confirmation in milliseconds
+        private byte maxUdpRetransmissions { get; } // Maximum number of retransmissions for UDP messages
         private bool _isAuthorized { get; set; }
-        private UdpClient _client = new UdpClient(0);
-        private IPEndPoint _serverEndPoint;
-        List<ushort> confirmedMessages = new List<ushort>();
-        Thread thread;
-        // This dictionary is used to track messages that have already been received, preventing duplicate processing.
-        private Dictionary<ushort, bool> _alreadyRecievedMessages = new Dictionary<ushort, bool>();
+        private UdpClient _client = new UdpClient(0); // UDP client for sending and receiving messages on the local port (random).
+        private IPEndPoint _serverEndPoint; // Server endpoint for sending messages.
+        List<ushort> confirmedMessages = new List<ushort>(); // List of confirmed messages. Need to check if message was confirmed by server and resend it if not.
+        private Thread thread; // Thread for receiving UDP packets.
+        private Dictionary<ushort, bool> _alreadyRecievedMessages = new Dictionary<ushort, bool>(); // This dictionary is used to track messages that have already been received, preventing duplicate processing.
         public UdpUser(ServerSetings server)
         {
             udpConfirmationTimeout = server.udpConfirmationTimeout;
@@ -26,6 +26,7 @@ namespace ipk24chat_client.Clients.Udp
             _serverEndPoint = new IPEndPoint(IPAddress.Parse(server.serverAddress), server.serverPort);
             thread= new Thread(RecieveUdpPacket);
         }
+        // Not used, was used for testing purposes before creating ServerSetings class. But can be used in future so it is public.
         public UdpUser(string IpAdress, ushort port, ushort udpConfirmationTimeout, byte maxUdpRetransmissions)
         {
             this.udpConfirmationTimeout = udpConfirmationTimeout;
@@ -36,8 +37,8 @@ namespace ipk24chat_client.Clients.Udp
 
         /// <summary>
         /// This method handles the main communication loop for the UDP client.
-        /// It reads user input from the console, processes commands, and sends messages to the server.
-        /// It also handles authentication, joining channels, renaming display names, and other commands.
+        /// Working +- same as in TcpUser class.
+        /// But have some differences like resending messages if they are not confirmed by server.
         /// </summary>
         public void EnableChatUDP()
         {
@@ -173,7 +174,9 @@ namespace ipk24chat_client.Clients.Udp
         }
 
         /// <summary>
-        /// This method sends an authentication message to the server.
+        /// Authenticates the user by sending an AUTH message to the server.
+        /// Resends the message if it is not confirmed by the server.
+        /// Uses confirmedMessages list to check if the message was confirmed. Remove it from the list if it was confirmed.
         /// </summary>
         void Authenticate()
         {
@@ -198,9 +201,8 @@ namespace ipk24chat_client.Clients.Udp
         }
 
         /// <summary>
-        /// This method sends a message to the server to join a specific channel.
+        /// This method sends JOIN packet to the server.
         /// </summary>
-        /// <param name="channelName">Channel name to join</param>
         public void JoinChannel(string channelName)
         {
             if (channelName.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(channelName, @"^[A-Za-z0-9\-]+$"))
@@ -217,8 +219,10 @@ namespace ipk24chat_client.Clients.Udp
 
         /// <summary>
         /// This method sends a message to the server.
+        /// Supports resending the message if it is not confirmed by the server.
+        /// +1 to messageId for each message sent.
         /// </summary>
-        /// <param name="message">Message to Send</param>
+        /// <param name="message">Message in string, will be formated to correct form in bytes</param>
         public void SendMessage(string message)
         {
             MsgMessage msgMessage = new MsgMessage(_messageId, _displayName, message);
@@ -242,7 +246,15 @@ namespace ipk24chat_client.Clients.Udp
         }
 
         /// <summary>
-        /// This method handles the reception of UDP packets from the server.
+        /// This is main loop for receiving UDP packets.
+        /// It handles all incoming messages from the server.
+        /// I didnt want to write method for each message type, so I used if. Becouse it is easier to read and every message type is handled by 2-3 lines.
+        /// Can be rewritten to use switch case, but I think it is not needed. In practice if statement is easier to read and understand. Like if this is true, do this. If not, do that.
+        /// Working easy - checks type of message and calls the correct case.
+        /// If it is confirmation message, it adds it to the confirmedMessages list.
+        /// If it is not confirmation message, it checks if the message is already received. And if it is not, it adds it to the _alreadyRecievedMessages dictionary.
+        /// Processes the message based on its type.
+        /// Handles errors and unknown message types.
         /// </summary>
         void RecieveUdpPacket()
         {
@@ -291,8 +303,6 @@ namespace ipk24chat_client.Clients.Udp
                         {
                             ErrMessage errMessage = new ErrMessage(buff);
                             Console.WriteLine("ERROR FROM " + errMessage.DisplayName + ": " + errMessage.MessageContents);
-                            /*ByeMessage byeMessage = new ByeMessage(_messageId, _displayName);
-                            _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);*/ // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
                             Environment.Exit(1);
                         }
                         if (buff[0] == 0xFF)
@@ -304,8 +314,6 @@ namespace ipk24chat_client.Clients.Udp
                         {
                             ErrMessage errMessage = new ErrMessage(_messageId,_displayName,"Incorrect packet Type");
                             _client.Send(errMessage.ToByteArray(), errMessage.ToByteArray().Length, _serverEndPoint);
-                            /*ByeMessage byeMessage = new ByeMessage(_messageId, _displayName);
-                            _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);*/ // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
                             WriteInternalError("Unknown message type" + buff[0]);
                             Environment.Exit(1);
                         }
@@ -325,7 +333,9 @@ namespace ipk24chat_client.Clients.Udp
         }
 
         /// <summary>
-        /// This method handles the cancellation of the console application.
+        /// Event handler for console cancel key press.
+        /// Called when the user presses Ctrl+C.
+        /// It sends a BYE message to the server and closes the network stream with code 0.
         /// </summary>
         void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {
