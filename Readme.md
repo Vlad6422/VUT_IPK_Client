@@ -56,20 +56,20 @@ The theory was taken not only from RFC, but also from basic sources such as arti
 
 ## **TCP (Transmission Control Protocol)**
 
-This section will talk about the theory of TDP connections, perhaps even too deeply and knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
+This section will talk about the theory of TDP connections, perhaps even too deeply and knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 The Transmission Control Protocol (TCP) is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol (IP). Therefore, the entire suite is commonly referred to as TCP/IP. TCP provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network. Major internet applications such as the World Wide Web, email, remote administration, and file transfer rely on TCP, which is part of the transport layer of the TCP/IP suite. SSL/TLS often runs on top of TCP.
 
 TCP is connection-oriented, meaning that sender and receiver firstly need to establish a connection based on agreed parameters, they do this through three-way handshake procedure. The server must be listening (passive open) for connection requests from clients before a connection is established. Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency.
-Source: [Link](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=Transmission%20Control%20Protocol%20(TCP)%20is,data%20and%20messages%20over%20networks.)
+Source: [[13]](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=Transmission%20Control%20Protocol%20(TCP)%20is,data%20and%20messages%20over%20networks.)
 
 ![Hwo WOrks](doc/wahtistcp.png)
 
 ### **Three-Way Handshake**
 
-The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server. [1](https://datatracker.ietf.org/doc/html/rfc9293).
 
-The idea is that two parties want to agree on a set of parameters, which, in the case of opening a TCP connection, are the starting sequence numbers the two sides plan to use for their respective byte streams. In general, the parameters might be any facts that each side wants the other to know about. First, the client (the active participant) sends a segment to the server (the passive participant) stating the initial sequence number it plans to use (Flags = SYN, SequenceNum = x). The server then responds with a single segment that both acknowledges the client's sequence number (Flags = ACK, Ack = x + 1) and states its own beginning sequence number (Flags = SYN, SequenceNum = y). That is, both the SYN and ACK bits are set in the Flags field of this second message. Finally, the client responds with a third segment that acknowledges the server's sequence number (Flags = ACK, Ack = y + 1). The reason why each side acknowledges a sequence number that is one larger than the one sent is that the Acknowledgment field actually identifies the “next sequence number expected,” thereby implicitly acknowledging all earlier sequence numbers. Although not shown in this timeline, a timer is scheduled for each of the first two segments, and if the expected response is not received, the segment is retransmitted. If you not interested in reading RFC Wiki gives good basic with references to it. [Link](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
+The idea is that two parties want to agree on a set of parameters, which, in the case of opening a TCP connection, are the starting sequence numbers the two sides plan to use for their respective byte streams. In general, the parameters might be any facts that each side wants the other to know about. First, the client (the active participant) sends a segment to the server (the passive participant) stating the initial sequence number it plans to use (Flags = SYN, SequenceNum = x). The server then responds with a single segment that both acknowledges the client's sequence number (Flags = ACK, Ack = x + 1) and states its own beginning sequence number (Flags = SYN, SequenceNum = y). That is, both the SYN and ACK bits are set in the Flags field of this second message. Finally, the client responds with a third segment that acknowledges the server's sequence number (Flags = ACK, Ack = y + 1). The reason why each side acknowledges a sequence number that is one larger than the one sent is that the Acknowledgment field actually identifies the “next sequence number expected,” thereby implicitly acknowledging all earlier sequence numbers. Although not shown in this timeline, a timer is scheduled for each of the first two segments, and if the expected response is not received, the segment is retransmitted. If you not interested in reading RFC Wiki gives good basic with references to it. [[16]](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
 
 
 ![TCP Diagram](doc/hadnshakew.png)
@@ -77,24 +77,24 @@ The idea is that two parties want to agree on a set of parameters, which, in the
 
 ### **Data Transmission**
 
-TCP organizes data so that it can be transmitted between a server and a client. It guarantees the integrity of the data being communicated over a network. Before it transmits data, TCP establishes a connection between a source and its destination, which it ensures remains live until communication begins. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
+TCP organizes data so that it can be transmitted between a server and a client. It guarantees the integrity of the data being communicated over a network. Before it transmits data, TCP establishes a connection between a source and its destination, which it ensures remains live until communication begins. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 ### **Congestion Control**
 
 Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet. [Wiki](https://en.wikipedia.org/wiki/TCP_congestion_control)
 
-To avoid congestive collapse, TCP uses a multi-faceted congestion-control strategy. For each connection, TCP maintains a CWND, limiting the total number of unacknowledged packets that may be in transit end-to-end. This is somewhat analogous to TCP's sliding window used for flow control.  [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+To avoid congestive collapse, TCP uses a multi-faceted congestion-control strategy. For each connection, TCP maintains a CWND, limiting the total number of unacknowledged packets that may be in transit end-to-end. This is somewhat analogous to TCP's sliding window used for flow control.  [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
 
 ### **Error Detection and Correction**
 
-Error Detection and Correction: TCP uses checksums to detect errors in transmitted data. If an error is detected, the sender will retransmit the affected segment. Congestion Control: TCP uses algorithms to adjust its sending rate based on network congestion. [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
+Error Detection and Correction: TCP uses checksums to detect errors in transmitted data. If an error is detected, the sender will retransmit the affected segment. Congestion Control: TCP uses algorithms to adjust its sending rate based on network congestion. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 
 ### **Connection Termination**
 
-The connection termination phase uses a four-way handshake, with each side of the connection terminating independently. When an endpoint wishes to stop its half of the connection, it transmits a FIN packet, which the other end acknowledges with an ACK. Therefore, a typical tear-down requires a pair of FIN and ACK segments from each TCP endpoint. After the side that sent the first FIN has responded with the final ACK, it waits for a timeout before finally closing the connection, during which time the local port is unavailable for new connections, this state lets the TCP client resend the final acknowledgment to the server in case the ACK is lost in transit. The time duration is implementation-dependent, but some common values are 30 seconds, 1 minute, and 2 minutes. After the timeout, the client enters the CLOSED state and the local port becomes available for new connections.  [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293), [Good Source](https://www.geeksforgeeks.org/tcp-connection-termination/)
+The connection termination phase uses a four-way handshake, with each side of the connection terminating independently. When an endpoint wishes to stop its half of the connection, it transmits a FIN packet, which the other end acknowledges with an ACK. Therefore, a typical tear-down requires a pair of FIN and ACK segments from each TCP endpoint. After the side that sent the first FIN has responded with the final ACK, it waits for a timeout before finally closing the connection, during which time the local port is unavailable for new connections, this state lets the TCP client resend the final acknowledgment to the server in case the ACK is lost in transit. The time duration is implementation-dependent, but some common values are 30 seconds, 1 minute, and 2 minutes. After the timeout, the client enters the CLOSED state and the local port becomes available for new connections.  [[1]](https://datatracker.ietf.org/doc/html/rfc9293) [[19]](https://www.geeksforgeeks.org/tcp-connection-termination/)
 
-### **Beneffits of TCP** [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293)
+### **Beneffits of TCP** [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 - **Reliability:** TCP ensures that all data sent from the sender is received by the receiver, and if packets are lost or corrupted, they are retransmitted .
 - **Ordered Delivery:** Data packets are delivered in the exact order in which they were sent, even if they arrive out of order due to network routing
@@ -102,29 +102,29 @@ The connection termination phase uses a four-way handshake, with each side of th
 - **Flow Control:** TCP ensures that the sender does not overwhelm the receiver by controlling the amount of data in transit
 - **Congestion Control:** TCP dynamically adjusts the sending rate to avoid congestion and ensure smooth transmission
 - **Connection Establishment and Termination:** TCP uses a reliable three-way handshake to establish, four-way handshake to terminate the connection
-- [More](https://www.techtarget.com/searchnetworking/definition/TCP)
+- **More** [[15]](https://www.techtarget.com/searchnetworking/definition/TCP)
 
 ### **Applications of TCP**
-I took information from this website [Click](https://www.techtarget.com/searchnetworking/definition/TCP), but you can freely use any of open sources for it.
+I took information from this website [[15]](https://www.techtarget.com/searchnetworking/definition/TCP), but you can freely use any of open sources for it.
 TCP is used by many network applications that require tcp communication. Some of the most common applications:
 
-- **Web Browsing (HTTP/HTTPS):** When you browse websites, HTTP or HTTPS uses TCP for reliable data transfer [RFC1945](https://datatracker.ietf.org/doc/html/rfc1945).
-- **File Transfer Protocol (FTP):** FTP uses TCP to ensure files are correctly transferred between computers [RFC1350](https://datatracker.ietf.org/doc/html/rfc1350).
-- **Email (SMTP, POP3, IMAP):** TCP ensures the reliable delivery of email messages between mail servers and clients [RFC791](https://datatracker.ietf.org/doc/html/rfc791).
-- **Remote Access (SSH, Telnet):** TCP is used for secure and reliable remote connections between devices [RFC9293](https://datatracker.ietf.org/doc/html/rfc9293).
+- **Web Browsing (HTTP/HTTPS):** When you browse websites, HTTP or HTTPS uses TCP for reliable data transfer [[9]](https://datatracker.ietf.org/doc/html/rfc1945).
+- **File Transfer Protocol (FTP):** FTP uses TCP to ensure files are correctly transferred between computers [[8]](https://datatracker.ietf.org/doc/html/rfc1350).
+- **Email (SMTP, POP3, IMAP):** TCP ensures the reliable delivery of email messages between mail servers and clients [[6]](https://www.ietf.org/rfc/rfc1939.txt) [[7]](https://datatracker.ietf.org/doc/html/rfc5321).
+- **Remote Access (SSH, Telnet):** TCP is used for secure and reliable remote connections between devices [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
 
 
 ## **UDP (User Datagram Protocol)**  
 This section will describe UDP, this is the second important part in the implementation of the project.
 
-UDP (User Datagram Protocol) is a connectionless transport-layer protocol defined in [RFC768](https://datatracker.ietf.org/doc/html/rfc768). It provides a lightweight mechanism for transmitting data with minimal overhead, making it suitable for time-sensitive applications where low latency is prioritized over reliability. 
+UDP (User Datagram Protocol) is a connectionless transport-layer protocol defined in [[2]](https://datatracker.ietf.org/doc/html/rfc768) [[17]](https://en.wikipedia.org/wiki/User_Datagram_Protocol). It provides a lightweight mechanism for transmitting data with minimal overhead, making it suitable for time-sensitive applications where low latency is prioritized over reliability. 
 
-The User Datagram Protocol, or UDP, is a communication protocol used across the Internet for especially time-sensitive transmissions such as video playback or DNS lookups. [Source](https://www.cloudflare.com/ru-ru/learning/ddos/glossary/user-datagram-protocol-udp/) It speeds up communications by not formally establishing a connection before data is transferred.
+The User Datagram Protocol, or UDP, is a communication protocol used across the Internet for especially time-sensitive transmissions such as video playback or DNS lookups [[14]](https://www.cloudflare.com/learning/ddos/glossary/user-datagram-protocol-udp/). It speeds up communications by not formally establishing a connection before data is transferred.
 ![UDPPacket](doc/UDP-packet.jpg)
 
 
 ### **No Connection Setup**  
-UDP is **stateless** and does not require a handshake, unlike TCP, which uses a three-way handshake ([RFC793](https://datatracker.ietf.org/doc/html/rfc793)). A sender can start transmitting packets without establishing a connection with the receiver. Each packet ak. **datagram** is treated independently, allowing for minimal delay in communication.  
+UDP is **stateless** and does not require a handshake, unlike TCP, which uses a three-way handshake [[3]](https://datatracker.ietf.org/doc/html/rfc793). A sender can start transmitting packets without establishing a connection with the receiver. Each packet ak. **datagram** is treated independently, allowing for minimal delay in communication.  
 
 ### **Packet Structure (UDP Datagram Format)**  
 A UDP datagram consists of a **header** and a **data payload**. The header is 8 bytes long and contains the following fields:  
@@ -136,10 +136,10 @@ A UDP datagram consists of a **header** and a **data payload**. The header is 8 
 | **Length**       | 2           | Specifies the total length of the UDP datagram (header + data). |
 | **Checksum**     | 2           | Used for error detection in the header and data. |
 
-The payload contains application-specific data, and the maximum size of a UDP datagram, including the header, is **65,535 bytes** ([RFC768](https://datatracker.ietf.org/doc/html/rfc768)).  
+The payload contains application-specific data, and the maximum size of a UDP datagram, including the header, is **65,535 bytes** [[2]](https://datatracker.ietf.org/doc/html/rfc768).  
 
 ### **No Acknowledgments or Retransmissions**  
-UDP does not provide reliability mechanisms such as acknowledgments (ACKs) or retransmissions, unlike TCP ([RFC793](https://datatracker.ietf.org/doc/html/rfc793)). If a packet is lost or arrives out of order, the responsibility for handling such issues lies with the application layer.  
+UDP does not provide reliability mechanisms such as acknowledgments (ACKs) or retransmissions, unlike TCP [[3]](https://datatracker.ietf.org/doc/html/rfc793). If a packet is lost or arrives out of order, the responsibility for handling such issues lies with the application layer.  
 
 ### **Error Detection**  
 UDP implements a simple **checksum** algorithm to verify the integrity of the header and data. If a checksum mismatch is detected, the packet is discarded. However, unlike TCP, UDP does not request retransmission for corrupted or lost packets.  
@@ -148,14 +148,14 @@ UDP implements a simple **checksum** algorithm to verify the integrity of the he
 Due to its minimal overhead, UDP is much faster than TCP, making it ideal for applications requiring **low latency** and **high throughput** where occasional packet loss is acceptable. Some common use cases include:  
 
 - **Real-time streaming (VoIP, video streaming, gaming)**  
-- **DNS queries ([RFC1035](https://datatracker.ietf.org/doc/html/rfc1035))**  
-- **Network time synchronization (NTP, [RFC5905](https://datatracker.ietf.org/doc/html/rfc5905))**  
+- **DNS queries [[4]](https://datatracker.ietf.org/doc/html/rfc1035)**  
+- **Network time synchronization [[5]](https://datatracker.ietf.org/doc/html/rfc5905)**  
 - **IoT and sensor networks**  
 
 
 ### **Comparison: UDP vs. TCP**  
 
-| Feature          | UDP ([RFC768](https://datatracker.ietf.org/doc/html/rfc768)) | TCP ([RFC793](https://datatracker.ietf.org/doc/html/rfc793)) |
+| Feature          | UDP [[2]](https://datatracker.ietf.org/doc/html/rfc768) | TCP [[3]](https://datatracker.ietf.org/doc/html/rfc793) |
 |-----------------|-----------------|-----------------|
 | **Connection Type** | Connectionless | Connection-oriented |
 | **Reliability** | Unreliable | Reliable |
@@ -164,14 +164,14 @@ Due to its minimal overhead, UDP is much faster than TCP, making it ideal for ap
 | **Speed** | Faster (low overhead) | Slower (due to handshaking & acknowledgments) |
 | **Use Cases** | Streaming, gaming, DNS, VoIP | Web browsing, file transfers, emails |
 
-Additional source : [Link](https://www.techtarget.com/searchnetworking/definition/TCP)
+Additional source : [[15]](https://www.techtarget.com/searchnetworking/definition/TCP)
 Good website, you can take accually full theory from that to this project.
 
 
 
 ## **Client**
 
-[Source for Client and Server Theory](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) The following parts of the text will not have citations as they are taken from this website.
+The following parts of the text will not have citations as they are taken from this website. [[18]](https://en.wikipedia.org/wiki/Client%E2%80%93server_model)
 
 There are many articles on this topic and the explanations in them are correct, so you can take from any resources. I took it from the link above and I recommend it to you.
 
@@ -217,7 +217,7 @@ A **client** is a device or program that sends requests to a server to access se
 
 ## **Server**
 
-A **server** [Source](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) is a system or program that listens for and responds to requests from clients. It processes client requests, handles them, and sends back appropriate responses. Servers are typically always-on systems that provide various services, such as serving web pages, processing emails, managing databases, or running applications.
+A **server** [[18]](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) is a system or program that listens for and responds to requests from clients. It processes client requests, handles them, and sends back appropriate responses. Servers are typically always-on systems that provide various services, such as serving web pages, processing emails, managing databases, or running applications.
 
 "Server-side software" refers to a computer application, such as a web server, that runs on remote server hardware, reachable from a user's local computer, smartphone, or other device. Operations may be performed server-side because they require access to information or functionality that is not available on the client, or because performing such operations on the client side would be slow, unreliable, or insecure.
 
@@ -297,9 +297,9 @@ As a result, the server is a very important part in IT and we can say that the e
 
 In computer science, a network socket is an endpoint connected through a computer network. With the rise of the Internet, most communication between computers is done using the TCP/IP protocol family. The actual data transfer is done over IP, so the term "Internet socket" is also used. A user socket is a handle (an abstract reference) that a program can use when calling a network application programming interface (API), such as "send this data to this socket."
 
-For more information use open-sources. Also will be good to read Microsoft [System.Net.Sockets Namespace](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) for better understanding how to use it in .NET applications.
+For more information use open-sources. Also will be good to read Microsoft **System.Net.Sockets Namespace** [[10]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) for better understanding how to use it in .NET applications.
 
-In my project i use abstractions above sockets, so you will not see how i use it. But classes [TcpClient](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-9.0) and [UdpClient](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0) uses it. **They are part of Sockets namespace.**
+In my project i use abstractions above sockets, so you will not see how i use it. But classes **TcpClient** [[11]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-9.0) and **UdpClient** [[12]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0) uses it. **They are part of Sockets namespace.**
 
 # Introduction
 
@@ -321,8 +321,8 @@ Next, the project will be described, its structure, how it should work, its stat
 
 The **IPK25-CHAT** protocol uses client-server communication, with the option to use the **UDP** or **TCP** transport protocols. This project focuses on the implementation of both protocol variants, allowing for flexible communication and handling of different message types. The following sections outline the key message types in the protocol, the message header structure, and the content of each message type and so on...
 
-All tables and theory were taken from the task, some parts were removed, some were shortened. Who is not interested in reading the task a second time, please go to the next chapter with my implementation. [Click](#implementation)
-Source of Project Overview Section: https://git.fit.vutbr.cz/NESFIT/IPK-Projects/src/branch/master/Project_2
+All tables and theory were taken from the task, some parts were removed, some were shortened. Who is not interested in reading the task a second time, please go to the next chapter with my implementation. [Implementation](#implementation)
+Source of Project Overview Section: [[21]](https://git.fit.vutbr.cz/NESFIT/IPK-Projects/src/branch/master/Project_2)
 
 #### **Client FSM**:
 ![Client](doc/Client.png)
@@ -594,13 +594,13 @@ The main components in the program are:
 
 1. **Server Settings**: The `ServerSetings` class parses the command-line arguments to configure server settings, including transport protocol, server address, and server port.
    
-2. **TCP Client** [Microsoft](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-9.0): The `TcpUser` class is used to manage the connection and communication with the server over TCP. It establishes a network stream for sending and receiving data.
+2. **TCP Client** [[11]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-9.0): The `TcpUser` class is used to manage the connection and communication with the server over TCP. It establishes a network stream for sending and receiving data.
 
-3. **UDP Client** [Microsoft](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0): The `UdpUser` class handles the UDP communication, including starting the client, sending messages, and receiving responses from the server.
+3. **UDP Client** [[12]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0): The `UdpUser` class handles the UDP communication, including starting the client, sending messages, and receiving responses from the server.
 
 4. **Multithreading**: The program utilizes multithreading to manage the simultaneous execution of client-side operations, such as handling user input and maintaining the connection with the server. Actually can be changed to Async, working with Thread a little harder but gives more controll, this is for old programmers on C# old-school.
 
-I want to note that TcpClient, UdpClient is not the same as TcpUser,UdpUser. The first pair goes to [System.Net.Sockets Namespace](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) it just deals with sockets, connections, packages, essentially an abstraction over sockets. In its turn, a couple with the User endings, these are my classes that are responsible for logic. In truth, they could have been written better using more abstraction and techniques, for example, like [Strategy](https://refactoring.guru/design-patterns/strategy) in order to write one logic for two and then simply substitute a solution, this would be more in line with OOP and would be more abstract and polymorphic. But the problem is that the Udp logic is still slightly different and it would be necessary to write additional logic only for it and insert it into the middle of the general solution. So, as the classic said and what all companies use now, it is better to write code quickly and working, than to write it for 10 years and get a very complex architecture where no senior can figure it out.
+I want to note that TcpClient, UdpClient is not the same as TcpUser,UdpUser. The first pair goes to **System.Net.Sockets Namespace** [[10]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) it just deals with sockets, connections, packages, essentially an abstraction over sockets. In its turn, a couple with the User endings, these are my classes that are responsible for logic. In truth, they could have been written better using more abstraction and techniques, for example, like **Strategy** [[20]](https://refactoring.guru/design-patterns/strategy) in order to write one logic for two and then simply substitute a solution, this would be more in line with OOP and would be more abstract and polymorphic. But the problem is that the Udp logic is still slightly different and it would be necessary to write additional logic only for it and insert it into the middle of the general solution. So, as the classic said and what all companies use now, it is better to write code quickly and working, than to write it for 10 years and get a very complex architecture where no senior can figure it out.
 
 ### Main Program Flow
 ![FLOW](doc/Flow.png)
@@ -734,7 +734,7 @@ This concludes the implementation section. My goal was to describe more how it w
 
 The application was tested in different conditions, I tested all types of packets and all possible situations with the reference server, then you will see pictures from discord, wireshark, also in the directory with tests you can find all this in text form, and captured wireshark packets, do not reduce the points for screenshots, this is to confirm the tests. The application was also tested on my server, which I wrote last year, I tested all situations, and also simultaneously connected several clients to my server, both tcp and udp, and from them it is clear that all clients correctly process packets. It was also additionally tested on python tests in isolation, there are more than 40 tests aimed at checking all possible situations.
 
-The tests were made on **VirtualBox with IPK25_Ubuntu24.ova** installed on it, i used and used [NIX development environment](https://git.fit.vutbr.cz/NESFIT/dev-envs#starting-development-environment).
+The tests were made on **VirtualBox with IPK25_Ubuntu24.ova** installed on it, i used and used **NIX development environment** [[22]](https://git.fit.vutbr.cz/NESFIT/dev-envs#starting-development-environment).
 
 ### Testing with Reference Server
 
@@ -961,9 +961,9 @@ Additionally, packet captures (`.pcapng` files) for further network analysis are
 ### Integration Tests
 I will note include source siles of this test due to big size.
 
-My github repo: https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS
+My github repo: [[23]](https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS)
 
-This is python tests that tests all posible states of application.
+This is python tests that tests all posible states of application. These tests were used by most students and most of them praised them, so you may have seen or will see these tests quoted by other students, these are last year's tests that I changed to a new format, added additional tests, changed the states and how and when packets are processed.
 
 ## UDP Tests:
 - **udp_help_command**: PASSED
@@ -1121,21 +1121,48 @@ The application has been extensively tested using different servers and python t
 
 # Bibliography
 
-[RFC9293] Eddy, W. Transmission Control Protocol (TCP) [online]. August 2022. DOI: 10.17487/RFC9293. Available at: https://datatracker.ietf.org/doc/html/rfc9293
+[1] EDDY Wesley. Transmission Control Protocol (TCP) [online]. August 2022 [cit. 2025-04-17]. Available at: https://datatracker.ietf.org/doc/html/rfc9293. DOI: 10.17487/RFC9293
 
-[RFC894] Hornig, C. A Standard for the Transmission of IP Datagrams over Ethernet Networks [online]. April 1984. DOI: 10.17487/RFC894. Available at: https://datatracker.ietf.org/doc/html/rfc894
+[2] POSTEL Jon. User Datagram Protocol [online]. August 1980 [cit. 2025-04-17]. Available at: https://datatracker.ietf.org/doc/html/rfc768. DOI: 10.17487/RFC0768
 
-[RFC791] Information Sciences Institute, University of Southern California. Internet Protocol [online]. September 1981. DOI: 10.17487/RFC791. Available at: https://datatracker.ietf.org/doc/html/rfc791
+[3] POSTEL Jon. Transmission Control Protocol [online]. September 1981 [cit. 2025-04-17]. Available at: https://datatracker.ietf.org/doc/html/rfc793. DOI: 10.17487/RFC0793
 
-[RFC768] Postel, J. User Datagram Protocol [online]. March 1997. DOI: 10.17487/RFC0768. Available at: https://datatracker.ietf.org/doc/html/rfc768
+[4] MOCKAPETRIS Paul. Domain Names - Implementation and Specification [online]. November 1987 [cit. 2025-04-17]. Available at: https://datatracker.ietf.org/doc/html/rfc1035. DOI: 10.17487/RFC1035
 
-[RFC1350] Sollins, D. The TFTP Protocol (Revision 2) [online]. July 1992. DOI: 10.17487/RFC1350. Available at: https://datatracker.ietf.org/doc/html/rfc1350
+[5] MILLS David, Judith MARTIN, James BURBANK, and William KASCH. Network Time Protocol Version 4: Protocol and Algorithms Specification [online]. June 2010 [cit. 2025-04-17]. Available at: https://datatracker.ietf.org/doc/html/rfc5905. DOI: 10.17487/RFC5905
 
-[RFC1945] NIELSEN, Henrik, Roy T FIELDING a Tim BERNERS-LEE, 2022. Hypertext Transfer Protocol -- HTTP/1.0 [online]. May 1996. Available at: https://datatracker.ietf.org/doc/html/rfc1945
-[RFC768] Postel, J. User Datagram Protocol [online]. August 1980. DOI: 10.17487/RFC0768. Available at: https://datatracker.ietf.org/doc/html/rfc768  
+[6] MYERS, J. and M. ROSE. Post Office Protocol – Version 3 (POP3) [online]. Network Working Group. May 1996 [cit. 2025-04-17]. Request for Comments: 1939. Available at: https://www.ietf.org/rfc/rfc1939.txt. DOI: 10.17487/RFC1939
 
-[RFC793] Postel, J. Transmission Control Protocol [online]. September 1981. DOI: 10.17487/RFC0793. Available at: https://datatracker.ietf.org/doc/html/rfc793  
+[7] KLENSIN, J. Simple Mail Transfer Protocol (SMTP) [online]. Network Working Group. October 2008 [cit. 2025-04-17]. Request for Comments: 5321. Available at: https://datatracker.ietf.org/doc/html/rfc5321. DOI: 10.17487/RFC5321
 
-[RFC1035] Mockapetris, P. Domain Names - Implementation and Specification [online]. November 1987. DOI: 10.17487/RFC1035. Available at: https://datatracker.ietf.org/doc/html/rfc1035  
+[8] SOLLINS David. The TFTP Protocol (Revision 2) [online]. July 1992 [cit. 2025-04-17]. Available at: https://datatracker.ietf.org/doc/html/rfc1350. DOI: 10.17487/RFC1350
 
-[RFC5905] Mills, D., Martin, J., Burbank, J., and Kasch, W. Network Time Protocol Version 4: Protocol and Algorithms Specification [online]. June 2010. DOI: 10.17487/RFC5905. Available at: https://datatracker.ietf.org/doc/html/rfc5905  
+[9] NIELSEN Henrik, Roy T. FIELDING, and Tim BERNERS-LEE. Hypertext Transfer Protocol -- HTTP/1.0 [online]. May 1996 [cit. 2025-04-17]. Available at: https://datatracker.ietf.org/doc/html/rfc1945
+
+[10] MICROSOFT. System.Net.Sockets Namespace [online]. [cit. 2025-04-17]. Available at: https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0
+
+[11] MICROSOFT. TcpClient Class [online]. [cit. 2025-04-17]. Available at: https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-9.0
+
+[12] MICROSOFT. UdpClient Class [online]. [cit. 2025-04-17]. Available at: https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0
+
+[13] FORTINET. What is TCP/IP? [online]. [cit. 2025-04-17]. Available at: https://www.fortinet.com/resources/cyberglossary/tcp-ip
+
+[14] CLOUDFLARE. What is the User Datagram Protocol (UDP)? [online]. [cit. 2025-04-17]. Available at: https://www.cloudflare.com/learning/ddos/glossary/user-datagram-protocol-udp/
+
+[15] TECHTARGET. Transmission Control Protocol (TCP) [online]. [cit. 2025-04-17]. Available at: https://www.techtarget.com/searchnetworking/definition/TCP
+
+[16] WIKIPEDIA. Transmission Control Protocol [online]. [cit. 2025-04-17]. Available at: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
+
+[17] WIKIPEDIA. User Datagram Protocol [online]. [cit. 2025-04-17]. Available at: https://en.wikipedia.org/wiki/User_Datagram_Protocol
+
+[18] WIKIPEDIA. Client–Server Model [online]. [cit. 2025-04-17]. Available at: https://en.wikipedia.org/wiki/Client%E2%80%93server_model
+
+[19] GEEKSFORGEEKS. TCP Connection Termination [online]. [cit. 2025-04-17]. Available at: https://www.geeksforgeeks.org/tcp-connection-termination/
+
+[20] REFACTORING GURU. Strategy Design Pattern [online]. [cit. 2025-04-17]. Available at: https://refactoring.guru/design-patterns/strategy
+
+[21] NESFIT. IPK25-CHAT Protocol Documentation [online]. [cit. 2025-04-17]. Available at: https://git.fit.vutbr.cz/NESFIT/IPK-Projects/src/branch/master/Project_2
+
+[22] NESFIT. NIX Development Environment [online]. [cit. 2025-04-17]. Available at: https://git.fit.vutbr.cz/NESFIT/dev-envs
+
+[23] MALASHCHUK, Vladyslav, Tomáš HOBZA, et al. VUT_IPK_CLIENT_TESTS [online]. GitHub, 2025 [cit. 2025-04-17]. Available at: https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS
