@@ -619,7 +619,6 @@ The `Main` method is responsible for initializing the client application. The te
    - The `TcpUser` object, which handles the communication protocol for TCP, is instantiated and the `EnableChatTcp` method is called to enable chat functionality.
 
    ```csharp
-   case "tcp":
        using (TcpClient tcpClient = new TcpClient(AddressFamily.InterNetwork))
        {
            tcpClient.Connect(serverSetings.serverAddress, serverSetings.serverPort);
@@ -630,7 +629,6 @@ The `Main` method is responsible for initializing the client application. The te
            }
            tcpClient.Close();
        }
-       break;
    ```
 
    The `TcpClient` object is disposed of automatically after the connection is closed, ensuring that resources are freed properly.
@@ -640,10 +638,8 @@ The `Main` method is responsible for initializing the client application. The te
    - The `EnableChatUdp` method of the `UdpUser` class is invoked to begin the communication process. This method is responsible for sending and receiving messages over UDP and is implemented to handle network communication concurrently using **multithreading**, one thread to send,one to recieve.
 
    ```csharp
-   case "udp":
        UdpUser udpUser = new UdpUser(serverSetings);
        udpUser.EnableChatUdp();
-       break;
    ```
 
 4. **Error Handling**:
@@ -679,12 +675,12 @@ From UML you can see that the program receives and sends packets of different ty
 4. **Multithreading**: A dedicated thread is responsible for receiving messages from the server while the main thread handles the client’s user input.
 
 5. **Error Handling**: The client processes various server responses, including success (`REPLY`), error (`ERR`), and message (`MSG`) types. If any unexpected messages are received, the client handles them accordingly.
-6. **More in source files**
+6. **More in source files** rename...
 #### Implementation Details:
 **Only main details, it wond describe code line by line!**
 1. **Constructor**:
    - The constructor initializes the network stream and sets up a thread to handle incoming messages from the server.
-   - It also listens for interruption signals, such as when the user presses `Ctrl+C`.
+   - It also register **CancelKeyPress** event for interruption signals, such as when the user presses `Ctrl+C`.
 
 2. **Enable Chat**:
    - The `EnableChatTcp` method listens for user input continuously. If the input matches a predefined command (e.g., authentication, channel joining), the client processes it accordingly.
@@ -712,7 +708,7 @@ From UML you can see that the program receives and sends packets of different ty
    - The client handles different types of server messages, such as `MSG` (regular message), `ERR` (error message), `REPLY` (server reply), and `BYE` (server termination). Each message type is processed by specific methods designed for handling them.
 
 9. **Error Handling**:
-   - The client has built-in error handling that processes error messages and gracefully terminates the connection if needed. For example, if an `ERR` message is received, the client displays the error and sends a `BYE` message before exiting.
+   - The client has built-in error handling that processes error messages and gracefully terminates the connection if needed. For example, if an `ERR` message is received, the client displays the error correctly terminates. (Without BYE message)
 
 ### UDP Client Implementation (UdpUser)
 
@@ -721,36 +717,19 @@ The `UdpUser` class operates as a UDP-based communication client, enabling the u
 The **UML diagram** follows the same structure as in the TCP variant but includes additional logic specific to UDP communication:  
 - After sending a message (`SEND`), the client waits for a **CONFIRM** from the server.  
 - Upon receiving a message (`RECEIVE`), the client sends back a **CONFIRM** to acknowledge it.  
+- Handling Dublicates.
+- Resending packets if not getting CONFIRM before timeout. 
 
 To manage UDP-specific behaviors, the client uses the `-d` and `-r` command-line arguments:
 - `-d` sets the **UDP confirmation timeout** (in milliseconds), defining how long the client waits for a **CONFIRM** before retrying.  
 - `-r` specifies the **maximum number of UDP retransmissions**, ensuring the client does not retry indefinitely if no confirmation is received.  
 
-The main difference from tcp is that a connection is not established, packets are in bit form and not in text, and it is also necessary to confirm incoming packets and resolve undelivered projects and duplicates. Basically the same code as before, just with additional logic and a different format.
-#### Details:
 
-1. **UDP Client and Server Setup**:
-   - The client creates a `UdpClient` instance to send and receive data. The server is specified using an `IPEndPoint`, which includes the server's address and port number.
 
-2. **Constructor**:
-   - The constructor initializes the client and server endpoint. It also starts a separate thread that listens for incoming UDP packets from the server.
+The main difference from tcp is that a connection is not established, packets are in bit form and not in text, and it is also necessary to confirm incoming packets and resolve undelivered projects and duplicates. Basically the same code as before, just with additional logic and a different format. You can check this [Implementation Details](#implementation-details) UDP implemenation have same functions as TCP, but another packets format and additional logic as desrived before.
 
-3. **Message Sending**:
-   - The client sends messages to the server (such as authentication requests, join requests, or chat messages). Each message is sent as a UDP packet.
-   - If the client does not receive a confirmation response within a specified timeout, it retransmits the message.
+This concludes the implementation section. My goal was to describe more how it works and what it uses. For more information on the implementation, I recommend looking at the source code, I added quite large comments to each function and explained in detail what it is for, what it does, and what its result is. The entire code is divided into such small methods and each of them has its own extensive comment. The next section will be testing.
 
-4. **Receive UDP Packets**:
-   - The client listens for incoming UDP packets. Each packet is processed based on its type (e.g., authentication, error, or regular message). 
-   - The client acknowledges the receipt of messages by confirming the received packet with the server.
-
-5. **Authentication**:
-   - The client sends an authentication request containing the necessary credentials (username, display name, secret) and waits for a confirmation response from the server.
-   - If no confirmation is received within a certain time, the client retries sending the authentication request.
-
-6. **Exit Handling**:
-   - When the user exits the application (e.g., pressing `Ctrl+C`), the client sends a "bye" message to the server and waits for confirmation before gracefully closing the connection.
-7. **Another packets**
-   - Pakets like PING,JOIN,REPLY atd. Works same like in TCP but confirms with CONFIRM packet.
 ## Testing
 
 The application was tested in different conditions, I tested all types of packets and all possible situations with the reference server, then you will see pictures from discord, wireshark, also in the directory with tests you can find all this in text form, and captured wireshark packets, do not reduce the points for screenshots, this is to confirm the tests. The application was also tested on my server, which I wrote last year, I tested all situations, and also simultaneously connected several clients to my server, both tcp and udp, and from them it is clear that all clients correctly process packets. It was also additionally tested on python tests in isolation, there are more than 40 tests aimed at checking all possible situations.
