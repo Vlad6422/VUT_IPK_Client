@@ -1,12 +1,14 @@
-﻿using ipk24chat_client.Clients.Tcp;
-using ipk24chat_client.Clients.Udp;
-using ipk25_chat.CommandLineParser;
-using System.Net.Sockets;
+﻿using ipk25_chat.CommandLineParser;
 
 namespace ipk25_chat
 {
-    public class Program
+    /// <summary>
+    /// Author: Malashchuk Vladyslav (xmalas04)
+    /// Program: Client for IPK25
+    /// </summary>
+    public partial class Program
     {
+        // Start point of the program. It parses command line arguments and starts the client.
         static void Main(string[] args)
         {
             try
@@ -15,28 +17,19 @@ namespace ipk25_chat
                 switch (serverSetings.transportProtocol) // Choose the right client
                 {
                     case "tcp": // Run TCP client
-                        using (TcpClient tcpClient = new TcpClient(AddressFamily.InterNetwork))
-                        {
-                            tcpClient.Connect(serverSetings.serverAddress, serverSetings.serverPort);
-                            using (NetworkStream networkStream = tcpClient.GetStream())
-                            {
-                                TcpUser tcpUser = new TcpUser(networkStream);
-                                tcpUser.EnableChatTcp();
-                            }
-                            tcpClient.Close();
-                        }
+                        RunTcpClient(serverSetings);
                         break;
                     case "udp": // Run UDP client
-                        UdpUser udpUser = new UdpUser(serverSetings);
-                        udpUser.EnableChatUDP();
+                        RunUdpClient(serverSetings);
                         break;
                 }
             }
-            catch (Exception e)
+            catch (Exception e) // Handle Errors
             {
                 Console.WriteLine($"ERROR: {e.Message}");
                 Environment.Exit(1);
             }
         }
+
     }
 }
