@@ -67,7 +67,7 @@ Source: [[13]](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=T
 
 ### **Three-Way Handshake**
 
-The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server. [1](https://datatracker.ietf.org/doc/html/rfc9293).
+The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server. [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
 
 The idea is that two parties want to agree on a set of parameters, which, in the case of opening a TCP connection, are the starting sequence numbers the two sides plan to use for their respective byte streams. In general, the parameters might be any facts that each side wants the other to know about. First, the client (the active participant) sends a segment to the server (the passive participant) stating the initial sequence number it plans to use (Flags = SYN, SequenceNum = x). The server then responds with a single segment that both acknowledges the client's sequence number (Flags = ACK, Ack = x + 1) and states its own beginning sequence number (Flags = SYN, SequenceNum = y). That is, both the SYN and ACK bits are set in the Flags field of this second message. Finally, the client responds with a third segment that acknowledges the server's sequence number (Flags = ACK, Ack = y + 1). The reason why each side acknowledges a sequence number that is one larger than the one sent is that the Acknowledgment field actually identifies the “next sequence number expected,” thereby implicitly acknowledging all earlier sequence numbers. Although not shown in this timeline, a timer is scheduled for each of the first two segments, and if the expected response is not received, the segment is retransmitted. If you not interested in reading RFC Wiki gives good basic with references to it. [[16]](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
 
@@ -81,7 +81,7 @@ TCP organizes data so that it can be transmitted between a server and a client. 
 
 ### **Congestion Control**
 
-Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet. [Wiki](https://en.wikipedia.org/wiki/TCP_congestion_control)
+Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet. [[24]](https://en.wikipedia.org/wiki/TCP_congestion_control)
 
 To avoid congestive collapse, TCP uses a multi-faceted congestion-control strategy. For each connection, TCP maintains a CWND, limiting the total number of unacknowledged packets that may be in transit end-to-end. This is somewhat analogous to TCP's sliding window used for flow control.  [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
 
@@ -965,6 +965,11 @@ My github repo: [[23]](https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS)
 
 This is python tests that tests all posible states of application. These tests were used by most students and most of them praised them, so you may have seen or will see these tests quoted by other students, these are last year's tests that I changed to a new format, added additional tests, changed the states and how and when packets are processed.
 
+Also during testing, it was found that the Virtual Machine (Virtual Box) does not always hold the load of Python tests.
+I tested all the tests both on the virtual machine and without it. And I found out that without a virtual machine, Python tests on average send a packet the first packet at a speed of less than 100 ms, this is the delta between the time the packet was sent from the client to the server and from the server to the client, for example, 100 ms passed after the AUTH packet was sent and CONFIRM was sent in response, and sending subsequent packets reduces this delta to 10 ms or less.
+
+At one time, on a virtual machine and in a NIX environment with .NET 9, Python tests did not always pass everything. Sometimes a couple of UDP did not pass, the reason for this was that the virtual machine does not have time to interpret Python so quickly and gives a response to an incoming packet on average from 150 to 300 ms, such a large spread most likely depends on what processes are currently running in the background in the system. Therefore, I checked it via wireshark and yes, sometimes the CONFIRM packet is sent after 251 ms, this is not a test error, it should be sent immediately after receiving, most likely again the slow speed of interpretation on the virtual machine. But even so, in 90% of cases all tests pass, sometimes 1-2 tests may not pass due to the fact that the program is initially configured so that it resends the packet after 250 ms, naturally, if the test sent it after 251 ms, it will receive a second packet for authorization and say that this is an error. At some point, you can simply restart the same test and then it will pass again. Typically this problem occurs with the acknowledgement of the very first incoming packet, then the rest of the packets are processed faster.
+
 ## UDP Tests:
 - **udp_help_command**: PASSED
 - **udp_hello**: PASSED
@@ -1166,3 +1171,5 @@ The application has been extensively tested using different servers and python t
 [22] NESFIT. NIX Development Environment [online]. [cit. 2025-04-17]. Available at: https://git.fit.vutbr.cz/NESFIT/dev-envs
 
 [23] MALASHCHUK, Vladyslav, Tomáš HOBZA, et al. VUT_IPK_CLIENT_TESTS [online]. GitHub, 2025 [cit. 2025-04-17]. Available at: https://github.com/Vlad6422/VUT_IPK_CLIENT_TESTS
+
+[24] WIKIPEDIA. TCP congestion control [online] [cit. 2025-04-17]. Available at: https://en.wikipedia.org/wiki/TCP_congestion_control
