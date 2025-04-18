@@ -307,7 +307,6 @@ namespace ipk24chat_client.Clients.Udp
                         }
                         if (buff[0] == 0xFF)
                         {
-                            _client.Close();
                             Environment.Exit(0);
                         }
                         if (buff[0]!= 0x00 && buff[0] != 0x01 && buff[0] != 0x04 && buff[0] != 0xFE && buff[0] != 0xFF && buff[0] != 0xFD)
@@ -353,7 +352,6 @@ namespace ipk24chat_client.Clients.Udp
                     break;
                 }
             }
-            _client.Close();
             Environment.Exit(0);
         }
     }
