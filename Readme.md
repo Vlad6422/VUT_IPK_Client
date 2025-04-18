@@ -12,7 +12,7 @@ Initially the application was written in .NET 8 with the switch **--self-contain
 I used these commands to run the environment, I am writing this because initially the environment has .NET 8, but after the last commit it overwrites the original environment with .NET 9. I am adding this because I do not know what version you will be testing this on. But 4 days before the deadline, the condition and task changed and .NET 8+ was changed to .NET 9+, so I assume that the tests will be run on 9. I reserve the right to change the .NET version at any time after the project is submitted, without deducting additional points, in case of non-compilation, non-launch of the application due to problems with .NET. Before the last commit, the application worked only on .NET 8, after the last one it will be on 9 due to the task update.
 
 The table of contents may look large, but it makes it easier to jump to the part that interests you.
-The theory was taken from RFS and open sources, Project overview was taken from the Giteo Repo itself and almost completely copied. I wrote the tests myself.
+The theory was taken from RFS and open sources, Project overview was taken from the Giteo Repo [21](https://git.fit.vutbr.cz/NESFIT/IPK-Projects/src/branch/master/Project_2) itself and almost completely copied. I wrote the tests myself.
 
 Last year I got points deducted because of screenshots in the documentation, but I think it is necessary to show that the project is fully functional and this is the best example, because you can extend files, text, but it is unlikely that someone will photoshop dozens of clippings from Discord, because it is faster to implement this functionality.
 
