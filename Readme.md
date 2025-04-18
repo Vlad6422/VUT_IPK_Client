@@ -11,7 +11,7 @@ Initially the application was written in .NET 8 with the switch **--self-contain
 
 I used these commands to run the environment, I am writing this because initially the environment has .NET 8, but after the last commit it overwrites the original environment with .NET 9. I am adding this because I do not know what version you will be testing this on. But 4 days before the deadline, the condition and task changed and .NET 8+ was changed to .NET 9+, so I assume that the tests will be run on 9. I reserve the right to change the .NET version at any time after the project is submitted, without deducting additional points, in case of non-compilation, non-launch of the application due to problems with .NET. Before the last commit, the application worked only on .NET 8, after the last one it will be on 9 due to the task update. This is an addition to the previous one, I tested it on a virtual machine with an environment from ipk and from root and I can unpack the zip, run make, the application is launched without "sudo", and using "sudo", also the tests were re-run through ipk and root again. The application is compiled in .NET 9 SDK and Runtime is embedded in it after which the use of .NET is not required and the application can be launched on any device without installing .NET Runtime on it, it can be launched on any system where Linux is installed. Environment and how testing was made in [Testing](#testing).
 
-The table of contents may look large, but it makes it easier to jump to the part that interests you.
+The table of contents may look large (I made it shorter from last commits), but it makes it easier to jump to the part that interests you.
 The theory was taken from RFS and open sources, Project overview was taken from the Giteo Repo [[21]](https://git.fit.vutbr.cz/NESFIT/IPK-Projects/src/branch/master/Project_2) itself and almost completely copied. I wrote the tests myself.
 
 Last year I got points deducted because of screenshots in the documentation, but I think it is necessary to show that the project is fully functional and this is the best example, because you can extend files, text, but it is unlikely that someone will photoshop dozens of clippings from Discord, because it is faster to implement this functionality.
@@ -40,11 +40,9 @@ I wrote documentation throughout the entire project and it turned out to be, to 
 - [Testing](#testing)
   - [Testing with Reference Server](#testing-with-reference-server)
   - [Testing with Custom Server](#testing-with-custom-server)
-  - [Authentication and Message Exchange Testing](#authentication-and-message-exchange-testing)
-  - [User and Server Logs](#user-and-server-logs)
-  - [Visuals](#visuals)
-  - [Closed Python Tests (Simulated Server)](#closed-python-tests-simulated-server)
-  - [TESTS RESULTS](#tests-results)
+  - [Integration Tests](#integration-tests)
+  - [Additional Tests](#closed-python-tests-simulated-server)
+  - [Tests Results](#tests-results)
 - [Bibliography](#bibliography)
 
 
