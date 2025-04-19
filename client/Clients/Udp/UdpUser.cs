@@ -17,7 +17,7 @@ namespace ipk24chat_client.Clients.Udp
         private UdpClient _client = new UdpClient(0); // UDP client for sending and receiving messages on the local port (random).
         private IPEndPoint _serverEndPoint; // Server endpoint for sending messages.
         private bool _recieveThreadRunning = true;
-        List<ushort> confirmedMessages = new List<ushort>(); // List of confirmed messages. Need to check if message was confirmed by server and resend it if not.
+        private List<ushort> confirmedMessages = new List<ushort>(); // List of confirmed messages. Need to check if message was confirmed by server and resend it if not.
         private Thread thread; // Thread for receiving UDP packets.
         private Dictionary<ushort, bool> _alreadyRecievedMessages = new Dictionary<ushort, bool>(); // This dictionary is used to track messages that have already been received, preventing duplicate processing.
         public UdpUser(ServerSetings server)
