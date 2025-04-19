@@ -756,6 +756,8 @@ In the tests it was expected that the packets sent by the client would be correc
 
 It will not describe over and over again what happens in the tests, it is clearly visible from the name of the test, input, output, discord snapshot, wireshark snapshot and all additional files saved in the directory with the tests.
 
+In Tcp you can check right packets order via text in Wireshark Flow, there you will be seen wireshark packets in ASCII symbols,also you can check it yourself via .pcapng file. In UDP section i will not write all bytes in text, that takes place and show nothing. In evety Udp test you can see discord screenshot to see that packets correctly processed and wireshark to control count of send pakets, count of recieved/send CONFIRM. I checked count, so i Will not write that we have 10 packets send and 10 CONFIRMS recieved. More specific test like error handling from server,dublicates,resending packets to server atd will be test it next tests section.
+
 Every test have structure like **Protocol-PacketType, stdin, stdout, image from Reference Discord Server, Wireshark Screenshot(with pcapng file in directory), for TCP I added FLOW in text**. Stdin and Stdout is links to txt files in directory, they are mostly same and was used during auto testing, dont see reasons to copy-paste it 10 times. All results in text/captured packets/images and so on can be finded in directory **tests**.
 
 Based on the comments on the forum about using images, they will be used only in tests with the REFERENCE server to show the correct processing of packets by it. In further tests, all examples and results will be in text.
@@ -1079,7 +1081,7 @@ The program has been thoroughly tested across all types of packets and situation
 
 - **ERR**: Both sending this packet and correct display upon receiving it were tested. It was also tested that upon receiving this packet the application correctly terminates its work, during testing it was found that upon receiving this type of packet a BYE packet is sent in response, after analyzing all the states described in the project task it was decided to remove sending BYE. Otherwise it works correctly.
 
-- **JOIN**: It was tested, on the reference server it correctly connects to the channel and also exits from it. In my tests it also correctly sent and processed REPLY after that.
+- **JOIN**: It was tested, on the reference server it correctly connects to the channel and also exits from it. In my tests it also correctly sent JOIN and processed REPLY after that.
 
 - **MSG**: Correctly sends and receives all messages. Also, the application does not hang when accepting it and does not break at the moment when a message arrives while printing. The maximum size works correctly.
 
@@ -1094,6 +1096,8 @@ Also, in udp, the processing of duplicates and resending of packets in case of n
 Perhaps I forgot something, but it seems like everything was tested.
 
 The program can successfully process and handle these types of packets, managing all situations, including message transmission, connection termination, error handling, and channel joining, for both TCP and UDP protocols.
+
+Was tested correct Termination of application. That means if all good - Exit code is 0. If some error, desribed in Errors Table in [Project Owerviev section](#client-exception-handling) it displays it, writes, close socket and terminates with code 1.
 
 The application has been extensively tested using different servers and python tests, all functions have been tested and more than once. Both the correct output of messages and the network side such as the correct sequence of packets, their content, confirmation of packets, search for duplicates and so on have been tested.
 
