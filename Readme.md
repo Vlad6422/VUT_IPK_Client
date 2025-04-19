@@ -1337,12 +1337,19 @@ At one time, on a virtual machine and in a NIX environment with .NET 9, Python t
 - **tcp_invalid_msg**: PASSED
 - **tcp_auth_err**: PASSED
 
+## Added test 19.04.2025:
+
+- **udp_reports_error_when_missing_confirmation**: PASSED
+- **tcp_single_message_multiple_segments2**: PASSED
+- **tcp_receive_two_messages_within_3_segments**: PASSED
+- **tcp_grammar_is_case_insensitive**: PASSED
+
 ## Summary:
-- **Total Tests Run**: 55
-- **Tests Passed**: 55/55
+- **Total Tests Run**: 58
+- **Tests Passed**: 58/58
 
 
-**You can see that all 55 tests were passed, which is not a bad result and confirms for the third time that the project works.**
+**You can see that all 58 tests were passed, which is not a bad result and confirms for the third time that the project works.**
 
 ### Closed Python Tests (Simulated Server)
 
