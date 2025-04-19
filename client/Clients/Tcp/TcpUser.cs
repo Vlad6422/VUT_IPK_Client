@@ -6,8 +6,6 @@ namespace ipk24chat_client.Clients.Tcp
 {
     public class TcpUser : User
     {
-        private string _message = String.Empty; // Message to be sent to the server. It is set when user types a message in the console.
-        private bool _isAuthorized; // Flag to check if the user is authorized. Used to prevent sending messages before authentication and reciving messages from the server.
         private NetworkStream _networkStream; // Network stream for sending and receiving messages. Passed from the main program to the client in constructor.
         private Thread _receiveThread; // Thread for receiving messages from the server.
         private bool _recieveThreadRunning = true; // Flag to control the thread loop, this is used to stop the thread when client gets BYE or ERR message to prevent it from processing messages after those packets.
@@ -102,10 +100,7 @@ namespace ipk24chat_client.Clients.Tcp
 
                         case "help":
                             // Print out supported local commands with their parameters and a description
-                            Console.WriteLine("/auth {Username} {Secret} {DisplayName} - Sends AUTH message to the server");
-                            Console.WriteLine("/join {ChannelID} - Sends JOIN message to the server");
-                            Console.WriteLine("/rename {DisplayName} - Locally changes the display name of the user");
-                            Console.WriteLine("/help - Prints out supported local commands with their parameters and a description");
+                            PrintHelpCommands();
                             break;
 
                         default:

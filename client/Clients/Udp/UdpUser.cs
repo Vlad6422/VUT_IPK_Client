@@ -8,12 +8,10 @@ namespace ipk24chat_client.Clients.Udp
 {
     public class UdpUser : User
     {
-        // if field dont have comment, find it in TcpUser class
-        private string _message { get; set; } = string.Empty; 
+        // if field dont have comment, find it in TcpUser or User class
         private ushort _messageId { get; set; } = 0;
         private ushort udpConfirmationTimeout { get; } // Timeout for UDP confirmation in milliseconds
         private byte maxUdpRetransmissions { get; } // Maximum number of retransmissions for UDP messages
-        private bool _isAuthorized { get; set; }
         private UdpClient _client = new UdpClient(0); // UDP client for sending and receiving messages on the local port (random).
         private IPEndPoint _serverEndPoint; // Server endpoint for sending messages.
         private bool _recieveThreadRunning = true;
@@ -137,10 +135,7 @@ namespace ipk24chat_client.Clients.Udp
 
                         case "help":
                             // Print out supported local commands with their parameters and a description
-                            Console.WriteLine("/auth {Username} {Secret} {DisplayName} - Sends AUTH message to the server");
-                            Console.WriteLine("/join {ChannelID} - Sends JOIN message to the server");
-                            Console.WriteLine("/rename {DisplayName} - Locally changes the display name of the user");
-                            Console.WriteLine("/help - Prints out supported local commands with their parameters and a description");
+                            PrintHelpCommands();
                             break;
 
                         default:

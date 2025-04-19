@@ -1,4 +1,6 @@
-﻿namespace ipk25_chat.Clients
+﻿using System;
+
+namespace ipk25_chat.Clients
 {
     /// <summary>
     /// Represents a user. Username, secret (password), and display name.
@@ -12,6 +14,8 @@
         protected string _username { get; set; } = String.Empty;
         protected string _secret { get; set; } = String.Empty;
         protected string _displayName { get; set; } = String.Empty;
+        protected bool _isAuthorized { get; set; } = false;  // Flag to check if the user is authorized. Used to prevent sending messages before authentication and reciving messages from the server.
+        protected string _message { get; set; } = string.Empty;
         protected bool ChangeUserName(string username)
         {
             if (username.Length > 20 || !System.Text.RegularExpressions.Regex.IsMatch(username, @"^[A-Za-z0-9\-]+$"))
@@ -60,6 +64,14 @@
         protected void WriteInternalError(string error)
         {
             Console.WriteLine($"ERROR: {error}");
+        }
+        protected void PrintHelpCommands()
+        {
+            // Print out supported local commands with their parameters and a description
+            Console.WriteLine("/auth {Username} {Secret} {DisplayName} - Sends AUTH message to the server");
+            Console.WriteLine("/join {ChannelID} - Sends JOIN message to the server");
+            Console.WriteLine("/rename {DisplayName} - Locally changes the display name of the user");
+            Console.WriteLine("/help - Prints out supported local commands with their parameters and a description");
         }
     }
 }
