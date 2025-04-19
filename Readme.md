@@ -55,7 +55,7 @@ The theory was taken not only from RFC, but also from basic sources such as arti
 
 ## **TCP (Transmission Control Protocol)**
 
-This section will talk about the theory of TDP connections, perhaps even too deeply and knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
+This section will talk about the theory of TCP connections, perhaps even too deeply and knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 The Transmission Control Protocol (TCP) is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol (IP). Therefore, the entire suite is commonly referred to as TCP/IP. TCP provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network. Major internet applications such as the World Wide Web, email, remote administration, and file transfer rely on TCP, which is part of the transport layer of the TCP/IP suite. SSL/TLS often runs on top of TCP.
 
@@ -80,13 +80,11 @@ TCP organizes data so that it can be transmitted between a server and a client. 
 
 ### **Congestion Control**
 
-Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet. [[24]](https://en.wikipedia.org/wiki/TCP_congestion_control)
-
-To avoid congestive collapse, TCP uses a multi-faceted congestion-control strategy. For each connection, TCP maintains a CWND, limiting the total number of unacknowledged packets that may be in transit end-to-end. This is somewhat analogous to TCP's sliding window used for flow control.  [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
+Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet. [[24]](https://en.wikipedia.org/wiki/TCP_congestion_control)  [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
 
 ### **Error Detection and Correction**
 
-Error Detection and Correction: TCP uses checksums to detect errors in transmitted data. If an error is detected, the sender will retransmit the affected segment. Congestion Control: TCP uses algorithms to adjust its sending rate based on network congestion. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
+TCP uses checksums to detect errors in transmitted data. If an error is detected, the sender will retransmit the affected segment. Congestion Control described before -  TCP uses algorithms to adjust its sending rate based on network congestion. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 
 ### **Connection Termination**
@@ -105,7 +103,6 @@ The connection termination phase uses a four-way handshake, with each side of th
 
 ### **Applications of TCP**
 I took information from this website [[15]](https://www.techtarget.com/searchnetworking/definition/TCP), but you can freely use any of open sources for it.
-TCP is used by many network applications that require tcp communication. Some of the most common applications:
 
 - **Web Browsing (HTTP/HTTPS):** When you browse websites, HTTP or HTTPS uses TCP for reliable data transfer [[9]](https://datatracker.ietf.org/doc/html/rfc1945).
 - **File Transfer Protocol (FTP):** FTP uses TCP to ensure files are correctly transferred between computers [[8]](https://datatracker.ietf.org/doc/html/rfc1350).
