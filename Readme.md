@@ -40,6 +40,7 @@ I wrote documentation throughout the entire project and it turned out to be, to 
 - [Testing](#testing)
   - [Testing with Reference Server](#testing-with-reference-server)
   - [Testing with Custom Server](#testing-with-custom-server)
+  - [Not-Basic Tests](#not-basic-tests)
   - [Integration Tests](#integration-tests)
   - [Additional Tests](#closed-python-tests-simulated-server)
   - [Tests Results](#tests-results)
@@ -659,7 +660,7 @@ But it is Threads, so i had problems when Sending Thread close socket, and Revie
 
 The `TcpUser` class is designed to handle communication between a client and a server using the **TCP** protocol. It supports various actions such as authenticating with the server, joining channels, sending and receiving messages, and processing different types of server responses. Additionally, it uses multithreading to manage simultaneous user input and message reception from the server like it was desribed earlier.
 
-If I describe it briefly, it works like this: a connection is established between the client and the server, this connection (reference to the object) is transferred to my object and from there it is managed. There are basically 2 threads working in parallel: one receives input in the console and sends packets, in case of an error it displays it in the console, the second thread receives packets and also displays them in the console or an error. In case of receiving an error or BYE or closing the connection, the client correctly closes the connection and closes the application with or without the error code. Also implemented is the support of several messages in one packet and also one message divided into several packets. I will not describe the work line by line, only its basics, for more detailed things like processing each packet, look in the source code, but it works so that the packets are read, then they are divided by \r\n and these packets are processed separately, for each packet there is a separate HandlePacket method that handles it.
+If I describe it briefly, it works like this: a connection is established between the client and the server, this connection (reference to the object) is transferred to my object and from there it is managed. There are basically 2 threads working in parallel: one receives input in the console and sends packets, in case of an error it displays it in the console, the second thread receives packets and also displays them in the console or an error. In case of receiving an error or BYE or closing the connection, the client correctly closes the connection and closes the application with or without the error code. Also implemented is the support of several messages recieved in one packet and also one message divided into several packets,this works using StringBuilder, it recieves stream and when recieves "\r\n", part of string before it will be parsed to Handle mathod with processing logic for this type of packet. I will not describe the work line by line, only its basics, for more detailed things like processing each packet, look in the source code, but it works so that the packets are read, then they are divided by \r\n and these packets are processed separately, for each packet there is a separate HandlePacket method that handles it.
 ![Reference Server Output](doc/TcpUser.png)
 
 From UML you can see that the program receives and sends packets of different types. [Project Overview Packet Types](#message-content-parameter-mapping-for-tcp)
@@ -1028,7 +1029,6 @@ BYE FROM NameChanged
 - **Wireshark Screenshot**:  
   ![WiresharkREANEMEUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/Rename/WiresharkRename.png)
 
-
 #### Final Test (Approved)
 
 ![Approved](tests/IntegrationReferenceServerTests/ReferenceServerResult/ConfirmTestsPassed.png)
@@ -1265,6 +1265,236 @@ Additionally, packet captures (`.pcapng` files) for further network analysis are
 ![WiresharkRESULT](tests/CustomServer/Result-min.png) Image Compressed. Maybe bad looking in markdown viewer. Check `tests/CustomServer/` directory.
 
 **From the tests you can see that 4 clients connected to the server. 2 of which are tcp and 2 are udp. The first tcp client watched the chat, the other clients wrote to it. In result you can see that TCP1 have IPK25-CHAT. Then you can see that all the users moved to another channel, asked for points for the project and left it.**
+
+### Not-Basic Tests
+
+This tests was done with my custom server, I simulated this situations.
+
+#### TCP - Multiple Messages in one Segment
+
+This test shows that the server sends all messages in 1 TCP segment, while the client splits the data in it into messages by "\r\n" and processes them correctly. The stdout shows the result on the client, below is the segment with the messages in it.
+
+**stdin:**
+`/auth Vlad Secret DisplayName`
+**stdout:**
+```
+Action Success: You are authorized!
+Server: First Message in Segment
+Server: Second Message in Segment
+```
+**Wireshark:**
+ASCII:
+```
+AUTH Vlad AS DisplayName USING Secret
+REPLY OK IS You are authorized!
+MSG FROM Server IS First Message in Segment
+MSG FROM Server IS Second Message in Segment
+```
+
+```
+00000000  41 55 54 48 20 56 6c 61  64 20 41 53 20 44 69 73   AUTH Vla d AS Dis
+00000010  70 6c 61 79 4e 61 6d 65  20 55 53 49 4e 47 20 53   playName  USING S
+00000020  65 63 72 65 74 0d 0a                               ecret..
+00000000  52 45 50 4c 59 20 4f 4b  20 49 53 20 59 6f 75 20   REPLY OK  IS You 
+00000010  61 72 65 20 61 75 74 68  6f 72 69 7a 65 64 21 0d   are auth orized!.
+00000020  0a                                                 .
+00000021  4d 53 47 20 46 52 4f 4d  20 53 65 72 76 65 72 20   MSG FROM  Server 
+00000031  49 53 20 46 69 72 73 74  20 4d 65 73 73 61 67 65   IS First  Message
+00000041  20 69 6e 20 53 65 67 6d  65 6e 74 0d 0a 4d 53 47    in Segm ent..MSG
+00000051  20 46 52 4f 4d 20 53 65  72 76 65 72 20 49 53 20    FROM Se rver IS 
+00000061  53 65 63 6f 6e 64 20 4d  65 73 73 61 67 65 20 69   Second M essage i
+00000071  6e 20 53 65 67 6d 65 6e  74 0d 0a                  n Segmen t..
+```
+#### TCP - Single Message in Multiple Segments
+
+This test shows that the server sends 1 message in parts in different packages. But the client correctly processes and waits until \r\n arrives and then handle the message for processing. This works with the help of **StringBuilder** which adds a new part to the string until it receives the whole one that ends "\r\n".
+
+**stdin:**
+`/auth Vlad Secret DisplayName`
+**stdout:**
+```
+Action Success: You are authorized!
+server: All is Fine
+```
+
+**Wireshark:**
+
+ASCII:
+```
+AUTH Vlad AS DisplayName USING Secret
+REPLY OK IS You are authorized!
+MSG FROM server IS All is Fine
+```
+```
+00000000  41 55 54 48 20 56 6c 61  64 20 41 53 20 44 69 73   AUTH Vla d AS Dis
+00000010  70 6c 61 79 4e 61 6d 65  20 55 53 49 4e 47 20 53   playName  USING S
+00000020  65 63 72 65 74 0d 0a                               ecret..
+00000000  52 45 50 4c 59 20 4f 4b  20 49 53 20 59 6f 75 20   REPLY OK  IS You 
+00000010  61 72 65 20 61 75 74 68  6f 72 69 7a 65 64 21 0d   are auth orized!.
+00000020  0a                                                 .
+00000021  4d                                                 M
+00000022  53 47 20                                           SG 
+00000025  46 52                                              FR
+00000027  4f 4d 20 73 65 72                                  OM ser
+0000002D  76 65                                              ve
+0000002F  72 20 49                                           r I
+00000032  53 20 41 6c 6c 20 69 73  20 46 69 6e 65 0d 0a      S All is  Fine..
+```
+
+#### TCP - Grammar Insensetive
+
+Test to hande eRr,AuTh,Reply. From Wireshark it can be seen how it was send. And in stdout result.
+
+**stdin:**
+`/auth VLAD SECRET DISPLAYNAME`
+**stdout:**
+```
+Action Success: authenticated
+seRver: message
+ERROR FROM seRver: message
+```
+**Wireshark:**
+
+ASCII:
+```
+AUTH VLAD AS DISPLAYNAME USING SECRET
+rEpLy oK is authenticated
+mSg fRoM seRver Is message
+eRR FrOm seRver iS message
+```
+
+```
+00000000  41 55 54 48 20 56 4c 41  44 20 41 53 20 44 49 53   AUTH VLA D AS DIS
+00000010  50 4c 41 59 4e 41 4d 45  20 55 53 49 4e 47 20 53   PLAYNAME  USING S
+00000020  45 43 52 45 54 0d 0a                               ECRET..
+00000000  72 45 70 4c 79 20 6f 4b  20 69 73 20 61 75 74 68   rEpLy oK  is auth
+00000010  65 6e 74 69 63 61 74 65  64 0d 0a                  enticate d..
+0000001B  6d 53 67 20 66 52 6f 4d  20 73 65 52 76 65 72 20   mSg fRoM  seRver 
+0000002B  49 73 20 6d 65 73 73 61  67 65 0d 0a               Is messa ge..
+00000037  65 52 52 20 46 72 4f 6d  20 73 65 52 76 65 72 20   eRR FrOm  seRver 
+00000047  69 53 20 6d 65 73 73 61  67 65 0d 0a               iS messa ge..
+
+```
+#### TCP - Two messages in 3 Segments
+
+Recieves 2 messages in 3 segments and process them.
+
+**stdin:**
+```
+/auth Vlad Secret DisplayName
+```
+**stdout:**
+```
+Action Success: You are authorized!
+Server: message1
+Server: message2
+```
+**Wireshark:**
+
+ASCII:
+```
+AUTH Vlad AS DisplayName USING Secret
+REPLY OK IS You are authorized!
+MSG FROM Server IS message1
+MSG FROM Server IS message2
+```
+```
+00000000  41 55 54 48 20 56 6c 61  64 20 41 53 20 44 69 73   AUTH Vla d AS Dis
+00000010  70 6c 61 79 4e 61 6d 65  20 55 53 49 4e 47 20 53   playName  USING S
+00000020  65 63 72 65 74 0d 0a                               ecret..
+00000000  52 45 50 4c 59 20 4f 4b  20 49 53 20 59 6f 75 20   REPLY OK  IS You 
+00000010  61 72 65 20 61 75 74 68  6f 72 69 7a 65 64 21 0d   are auth orized!.
+00000020  0a                                                 .
+00000021  4d 53 47 20 46 52 4f 4d  20 53 65 72 76 65 72 20   MSG FROM  Server 
+00000031  49 53 20 6d 65 73 73 61  67 65 31 0d 0a 4d 53 47   IS messa ge1..MSG
+00000041  20 46 52 4f 4d 20 53 65  72 76 65 72                FROM Se rver
+0000004D  20 49 53 20 6d 65 73 73  61 67 65 32 0d 0a          IS mess age2..
+```
+
+#### UDP - Retransmition
+
+Test shows that message will be send 1 time, it dont recieve CONFIRM packet for first and resend it again. (Standart Retransmition time is 250ms) 
+
+**stdin and stdout:**
+```
+stdin:/auth Vlad Secret DisplayNameUdp
+Action Success: All is Ok(UDP REPLY)
+stdin:Test retransmit message
+```
+**Wireshark:**
+
+ASCII:
+```
+...Vlad.DisplayNameUdp.Secret..........All is Ok(UDP REPLY).......DisplayNameUdp.Test retransmit message....DisplayNameUdp.Test retransmit message....
+```
+```
+00000000  02 00 00 56 6c 61 64 00  44 69 73 70 6c 61 79 4e   ...Vlad. DisplayN
+00000010  61 6d 65 55 64 70 00 53  65 63 72 65 74 00         ameUdp.S ecret.
+00000000  00 00 00                                           ...
+00000003  01 00 00 01 00 00 41 6c  6c 20 69 73 20 4f 6b 28   ......Al l is Ok(
+00000013  55 44 50 20 52 45 50 4c  59 29 00                  UDP REPL Y).
+0000001E  00 00 00                                           ...
+00000021  04 01 00 44 69 73 70 6c  61 79 4e 61 6d 65 55 64   ...Displ ayNameUd
+00000031  70 00 54 65 73 74 20 72  65 74 72 61 6e 73 6d 69   p.Test r etransmi
+00000041  74 20 6d 65 73 73 61 67  65 00                     t messag e.
+0000004B  04 01 00 44 69 73 70 6c  61 79 4e 61 6d 65 55 64   ...Displ ayNameUd
+0000005B  70 00 54 65 73 74 20 72  65 74 72 61 6e 73 6d 69   p.Test r etransmi
+0000006B  74 20 6d 65 73 73 61 67  65 00                     t messag e.
+0000001E  00 01 00                                           ...
+
+```
+
+
+#### UDP - Client Repors Error when Server dont send CONFIRM
+
+IPK25 Protocol:
+```
+Confirmation of a sent UDP message times out
+1) local client error is displayed
+2) the connection is understood to be finalized, no further messages are sent
+3) the client application is terminated with an error code
+```
+
+So i send message, than it try 3 times to resend it due to not recieved CONFIRM.
+It will not receive CONFIRM for last resended MSG, so client will display `ERROR: ...`, socket will be closed, and client closed with ``code 1``.
+
+**stdin and stdout:**
+```
+stdin:/auth Vlad Secret DisplayNameUdp
+Action Success: All is Ok(UDP REPLY)
+stdin:Hello I am trying! Please send me CONFIRM!
+ERROR: Message not confirmed by server. Exiting.
+```
+**Wireshark:**
+
+ASCII:
+```
+...Vlad.DisplayNameUdp.Secret..........All is Ok(UDP REPLY).......DisplayNameUdp.Hello I am trying! Please send me CONFIRM!....DisplayNameUdp.Hello I am trying! Please send me CONFIRM!....DisplayNameUdp.Hello I am trying! Please send me CONFIRM!....DisplayNameUdp.Hello I am trying! Please send me CONFIRM!.
+```
+```
+00000000  02 00 00 56 6c 61 64 00  44 69 73 70 6c 61 79 4e   ...Vlad. DisplayN
+00000010  61 6d 65 55 64 70 00 53  65 63 72 65 74 00         ameUdp.S ecret.
+00000000  00 00 00                                           ...
+00000003  01 00 00 01 00 00 41 6c  6c 20 69 73 20 4f 6b 28   ......Al l is Ok(
+00000013  55 44 50 20 52 45 50 4c  59 29 00                  UDP REPL Y).
+0000001E  00 00 00                                           ...
+00000021  04 01 00 44 69 73 70 6c  61 79 4e 61 6d 65 55 64   ...Displ ayNameUd
+00000031  70 00 48 65 6c 6c 6f 20  49 20 61 6d 20 74 72 79   p.Hello  I am try
+00000041  69 6e 67 21 20 50 6c 65  61 73 65 20 73 65 6e 64   ing! Ple ase send
+00000051  20 6d 65 20 43 4f 4e 46  49 52 4d 21 00             me CONF IRM!.
+0000005E  04 01 00 44 69 73 70 6c  61 79 4e 61 6d 65 55 64   ...Displ ayNameUd
+0000006E  70 00 48 65 6c 6c 6f 20  49 20 61 6d 20 74 72 79   p.Hello  I am try
+0000007E  69 6e 67 21 20 50 6c 65  61 73 65 20 73 65 6e 64   ing! Ple ase send
+0000008E  20 6d 65 20 43 4f 4e 46  49 52 4d 21 00             me CONF IRM!.
+0000009B  04 01 00 44 69 73 70 6c  61 79 4e 61 6d 65 55 64   ...Displ ayNameUd
+000000AB  70 00 48 65 6c 6c 6f 20  49 20 61 6d 20 74 72 79   p.Hello  I am try
+000000BB  69 6e 67 21 20 50 6c 65  61 73 65 20 73 65 6e 64   ing! Ple ase send
+000000CB  20 6d 65 20 43 4f 4e 46  49 52 4d 21 00             me CONF IRM!.
+000000D8  04 01 00 44 69 73 70 6c  61 79 4e 61 6d 65 55 64   ...Displ ayNameUd
+000000E8  70 00 48 65 6c 6c 6f 20  49 20 61 6d 20 74 72 79   p.Hello  I am try
+000000F8  69 6e 67 21 20 50 6c 65  61 73 65 20 73 65 6e 64   ing! Ple ase send
+00000108  20 6d 65 20 43 4f 4e 46  49 52 4d 21 00             me CONF IRM!.
+```
 
 ### Integration Tests
 
