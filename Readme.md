@@ -1275,14 +1275,19 @@ This tests was done with my custom server, I simulated this situations.
 This test shows that the server sends all messages in 1 TCP segment, while the client splits the data in it into messages by "\r\n" and processes them correctly. The stdout shows the result on the client, below is the segment with the messages in it.
 
 **stdin:**
+
 `/auth Vlad Secret DisplayName`
+
 **stdout:**
+
 ```
 Action Success: You are authorized!
 Server: First Message in Segment
 Server: Second Message in Segment
 ```
+
 **Wireshark:**
+
 ASCII:
 ```
 AUTH Vlad AS DisplayName USING Secret
@@ -1310,8 +1315,11 @@ MSG FROM Server IS Second Message in Segment
 This test shows that the server sends 1 message in parts in different packages. But the client correctly processes and waits until \r\n arrives and then handle the message for processing. This works with the help of **StringBuilder** which adds a new part to the string until it receives the whole one that ends "\r\n".
 
 **stdin:**
+
 `/auth Vlad Secret DisplayName`
+
 **stdout:**
+
 ```
 Action Success: You are authorized!
 server: All is Fine
@@ -1346,13 +1354,17 @@ MSG FROM server IS All is Fine
 Test to hande eRr,AuTh,Reply. From Wireshark it can be seen how it was send. And in stdout result.
 
 **stdin:**
+
 `/auth VLAD SECRET DISPLAYNAME`
+
 **stdout:**
+
 ```
 Action Success: authenticated
 seRver: message
 ERROR FROM seRver: message
 ```
+
 **Wireshark:**
 
 ASCII:
@@ -1380,18 +1392,23 @@ eRR FrOm seRver iS message
 Recieves 2 messages in 3 segments and process them.
 
 **stdin:**
+
 ```
 /auth Vlad Secret DisplayName
 ```
+
 **stdout:**
+
 ```
 Action Success: You are authorized!
 Server: message1
 Server: message2
 ```
+
 **Wireshark:**
 
 ASCII:
+
 ```
 AUTH Vlad AS DisplayName USING Secret
 REPLY OK IS You are authorized!
@@ -1416,17 +1433,21 @@ MSG FROM Server IS message2
 Test shows that message will be send 1 time, it dont recieve CONFIRM packet for first and resend it again. (Standart Retransmition time is 250ms) 
 
 **stdin and stdout:**
+
 ```
 stdin:/auth Vlad Secret DisplayNameUdp
 Action Success: All is Ok(UDP REPLY)
 stdin:Test retransmit message
 ```
+
 **Wireshark:**
 
 ASCII:
+
 ```
 ...Vlad.DisplayNameUdp.Secret..........All is Ok(UDP REPLY).......DisplayNameUdp.Test retransmit message....DisplayNameUdp.Test retransmit message....
 ```
+
 ```
 00000000  02 00 00 56 6c 61 64 00  44 69 73 70 6c 61 79 4e   ...Vlad. DisplayN
 00000010  61 6d 65 55 64 70 00 53  65 63 72 65 74 00         ameUdp.S ecret.
@@ -1447,7 +1468,8 @@ ASCII:
 
 #### UDP - Client Repors Error when Server dont send CONFIRM
 
-IPK25 Protocol:
+**IPK25 Protocol:**
+
 ```
 Confirmation of a sent UDP message times out
 1) local client error is displayed
@@ -1459,12 +1481,14 @@ So i send message, than it try 3 times to resend it due to not recieved CONFIRM.
 It will not receive CONFIRM for last resended MSG, so client will display `ERROR: ...`, socket will be closed, and client closed with ``code 1``.
 
 **stdin and stdout:**
+
 ```
 stdin:/auth Vlad Secret DisplayNameUdp
 Action Success: All is Ok(UDP REPLY)
 stdin:Hello I am trying! Please send me CONFIRM!
 ERROR: Message not confirmed by server. Exiting.
 ```
+
 **Wireshark:**
 
 ASCII:
