@@ -764,6 +764,123 @@ Based on the comments on the forum about using images, they will be used only in
 
 **If you see an unloaded icon/text/image** atd, it is most likely a markdown viewer error, in these places there is always a link to a file that is in the directory, mainly it has a problem with the input and output since they are stored in text form in the directory with tests, because they were used in automatic testing and I added links to them. In this case, please find them in the project files or use another viewer.
 
+Before test, i said that i will not write bytes in UDP testing section, I will do it 1 time here and than will not. Because of the packet size in bits, the tests will stretch out tens of times and repeat, and saying that a 000000 packet with CONFIRM arrived at each test does not make sense.
+
+So this is UDP test:
+
+**Input and Output**:
+From Input we can see Auth,Reply,recieved messages. After "Hello" you can see that i was writting message and it that time come a message from server. It writes it immideantly, but when i finished writing "is Vlad", to server was send "My name is Vlad".
+```
+(nix:nix-shell-env) ipk@ipk:~/IPKCHAT_BUILD7$ ./ipk25chat-client -t udp -s anton5.fit.vutbr.cz
+/auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 VVV
+Action Success: Authentication successful.
+Server: VVV has joined `discord.general` via UDP.
+Hello
+My name TotoSomJa: Moj Pokus cislo 2
+is Vlad
+This is test
+Bye
+```
+Here i will shorlty describe bits.. For first byte in packet (0x02,0x00,0x01..) check [Table](#message-type-mapping). This is Wireshark Capture with C arrays encoding. This is an example of how arrays are formed in the application and sent, below you will see another encoding, which is more compact and there I will describe what each package does.
+```
+char peer0_0[] = { /* Packet 17 */
+0x02, 0x00, 0x00, 0x78, 0x6d, 0x61, 0x6c, 0x61, 
+0x73, 0x30, 0x34, 0x00, 0x56, 0x56, 0x56, 0x00, 
+0x35, 0x61, 0x37, 0x39, 0x38, 0x62, 0x31, 0x63, 
+0x2d, 0x39, 0x34, 0x32, 0x35, 0x2d, 0x34, 0x39, 
+0x32, 0x66, 0x2d, 0x61, 0x63, 0x61, 0x31, 0x2d, 
+0x34, 0x33, 0x39, 0x35, 0x31, 0x33, 0x66, 0x62, 
+0x37, 0x34, 0x34, 0x30, 0x00 };
+char peer1_0[] = { /* Packet 18 */
+0x00, 0x00, 0x00 };
+char peer0_0[] = { /* Packet 19 */
+0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x41, 0x75, 
+0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 
+0x74, 0x69, 0x6f, 0x6e, 0x20, 0x73, 0x75, 0x63, 
+0x63, 0x65, 0x73, 0x73, 0x66, 0x75, 0x6c, 0x2e, 
+0x00 };
+char peer1_0[] = { /* Packet 20 */
+0x00, 0x00, 0x00 };
+char peer0_1[] = { /* Packet 21 */
+0x04, 0x00, 0x01, 0x53, 0x65, 0x72, 0x76, 0x65, 
+0x72, 0x00, 0x56, 0x56, 0x56, 0x20, 0x68, 0x61, 
+0x73, 0x20, 0x6a, 0x6f, 0x69, 0x6e, 0x65, 0x64, 
+0x20, 0x60, 0x64, 0x69, 0x73, 0x63, 0x6f, 0x72, 
+0x64, 0x2e, 0x67, 0x65, 0x6e, 0x65, 0x72, 0x61, 
+0x6c, 0x60, 0x20, 0x76, 0x69, 0x61, 0x20, 0x55, 
+0x44, 0x50, 0x2e, 0x00 };
+char peer1_1[] = { /* Packet 22 */
+0x00, 0x00, 0x01 };
+char peer1_2[] = { /* Packet 24 */
+0x04, 0x01, 0x00, 0x56, 0x56, 0x56, 0x00, 0x48, 
+0x65, 0x6c, 0x6c, 0x6f, 0x00 };
+char peer0_2[] = { /* Packet 25 */
+0x00, 0x01, 0x00 };
+char peer0_3[] = { /* Packet 30 */
+0x04, 0x00, 0x02, 0x54, 0x6f, 0x74, 0x6f, 0x53, 
+0x6f, 0x6d, 0x4a, 0x61, 0x00, 0x4d, 0x6f, 0x6a, 
+0x20, 0x50, 0x6f, 0x6b, 0x75, 0x73, 0x20, 0x63, 
+0x69, 0x73, 0x6c, 0x6f, 0x20, 0x32, 0x00 };
+char peer1_3[] = { /* Packet 31 */
+0x00, 0x00, 0x02 };
+char peer0_4[] = { /* Packet 32 */
+0xfd, 0x00, 0x03 };
+char peer1_4[] = { /* Packet 33 */
+0x00, 0x00, 0x03 };
+char peer1_5[] = { /* Packet 34 */
+0x04, 0x02, 0x00, 0x56, 0x56, 0x56, 0x00, 0x4d, 
+0x79, 0x20, 0x6e, 0x61, 0x6d, 0x65, 0x20, 0x69, 
+0x73, 0x20, 0x56, 0x6c, 0x61, 0x64, 0x00 };
+char peer0_5[] = { /* Packet 35 */
+0x00, 0x02, 0x00 };
+char peer1_6[] = { /* Packet 38 */
+0x04, 0x03, 0x00, 0x56, 0x56, 0x56, 0x00, 0x54, 
+0x68, 0x69, 0x73, 0x20, 0x69, 0x73, 0x20, 0x74, 
+0x65, 0x73, 0x74, 0x00 };
+char peer0_6[] = { /* Packet 39 */
+0x00, 0x03, 0x00 };
+char peer1_7[] = { /* Packet 40 */
+0x04, 0x04, 0x00, 0x56, 0x56, 0x56, 0x00, 0x42, 
+0x79, 0x65, 0x00 };
+char peer0_7[] = { /* Packet 41 */
+0x00, 0x04, 0x00 };
+char peer1_8[] = { /* Packet 42 */
+0xff, 0x05, 0x00, 0x56, 0x56, 0x56, 0x00 };
+char peer0_8[] = { /* Packet 43 */
+0x00, 0x05, 0x00 };
+
+```
+I also show Raw and I think it is best place to describe it. HERE you can see correct authorization, receiving REPLY, sending and receiving CONFIRM, from the text above you can see that incoming packets are correctly displayed, CONFIRM is correctly sent to PING, at the end BYE is sent and confirmation is received.
+```
+020000786d616c61733034005656560035613739386231632d393432352d343932662d616361312d34333935313366623734343000 <- AUTH
+000000  <- CONFIRM
+01000001000041757468656e7469636174696f6e207375636365737366756c2e00 <- REPLY (Authentication successful)
+000000 <-CONFIRM
+0400015365727665720056565620686173206a6f696e65642060646973636f72642e67656e6572616c6020766961205544502e00 <-MSG (Server.VVV has joined `discord.general` via UDP)
+000001 <-CONFIRM
+0401005656560048656c6c6f00 <-MSG (VVV.Hello)
+000100 <-CONFIRM
+040002546f746f536f6d4a61004d6f6a20506f6b7573206369736c6f203200 <-MSG (TotoSomJa.Moj Pokus cislo 2)
+000002 <-CONFIRM
+fd0003 <- PING
+000003 <-CONFIRM
+040200565656004d79206e616d6520697320566c616400 <-MSG (VVV.My name is Vlad)
+000200 <-CONFIRM
+0403005656560054686973206973207465737400 <-MSG (VVV.This is test)
+000300 <-CONFIRM
+0404005656560042796500 <-MSG (VVV.Bye)
+000400 <-CONFIRM
+ff050056565600 <-BYE (VVV)
+000500 <-CONFIRM
+
+```
+And final for clarity in ASCII:
+```
+...xmalas04.VVV.5a798b1c-9425-492f-aca1-439513fb7440..........Authentication successful........Server.VVV has joined `discord.general` via UDP........VVV.Hello.......TotoSomJa.Moj Pokus cislo 2.............VVV.My name is Vlad.......VVV.This is test.......VVV.Bye.......VVV....
+```
+From this you can clearly understand that the packets are correctly assembled and processed, I will not re-insert huge chunks of bytes from Wireshrk in these tests since they no longer make sense, you can always view them in the directory with tests.
+
+After that will be another TCP and UDP tests.
 ##### **TCP-AUTH**
 - **Predefined stdin**: ![AUTH](tests/IntegrationReferenceServerTests/Scenarios/AUTH)
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/AUTH/programOutput.txt)
