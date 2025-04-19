@@ -1262,7 +1262,7 @@ Channel Please30bodu has become empty and was removed
 Additionally, packet captures (`.pcapng` files) for further network analysis are available in the `tests/CustomServer/` directory. These captures provide in-depth verification of communication consistency and protocol adherence.  
 
 #### Visuals  
-![WiresharkRESULT](tests/CustomServer/Result.png)
+![WiresharkRESULT](tests/CustomServer/Result-min.png) Image Compressed. Maybe bad looking in markdown viewer. Check `tests/CustomServer/` directory.
 
 **From the tests you can see that 4 clients connected to the server. 2 of which are tcp and 2 are udp. The first tcp client watched the chat, the other clients wrote to it. In result you can see that TCP1 have IPK25-CHAT. Then you can see that all the users moved to another channel, asked for points for the project and left it.**
 
@@ -1349,7 +1349,7 @@ At one time, on a virtual machine and in a NIX environment with .NET 9, Python t
 - **Tests Passed**: 58/58
 
 ## Visual **VirtualBox with IPK25_Ubuntu24.ova** and **NIX development environment** [[22]](https://git.fit.vutbr.cz/NESFIT/dev-envs#starting-development-environment)
-![VM](/doc/VM_ENV.png)
+![VM](/doc/VM_ENV-min.png)
 
 **You can see that all 58 tests were passed, which is not a bad result and confirms for the third time that the project works.**
 
