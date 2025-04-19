@@ -768,9 +768,9 @@ Before test, i said that i will not write bytes in UDP testing section, I will d
 So this is UDP test:
 
 **Input and Output**:
-From Input we can see Auth,Reply,recieved messages. After "Hello" you can see that i was writting message and it that time come a message from server. It writes it immideantly, but when i finished writing "is Vlad", to server was send "My name is Vlad".
+From Input we can see Auth,Reply,recieved messages. After "Hello" you can see that i was writting message and it that time come a message from server. It writes it immideantly, but when i finished writing "is Vlad", to server was send "My name is Vlad". This test was done on my machine, since the virtual machine has problems with communication via UDP with the reference server, separate Integration tests were performed for UDP and the virtual machine to make sure they work, UDP tests and the Reference server were tested on my device with WSL and ENV NIX installed, in further tests the virtual machine will be used, the results of testing on it will be in the section with integration testing.
 ```
-(nix:nix-shell-env) ipk@ipk25:~/IPKCHAT_BUILD7$ ./ipk25chat-client -t udp -s anton5.fit.vutbr.cz
+(nix:nix-shell-env) vlad@Vlad:~/IPKCHAT_BUILD7$ ./ipk25chat-client -t udp -s anton5.fit.vutbr.cz
 /auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 VVV
 Action Success: Authentication successful.
 Server: VVV has joined `discord.general` via UDP.
