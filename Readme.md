@@ -652,13 +652,14 @@ The `Main` method is responsible for initializing the client application. The te
    ```
 #### Short Description
 
-In short, the application is the main thread, which at the beginning is divided into 2 options, either tcp or udp. After which each of them starts 2 processes, one for processing the console and sending packets to the server, and the other for receiving. This is done so that the application does not hang at the moment of writing a message and stops receiving packets from the server or outputting them to the console, and when receiving packets, it does not allow writing in the chat. This approach allows you to asynchronously process both outgoing and incoming packets without waiting.
+In short, the application is the main thread, which at the beginning is divided into 2 options, either tcp or udp. After one of of them starts, starts 2 processes(Threads), one for processing the console and sending packets to the server, and the other for receiving. This is done so that the application does not hang at the moment of writing a message and stops receiving packets from the server or outputting them to the console, and when receiving packets, it does not allow writing in the chat. This approach allows you to asynchronously process both outgoing and incoming packets without waiting.
+But it is Threads, so i had problems when Sending Thread close socket, and Revieve Thread throws SocketExeption, it was fixed in last commits. So was added bool checker if reciving must be closed and added before every closing socket function.
 
 ### TCP Client Implementation (TcpUser)
 
 The `TcpUser` class is designed to handle communication between a client and a server using the **TCP** protocol. It supports various actions such as authenticating with the server, joining channels, sending and receiving messages, and processing different types of server responses. Additionally, it uses multithreading to manage simultaneous user input and message reception from the server like it was desribed earlier.
 
-If I describe it briefly, it works like this: a connection is established between the client and the server, this connection (reference to the object) is transferred to my object and from there it is managed. There are basically 2 threads working in parallel: one receives input in the console and sends packets, in case of an error it displays it in the console, the second packet receives packets and also displays them in the console or an error. In case of receiving an error or BYE or closing the connection, the client correctly closes the connection and closes the application with or without the error code. Also implemented is the support of several messages in one packet and also one message divided into several packets. I will not describe the work line by line, only its basics, for more detailed things like processing each packet, look in the source code, but it works so that the packets are read, then they are divided by \r\n and these packets are processed separately, for each packet there is a separate HandlePacket method that handles it.
+If I describe it briefly, it works like this: a connection is established between the client and the server, this connection (reference to the object) is transferred to my object and from there it is managed. There are basically 2 threads working in parallel: one receives input in the console and sends packets, in case of an error it displays it in the console, the second thread receives packets and also displays them in the console or an error. In case of receiving an error or BYE or closing the connection, the client correctly closes the connection and closes the application with or without the error code. Also implemented is the support of several messages in one packet and also one message divided into several packets. I will not describe the work line by line, only its basics, for more detailed things like processing each packet, look in the source code, but it works so that the packets are read, then they are divided by \r\n and these packets are processed separately, for each packet there is a separate HandlePacket method that handles it.
 ![Reference Server Output](doc/TcpUser.png)
 
 From UML you can see that the program receives and sends packets of different types. [Project Overview Packet Types](#message-content-parameter-mapping-for-tcp)
@@ -694,18 +695,16 @@ From UML you can see that the program receives and sends packets of different ty
 
 5. **Message Reception**:
    - A dedicated thread listens for incoming server messages, processes them, and calls appropriate methods based on the type of message (e.g., message from another user, error, server reply).
-   - The method splits incoming data into individual messages and processes them sequentially.
+   - The method splits incoming data into individual messages and processes them sequentially. (Splits by \r\n).
+   - It calls HandleReceived methods for every packet they already processed from stream. 
 
 6. **Sending Messages**:
    - Messages are converted into byte arrays and sent over the network stream to the server.
 
 7. **Receiving Messages**:
-   - The client reads incoming data from the network stream, processes it, and returns it as a string. If an error occurs during the reading process, it returns an "ERROR" message.
+   - Methods that have HandleReceived in names(HandleReceivedAUTH,HandleReceivedMSG..), they are called from main thread for reciving tcp stream. They impements logic for packet processing.
 
-8. **Processing Server Messages**:
-   - The client handles different types of server messages, such as `MSG` (regular message), `ERR` (error message), `REPLY` (server reply), and `BYE` (server termination). Each message type is processed by specific methods designed for handling them.
-
-9. **Error Handling**:
+8. **Error Handling**:
    - The client has built-in error handling that processes error messages and gracefully terminates the connection if needed. For example, if an `ERR` message is received, the client displays the error correctly terminates. (Without BYE message)
 
 ### UDP Client Implementation (UdpUser)
