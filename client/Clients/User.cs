@@ -73,5 +73,27 @@ namespace ipk25_chat.Clients
             Console.WriteLine("/rename {DisplayName} - Locally changes the display name of the user");
             Console.WriteLine("/help - Prints out supported local commands with their parameters and a description");
         }
+        protected bool IsMessageValid(string message,bool isAuthorized)
+        {
+            if (!isAuthorized)
+            {
+                WriteInternalError("You are not Authorized");
+                return false;
+            }
+            if (_message.Length > 60000)
+            {
+                WriteInternalError("Input exceeds maximum length of 60000 characters.");
+                return false;
+            }
+            foreach (char c in _message)
+            {
+                if (c < 0x20 || c > 0x7E)
+                {
+                    WriteInternalError("Invalid character detected. Only printable ASCII characters (0x20-7E) are allowed.");
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

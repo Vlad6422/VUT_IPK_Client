@@ -110,27 +110,13 @@ namespace ipk24chat_client.Clients.Tcp
                 }
                 else // Logic for non command input (Messages)
                 {
-                    if (!_isAuthorized)
+                    if(!IsMessageValid(userInput, _isAuthorized))// Check if the message is valid
                     {
-                        WriteInternalError("You are not Authorized");
-                        continue;
-                    }
-                    _message = userInput;
-                    if (_message.Length > 60000)
-                    {
-                        WriteInternalError("Input exceeds maximum length of 60000 characters.");
                         continue;
                     }
 
-                    // Validate input characters
-                    foreach (char c in _message)
-                    {
-                        if (c < 0x20 || c > 0x7E)
-                        {
-                            WriteInternalError("Invalid character detected. Only printable ASCII characters (0x20-7E) are allowed.");
-                            continue;
-                        }
-                    }
+                    _message = userInput;
+
                     if (_message != null && _message.Length > 0)
                     {
                         SendMessage("MSG FROM " + _displayName + " IS " + _message + "\r\n"); // Only one place in code where message is sent to the server.

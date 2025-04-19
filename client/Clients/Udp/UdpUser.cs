@@ -147,24 +147,9 @@ namespace ipk24chat_client.Clients.Udp
                 {
                     _message = userInput;
 
-                    if (!_isAuthorized)
+                    if (!IsMessageValid(_message, _isAuthorized))
                     {
-                        WriteInternalError("You are not Authorized");
                         continue;
-                    }
-                    _message = userInput;
-                    if (_message.Length > 60000)
-                    {
-                        WriteInternalError("Input exceeds maximum length of 60000 characters.");
-                        continue;
-                    }
-                    foreach (char c in _message)
-                    {
-                        if (c < 0x20 || c > 0x7E)
-                        {
-                            WriteInternalError("Invalid character detected. Only printable ASCII characters (0x20-7E) are allowed.");
-                            continue;
-                        }
                     }
                     SendMessage(_message);
                 }
