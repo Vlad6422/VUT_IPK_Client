@@ -138,26 +138,26 @@ namespace ipk24chat_client.Clients.Tcp
             string response = RecieveMessage();
             response = response.TrimEnd('\r', '\n');
             string[] parts = response.Split();
-            string msgType = parts[0];
-            if (msgType == "REPLY")
+            string msgType = parts[0].ToLower();
+            if (msgType == "reply")
             {
-                string resultType = parts[1];
+                string resultType = parts[1].ToLower();
                 string MessageContent = string.Join(" ", parts[3..]);
-                if (resultType == "OK") // Authentication success
+                if (resultType == "ok") // Authentication success
                 {
                     Console.WriteLine($"Action Success: {MessageContent}");
                     _isAuthorized = true;
                 }
-                else if (resultType == "NOK") // Not success
+                else if (resultType == "nok") // Not success
                 {
                     Console.WriteLine($"Action Failure: {MessageContent}");
                 }
             } // Additional states illustrated in FSM
-            else if (msgType == "BYE")
+            else if (msgType == "bye")
             {
                 HandleReceivedBYE();
             }
-            else if (msgType == "ERR")
+            else if (msgType == "err")
             {
                 HandleReceivedERR(parts);
             }
@@ -240,19 +240,19 @@ namespace ipk24chat_client.Clients.Tcp
             string[] parts = response.Split();
             if (parts.Length == 0) return;
 
-            string msgType = parts[0];
+            string msgType = parts[0].ToLower();
             switch (msgType)
             {
-                case "MSG":
+                case "msg":
                     HandleReceivedMSG(parts);
                     break;
-                case "ERR":
+                case "err":
                     HandleReceivedERR(parts);
                     break;
-                case "REPLY":
+                case "reply":
                     HandleReceivedREPLY(parts);
                     break;
-                case "BYE":
+                case "bye":
                     HandleReceivedBYE();
                     break;
                 default:
@@ -343,13 +343,13 @@ namespace ipk24chat_client.Clients.Tcp
         /// <param name="parts">Packet word by word ({REPLY} ....)</param>
         void HandleReceivedREPLY(string[] parts)
         {
-            string resultType = parts[1];
+            string resultType = parts[1].ToLower();
             string MessageContent = string.Join(" ", parts[3..]);
-            if (resultType == "OK")
+            if (resultType == "ok")
             {
                 Console.WriteLine($"Action Success: {MessageContent}");
             }
-            else if (resultType == "NOK")
+            else if (resultType == "nok")
             {
                 Console.WriteLine($"Action Failure: {MessageContent}");
             }
