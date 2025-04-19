@@ -883,7 +883,25 @@ From this you can clearly understand that the packets are correctly assembled an
 After that will be another TCP and UDP tests.
 ##### **TCP-AUTH**
 - **Predefined stdin**: ![AUTH](tests/IntegrationReferenceServerTests/Scenarios/AUTH)
+
+```
+/auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 IntegrationTestsAUTH
+Hello everyone, I am an automated test. I am currently testing the AUTH, thank you all.
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!
+```
+
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/AUTH/programOutput.txt)
+
+```
+Action Success: Authentication successful.
+Server: IntegrationTestsAUTH has joined discord.general.
+```
+
 - **Reference Server Output**:  
   ![ReferenceServerAUTH](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/AUTH/ReferenceServerAUTH.png)
 - **Wireshark Screenshot**:  
@@ -910,13 +928,49 @@ From this Flow it is clear that the packets are processed correctly and properly
 
 ##### **TCP-BYE**
 - **Predefined stdin**: ![BYE](tests/IntegrationReferenceServerTests/Scenarios/BYE)
+
+```
+/auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 IntegrationTestsBYE
+Hello everyone, I am an automated test. I am currently testing BYE, thank you all.
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!
+```
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/BYE/programOutput.txt)
+
+```
+Action Success: Authentication successful.
+Server: IntegrationTestsBYE has joined discord.general.
+```
+
 - **Reference Server Output**: Same as previous.
 - **Wireshark Screenshot**: Same as previous.
 
 ##### **TCP-JOIN**
 - **Predefined stdin**: ![JOIN](tests/IntegrationReferenceServerTests/Scenarios/JOIN)
+
+```
+/auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 IntegrationTestsJOIN
+/join discord.JoinTest
+Hello everyone, I am an automated test. I am currently testing the JOIN, thank you all.
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!
+```
+
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/JOIN/programOutput.txt)
+
+```
+Action Success: Authentication successful.
+Server: IntegrationTestsJOIN has joined discord.general.
+```
+
 - **Reference Server Output**:  
    Connected To discord.general.
   ![ReferenceServerJOIN](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/JOIN/ReferenceServerJOIN.png)
@@ -955,14 +1009,51 @@ BYE FROM IntegrationTestsJOIN
 
 ##### **TCP-MSG**
 - **Predefined stdin**: ![MSG](tests/IntegrationReferenceServerTests/Scenarios/MSG)
+
+```
+/auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 IntegrationTestsMSG
+Hello everyone, I am an automated test. I am currently testing MSG, thank you all.
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!
+```
+
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/MSG/programOutput.txt)
+
+```
+Action Success: Authentication successful.
+Server: IntegrationTestsAUTH has joined discord.general.
+```
+
 - **Reference Server Output**: Was tested in other tests. 
 - **Wireshark Screenshot**:  Same as another tests.
 
 
 ##### **TCP-RENAME**
 - **Predefined stdin**: ![RENAME](tests/IntegrationReferenceServerTests/Scenarios/RENAME)
+
+```
+/auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 IntegratTestsRename
+Hello everyone, I am an automated test. I am currently testing /rename, thank you all.
+/rename NameChanged
+Testing.
+Testing..
+Testing...
+Testing....
+Testing.....
+Test Done!
+```
+
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/Rename/programOutput.txt)
+
+```
+Action Success: Authentication successful.
+Server: IntegratTestsRename has joined discord.general.
+```
+
 - **Reference Server Output**:  
   ![ReferenceServerRenameTCP](tests/IntegrationReferenceServerTests/ReferenceServerResult/TCP/Rename/ReferenceServerRename.png)
 - **Wireshark Screenshot**:  
@@ -986,6 +1077,9 @@ MSG FROM NameChanged IS Test Done!
 BYE FROM NameChanged
 ```
 ##### **UDP-AUTH**
+
+All Udp test i will not display/write stdin and stdout they are the same. You can click on link near text if you want to check. Here is more about Wireshark and testing if UDP works...
+
 - **Predefined stdin**: ![AUTH](tests/IntegrationReferenceServerTests/Scenarios/AUTH)
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/AUTH/programOutput.txt)
 - **Reference Server Output**:  
@@ -1006,7 +1100,8 @@ BYE FROM NameChanged
 ##### **UDP-JOIN**
 - **Predefined stdin**: ![JOIN](tests/IntegrationReferenceServerTests/Scenarios/JOIN)
 - **Program Output**: ![programOutput](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/JOIN/programOutput.txt)
-- **Reference Server Output**:  
+- **Reference Server Output**: 
+Very strange queue of procssing but ok. I think this problem was described in tcp join test. Reference server have some problems with handling UDP and TCP same names channels. It creates 2 same channels with same name and join to one, but write to another...
   ![ReferenceServerJOINUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/JOIN/ReferenceServerJOIN.png)
 - **Wireshark Screenshot**:  
   ![WiresharkJOINUDP](tests/IntegrationReferenceServerTests/ReferenceServerResult/UDP/JOIN/WiresharkJOIN.png)
