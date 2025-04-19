@@ -351,6 +351,7 @@ namespace ipk24chat_client.Clients.Tcp
             string errorContent = string.Join(" ", parts[4..]);
             Console.WriteLine($"ERROR FROM {errorDisplayName}: {errorContent}");
             // SendMessage("BYE FROM " + _displayName + "\r\n"); // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
+            _networkStream.Close();
             Environment.Exit(0);
         }
 
@@ -384,6 +385,7 @@ namespace ipk24chat_client.Clients.Tcp
             SendMessage($"ERR FROM {_displayName} IS Unknown Packet Type"+"\r\n");
             // SendMessage("BYE FROM " + _displayName + "\r\n"); // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
             _recieveThreadRunning = false;
+            _networkStream.Close();
             Environment.Exit(1);
         }
 

@@ -16,6 +16,7 @@ namespace ipk24chat_client.Clients.Udp
         private bool _isAuthorized { get; set; }
         private UdpClient _client = new UdpClient(0); // UDP client for sending and receiving messages on the local port (random).
         private IPEndPoint _serverEndPoint; // Server endpoint for sending messages.
+        private bool _recieveThreadRunning = true;
         List<ushort> confirmedMessages = new List<ushort>(); // List of confirmed messages. Need to check if message was confirmed by server and resend it if not.
         private Thread thread; // Thread for receiving UDP packets.
         private Dictionary<ushort, bool> _alreadyRecievedMessages = new Dictionary<ushort, bool>(); // This dictionary is used to track messages that have already been received, preventing duplicate processing.
@@ -68,6 +69,8 @@ namespace ipk24chat_client.Clients.Udp
                                 break;
                             }
                         }
+                        _recieveThreadRunning = false; // Stop the receiving thread
+                        _client.Close();
                         Environment.Exit(0);
                     }
                     WriteInternalError("Empty input. Please enter a command or message.");
@@ -258,7 +261,7 @@ namespace ipk24chat_client.Clients.Udp
         /// </summary>
         void RecieveUdpPacket()
         {
-            while (true)
+            while (_recieveThreadRunning)
             {
                 try
                 {
@@ -303,10 +306,14 @@ namespace ipk24chat_client.Clients.Udp
                         {
                             ErrMessage errMessage = new ErrMessage(buff);
                             Console.WriteLine("ERROR FROM " + errMessage.DisplayName + ": " + errMessage.MessageContents);
+                            _recieveThreadRunning = false; // Stop the receiving thread
+                            _client.Close();
                             Environment.Exit(1);
                         }
                         if (buff[0] == 0xFF)
                         {
+                            _recieveThreadRunning = false; // Stop the receiving thread
+                            _client.Close();
                             Environment.Exit(0);
                         }
                         if (buff[0]!= 0x00 && buff[0] != 0x01 && buff[0] != 0x04 && buff[0] != 0xFE && buff[0] != 0xFF && buff[0] != 0xFD)
@@ -314,6 +321,8 @@ namespace ipk24chat_client.Clients.Udp
                             ErrMessage errMessage = new ErrMessage(_messageId,_displayName,"Incorrect packet Type");
                             _client.Send(errMessage.ToByteArray(), errMessage.ToByteArray().Length, _serverEndPoint);
                             WriteInternalError("Unknown message type" + buff[0]);
+                            _recieveThreadRunning = false; // Stop the receiving thread
+                            _client.Close();
                             Environment.Exit(1);
                         }
                     }
@@ -325,7 +334,13 @@ namespace ipk24chat_client.Clients.Udp
                 
                 catch (Exception ex)
                 {
+                    if(_recieveThreadRunning == false) // If the thread is stopped, do not print error
+                    {
+                        return;
+                    }
                     Console.WriteLine($"ERROR: {ex.Message}");
+                    _recieveThreadRunning = false; // Stop the receiving thread
+                    _client.Close();
                     Environment.Exit(1);
                 }
             }
@@ -352,6 +367,8 @@ namespace ipk24chat_client.Clients.Udp
                     break;
                 }
             }
+            _recieveThreadRunning = false; // Stop the receiving thread
+            _client.Close();
             Environment.Exit(0);
         }
     }
