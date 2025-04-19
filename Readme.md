@@ -57,10 +57,9 @@ The theory was taken not only from RFC, but also from basic sources such as arti
 
 This section will talk about the theory of TCP connections, perhaps even too deeply and knowledge of these things is not necessary, but still desirable for understanding, information for the section was taken from RFC and various open sources. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
-The Transmission Control Protocol (TCP) is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol (IP). Therefore, the entire suite is commonly referred to as TCP/IP. TCP provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network. Major internet applications such as the World Wide Web, email, remote administration, and file transfer rely on TCP, which is part of the transport layer of the TCP/IP suite. SSL/TLS often runs on top of TCP.
+TCP is a core Internet protocol that works with IP, forming TCP/IP. It delivers data reliably, in order, and error-free between apps over an IP network. Used by things like websites, email, and file transfers, it’s part of the transport layer. SSL/TLS often runs on TCP.
 
-TCP is connection-oriented, meaning that sender and receiver firstly need to establish a connection based on agreed parameters, they do this through three-way handshake procedure. The server must be listening (passive open) for connection requests from clients before a connection is established. Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency.
-Source: [[13]](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=Transmission%20Control%20Protocol%20(TCP)%20is,data%20and%20messages%20over%20networks.)
+TCP needs a connection, set up with a three-way handshake. The server waits for client requests, and the handshake ensures both agree on settings. This, plus retransmission and error checks, makes TCP reliable but slower. [[13]](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=Transmission%20Control%20Protocol%20(TCP)%20is,data%20and%20messages%20over%20networks.)
 
 ![Hwo WOrks](doc/wahtistcp.png)
 
@@ -68,7 +67,7 @@ Source: [[13]](https://www.fortinet.com/resources/cyberglossary/tcp-ip#:~:text=T
 
 The algorithm used by TCP to establish and terminate a connection is called a three-way handshake. We first describe the basic algorithm and then show how it is used by TCP. The three-way handshake involves the exchange of three messages between the client and the server. [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
 
-The idea is that two parties want to agree on a set of parameters, which, in the case of opening a TCP connection, are the starting sequence numbers the two sides plan to use for their respective byte streams. In general, the parameters might be any facts that each side wants the other to know about. First, the client (the active participant) sends a segment to the server (the passive participant) stating the initial sequence number it plans to use (Flags = SYN, SequenceNum = x). The server then responds with a single segment that both acknowledges the client's sequence number (Flags = ACK, Ack = x + 1) and states its own beginning sequence number (Flags = SYN, SequenceNum = y). That is, both the SYN and ACK bits are set in the Flags field of this second message. Finally, the client responds with a third segment that acknowledges the server's sequence number (Flags = ACK, Ack = y + 1). The reason why each side acknowledges a sequence number that is one larger than the one sent is that the Acknowledgment field actually identifies the “next sequence number expected,” thereby implicitly acknowledging all earlier sequence numbers. Although not shown in this timeline, a timer is scheduled for each of the first two segments, and if the expected response is not received, the segment is retransmitted. If you not interested in reading RFC Wiki gives good basic with references to it. [[16]](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
+Two parties want to agree on parameters, like starting sequence numbers for a TCP connection. The client sends a segment to the server with its initial sequence number (Flags = SYN, SequenceNum = x). The server replies with a segment that acknowledges the client’s number (Flags = ACK, Ack = x + 1) and includes its own sequence number (Flags = SYN, SequenceNum = y). The client then sends a final segment to acknowledge the server’s number (Flags = ACK, Ack = y + 1). Acknowledgments use the next expected sequence number, confirming all prior ones. Timers are set for the first two segments, and they’re retransmitted if no response is received. Check the RFC or Wikipedia for more details. [[16]](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
 
 
 ![TCP Diagram](doc/hadnshakew.png)
@@ -76,20 +75,23 @@ The idea is that two parties want to agree on a set of parameters, which, in the
 
 ### **Data Transmission**
 
-TCP organizes data so that it can be transmitted between a server and a client. It guarantees the integrity of the data being communicated over a network. Before it transmits data, TCP establishes a connection between a source and its destination, which it ensures remains live until communication begins. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
+TCP manages data sent between a server and client, keeping it accurate. It sets up a stable connection before transmitting and ensures it stays active until communication begins. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 ### **Congestion Control**
 
-Transmission Control Protocol uses a congestion control algorithm that includes various aspects of an additive increase/multiplicative decrease scheme, along with other schemes including slow start and a congestion window, to achieve congestion avoidance. The TCP congestion-avoidance algorithm is the primary basis for congestion control in the Internet. Per the end-to-end principle, congestion control is largely a function of internet hosts, not the network itself. There are several variations and versions of the algorithm implemented in protocol stacks of operating systems of computers that connect to the Internet. [[24]](https://en.wikipedia.org/wiki/TCP_congestion_control)  [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
+
+The Transmission Control Protocol (TCP) uses a congestion control algorithm to manage network traffic. It combines an additive increase/multiplicative decrease approach with techniques like slow start and a congestion window to prevent network congestion. This algorithm is the main way the Internet handles congestion. Based on the end-to-end principle, congestion control is mostly handled by the devices (hosts) connected to the Internet, not the network itself. Different versions of this algorithm are built into the operating systems of computers that access the Internet. [[24]](https://en.wikipedia.org/wiki/TCP_congestion_control)  [[1]](https://datatracker.ietf.org/doc/html/rfc9293).
 
 ### **Error Detection and Correction**
 
-TCP uses checksums to detect errors in transmitted data. If an error is detected, the sender will retransmit the affected segment. Congestion Control described before -  TCP uses algorithms to adjust its sending rate based on network congestion. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
+
+TCP employs checksums to identify errors in transmitted data. If an error is found, the sender retransmits the affected segment. For congestion control, TCP uses algorithms, including additive increase/multiplicative decrease, slow start, and a congestion window, to adjust its sending rate based on network congestion, helping to prevent network overload. [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
 
 ### **Connection Termination**
 
-The connection termination phase uses a four-way handshake, with each side of the connection terminating independently. When an endpoint wishes to stop its half of the connection, it transmits a FIN packet, which the other end acknowledges with an ACK. Therefore, a typical tear-down requires a pair of FIN and ACK segments from each TCP endpoint. After the side that sent the first FIN has responded with the final ACK, it waits for a timeout before finally closing the connection, during which time the local port is unavailable for new connections, this state lets the TCP client resend the final acknowledgment to the server in case the ACK is lost in transit. The time duration is implementation-dependent, but some common values are 30 seconds, 1 minute, and 2 minutes. After the timeout, the client enters the CLOSED state and the local port becomes available for new connections.  [[1]](https://datatracker.ietf.org/doc/html/rfc9293) [[19]](https://www.geeksforgeeks.org/tcp-connection-termination/)
+
+TCP connection termination uses a four-way handshake, allowing each side to end its part of the connection independently. When one side wants to close its half, it sends a FIN packet, and the other side responds with an ACK. This process repeats for the other side, so closing the connection typically involves two FIN-ACK pairs. After sending the final ACK, the side that initiated the first FIN waits for a timeout—usually 30 seconds, 1 minute, or 2 minutes, depending on the system—before fully closing. This waiting period, called the TIME_WAIT state, ensures the final ACK can be resent if it’s lost and prevents the local port from being reused immediately. Once the timeout ends, the connection enters the CLOSED state, and the port becomes available for new connections.  [[1]](https://datatracker.ietf.org/doc/html/rfc9293) [[19]](https://www.geeksforgeeks.org/tcp-connection-termination/)
 
 ### **Beneffits of TCP** [[1]](https://datatracker.ietf.org/doc/html/rfc9293)
 
@@ -171,7 +173,7 @@ The following parts of the text will not have citations as they are taken from t
 
 There are many articles on this topic and the explanations in them are correct, so you can take from any resources. I took it from the link above and I recommend it to you.
 
-The client–server model is a distributed application structure that partitions tasks or workloads between the providers of a resource or service, called servers, and service requesters, called clients. Often clients and servers communicate over a computer network on separate hardware, but both client and server may be on the same device. A server host runs one or more server programs, which share their resources with clients. A client usually does not share its computing resources, but it requests content or service from a server and may share its own content as part of the request. Clients, therefore, initiate communication sessions with servers, which await incoming requests. Examples of computer applications that use the client–server model are email, network printing, and the World Wide Web.
+The client-server model is a way of organizing tasks in a distributed system, splitting work between servers, which provide resources or services, and clients, which request those services. Typically, clients and servers communicate over a network on separate devices, but they can also be on the same device. A server runs programs that share its resources with clients, while a client usually doesn’t share its own computing power—it just asks for content or services from the server, sometimes including its own data in the request. Clients start communication by sending requests to servers, which wait for these requests. Examples of this model include email, network printing, and the World Wide Web.
 
 
 A **client** is a device or program that sends requests to a server to access services or resources. It typically initiates communication with the server and waits for a response. Clients can be a variety of devices or software applications, such as web browsers, email clients, or mobile apps. The client relies on the server to provide the required data, services, or functionality.
@@ -213,13 +215,15 @@ A **client** is a device or program that sends requests to a server to access se
 
 ## **Server**
 
-A **server** [[18]](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) is a system or program that listens for and responds to requests from clients. It processes client requests, handles them, and sends back appropriate responses. Servers are typically always-on systems that provide various services, such as serving web pages, processing emails, managing databases, or running applications.
+A **server** [[18]](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) is a system or program that waits for and responds to requests from clients. It processes these requests and sends back the appropriate responses. Servers are usually always-on systems that provide services like hosting web pages, managing emails, handling databases, or running applications.
 
-"Server-side software" refers to a computer application, such as a web server, that runs on remote server hardware, reachable from a user's local computer, smartphone, or other device. Operations may be performed server-side because they require access to information or functionality that is not available on the client, or because performing such operations on the client side would be slow, unreliable, or insecure.
+**Server-side software** refers to applications, like web servers, that run on remote server hardware and can be accessed from a user’s device, such as a computer or smartphone. These operations happen on the server because they need access to data or functions not available on the client, or because doing them on the client would be slow, unreliable, or insecure.
 
-Client and server programs may be commonly available ones such as free or commercial web servers and web browsers, communicating with each other using standardized protocols. Or, programmers may write their own server, client, and communications protocol which can only be used with one another.
+Clients and servers often use common programs, like free or commercial web browsers and web servers, communicating through standard protocols. Alternatively, developers can create custom server, client, and communication protocols designed to work only with each other.
 
-Server-side operations include both those that are carried out in response to client requests, and non-client-oriented operations such as maintenance tasks.
+Server-side operations include handling client requests and performing background tasks, like maintenance, that aren’t directly tied to client interactions.
+
+
 
 
 ### **How Servers Work:**
