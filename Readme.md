@@ -770,7 +770,7 @@ So this is UDP test:
 **Input and Output**:
 From Input we can see Auth,Reply,recieved messages. After "Hello" you can see that i was writting message and it that time come a message from server. It writes it immideantly, but when i finished writing "is Vlad", to server was send "My name is Vlad".
 ```
-(nix:nix-shell-env) ipk@ipk:~/IPKCHAT_BUILD7$ ./ipk25chat-client -t udp -s anton5.fit.vutbr.cz
+(nix:nix-shell-env) ipk@ipk25:~/IPKCHAT_BUILD7$ ./ipk25chat-client -t udp -s anton5.fit.vutbr.cz
 /auth xmalas04 5a798b1c-9425-492f-aca1-439513fb7440 VVV
 Action Success: Authentication successful.
 Server: VVV has joined `discord.general` via UDP.
@@ -1348,6 +1348,8 @@ At one time, on a virtual machine and in a NIX environment with .NET 9, Python t
 - **Total Tests Run**: 58
 - **Tests Passed**: 58/58
 
+## Visual **VirtualBox with IPK25_Ubuntu24.ova** and **NIX development environment** [[22]](https://git.fit.vutbr.cz/NESFIT/dev-envs#starting-development-environment)
+![VM](/doc/VM_ENV.png)
 
 **You can see that all 58 tests were passed, which is not a bad result and confirms for the third time that the project works.**
 
