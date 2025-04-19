@@ -906,6 +906,7 @@ MSG FROM IntegrationTestsAUTH IS Testing.....
 MSG FROM IntegrationTestsAUTH IS Test Done!
 BYE FROM IntegrationTestsAUTH 	                                                                              
 ```
+From this Flow it is clear that the packets are processed correctly and properly, both on the client and server side. According to the Flow you can see the correct order, according to the attached txt you can see the client's input and output, according to the Discord screenshot its processing. Further there will be other TCP tests in which there will be the same template, authorization, message, action (Change name or join channel), so I will not describe each FLOW there you can clearly see where the name was changed, the JOIN packet was used, and so on.
 
 ##### **TCP-BYE**
 - **Predefined stdin**: ![BYE](tests/IntegrationReferenceServerTests/Scenarios/BYE)
