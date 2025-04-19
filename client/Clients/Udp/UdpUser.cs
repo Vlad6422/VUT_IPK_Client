@@ -53,19 +53,26 @@ namespace ipk24chat_client.Clients.Udp
                     {
                         ByeMessage byeMessage = new ByeMessage(_messageId,_displayName);
                         _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);
+                        bool isConfirmed = false;
                         for (int i = 0; i < maxUdpRetransmissions; i++)
                         {
                             Thread.Sleep(udpConfirmationTimeout);
                             if (!confirmedMessages.Contains(_messageId))
                             {
-
                                 _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);
                             }
                             else
                             {
-
+                                isConfirmed = true;
                                 break;
                             }
+                        }
+                        if (!isConfirmed)
+                        {
+                            WriteInternalError("Message not confirmed by server. Exiting.");
+                            _recieveThreadRunning = false; // Stop the receiving thread
+                            _client.Close();
+                            Environment.Exit(1);
                         }
                         _recieveThreadRunning = false; // Stop the receiving thread
                         _client.Close();
@@ -164,7 +171,7 @@ namespace ipk24chat_client.Clients.Udp
         void Authenticate()
         {
             AuthMessage authMessage = new AuthMessage(_messageId, _username, _displayName, _secret);
-            
+            bool isConfirmed = false;
             _client.Send(authMessage.GET(), authMessage.GET().Length, _serverEndPoint);
             
             for (int i = 0; i < maxUdpRetransmissions; i++)
@@ -176,9 +183,17 @@ namespace ipk24chat_client.Clients.Udp
                 }
                 else
                 {
+                    isConfirmed = true;
                     confirmedMessages.Remove(_messageId);
                     break;
                 }
+            }
+            if (!isConfirmed)
+            {
+                WriteInternalError("Message not confirmed by server. Exiting.");
+                _recieveThreadRunning = false; // Stop the receiving thread
+                _client.Close();
+                Environment.Exit(1);
             }
             _messageId++;
         }
@@ -208,6 +223,7 @@ namespace ipk24chat_client.Clients.Udp
         /// <param name="message">Message in string, will be formated to correct form in bytes</param>
         public void SendMessage(string message)
         {
+            bool isConfirmed = false;
             MsgMessage msgMessage = new MsgMessage(_messageId, _displayName, message);
             _client.Send(msgMessage.GET(), msgMessage.GET().Length, _serverEndPoint);
 
@@ -220,9 +236,17 @@ namespace ipk24chat_client.Clients.Udp
                 }
                 else
                 {
+                    isConfirmed = true;
                     confirmedMessages.Remove(_messageId);
                     break;
                 }
+            }
+            if (!isConfirmed)
+            {
+                WriteInternalError("Message not confirmed by server. Exiting.");
+                _recieveThreadRunning = false; // Stop the receiving thread
+                _client.Close();
+                Environment.Exit(1);
             }
             _messageId++;
 
@@ -333,6 +357,7 @@ namespace ipk24chat_client.Clients.Udp
         /// </summary>
         void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {
+            bool isConfirmed = false;
             ByeMessage byeMessage = new ByeMessage(_messageId,_displayName);
             _client.Send(byeMessage.GET(), byeMessage.GET().Length, _serverEndPoint);
             for (int i = 0; i < maxUdpRetransmissions; i++)
@@ -344,8 +369,16 @@ namespace ipk24chat_client.Clients.Udp
                 }
                 else
                 {
+                    isConfirmed = true;
                     break;
                 }
+            }
+            if (!isConfirmed)
+            {
+                WriteInternalError("Message not confirmed by server. Exiting.");
+                _recieveThreadRunning = false; // Stop the receiving thread
+                _client.Close();
+                Environment.Exit(1);
             }
             _recieveThreadRunning = false; // Stop the receiving thread
             _client.Close();
