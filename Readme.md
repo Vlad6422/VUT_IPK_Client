@@ -941,17 +941,206 @@ These tests confirmed that both **TCP** and **UDP** communication worked perfect
 Client-side interactions were captured in the following logs:  
 - **TCP Clients:**
    - **IPK_TCP_USER1**
-  ![TCP1](tests/CustomServer/IPK_TCP_USER1.txt)  
+
+``tests/CustomServer/IPK_TCP_USER1.txt``
+```
+/auth tcp secret IPK_TCP_CLIENT1
+Action Success: Auth Success
+Server: IPK_TCP_CLIENT2 has joined general
+Server: IPK_UDP_CLIENT1 has joined general
+Server: IPK_UDP_CLIENT2 has joined general
+IPK_TCP_CLIENT2: ************************
+IPK_UDP_CLIENT1: *      IPK25-CHAT      *
+IPK_UDP_CLIENT2: ************************
+Server: IPK_UDP_CLIENT2 has left general
+Server: IPK_UDP_CLIENT1 has left general
+Server: IPK_TCP_CLIENT2 has left general
+/auth tcp secret IPK_TCP_CLIENT1
+ERROR: You are already Authorized.
+/join Please30bodu
+Action Success: Join Success
+IPK_TCP_CLIENT2: Please give me 30 boduuuuu
+IPK_UDP_CLIENT1: PLEASEEEEE
+IPK_UDP_CLIENT2: only 30 boduuuuuuu
+Server: IPK_UDP_CLIENT2 has left Please30bodu
+Server: IPK_UDP_CLIENT1 has left Please30bodu
+Server: IPK_TCP_CLIENT2 has left Please30bodu
+```  
   - **IPK_TCP_USER2**
-  ![TCP2](tests/CustomServer/IPK_TCP_USER2.txt)  
+``tests/CustomServer/IPK_TCP_USER2.txt``
+```
+/auth tcp secret IPK_TCP_CLIENT2
+Action Success: Auth Success
+Server: IPK_UDP_CLIENT1 has joined general
+Server: IPK_UDP_CLIENT2 has joined general
+************************
+IPK_UDP_CLIENT1: *      IPK25-CHAT      *
+IPK_UDP_CLIENT2: ************************
+Server: IPK_UDP_CLIENT2 has left general
+Server: IPK_UDP_CLIENT1 has left general
+/join Please30bodu
+Action Success: Join Success
+Server: IPK_TCP_CLIENT1 has joined Please30bodu
+Please give me 30 boduuuuu
+IPK_UDP_CLIENT1: PLEASEEEEE
+IPK_UDP_CLIENT2: only 30 boduuuuuuu
+Server: IPK_UDP_CLIENT2 has left Please30bodu
+Server: IPK_UDP_CLIENT1 has left Please30bodu
+```  
 - **UDP Clients:**  
    - **IPK_UDP_USER1**
-   ![UDP1](tests/CustomServer/IPK_UDP_USER1.txt)
+``tests/CustomServer/IPK_UDP_USER1.txt``
+```
+/auth udp secret IPK_UDP_CLIENT1
+Action Success: AUTH Succ
+Server: IPK_UDP_CLIENT2 has joined general
+IPK_TCP_CLIENT2: ************************
+*      IPK25-CHAT      *
+IPK_UDP_CLIENT2: ************************
+Server: IPK_UDP_CLIENT2 has left general
+/join Please30bodu
+Action Success: JOIN Succ
+Server: IPK_TCP_CLIENT2 has joined Please30bodu
+Server: IPK_TCP_CLIENT1 has joined Please30bodu
+IPK_TCP_CLIENT2: Please give me 30 boduuuuu
+PLEASEEEEE
+IPK_UDP_CLIENT2: only 30 boduuuuuuu
+Server: IPK_UDP_CLIENT2 has left Please30bodu
+```
    - **IPK_UDP_USER2**  
-  ![UDP2](tests/CustomServer/IPK_UDP_USER2.txt)  
+``tests/CustomServer/IPK_UDP_USER2.txt``
+```
+/auth udp secret IPK_UDP_CLIENT2
+Action Success: AUTH Succ
+IPK_TCP_CLIENT2: ************************
+IPK_UDP_CLIENT1: *      IPK25-CHAT      *
+************************
+/join Please30bodu
+Action Success: JOIN Succ
+Server: IPK_UDP_CLIENT1 has joined Please30bodu
+Server: IPK_TCP_CLIENT2 has joined Please30bodu
+Server: IPK_TCP_CLIENT1 has joined Please30bodu
+IPK_TCP_CLIENT2: Please give me 30 boduuuuu
+IPK_UDP_CLIENT1: PLEASEEEEE
+only 30 boduuuuuuu
+```
 
-- **Server-side logs detailing all communications are stored in:** 
-![Server Logs](tests/CustomServer/CUSTOM_SERVER.txt)  
+- **Server-side logs:** 
+``tests/CustomServer/CUSTOM_SERVER.txt`` 
+```
+TCP server started. Listening on 0.0.0.0:4567...
+UDP server started. Listening on 0.0.0.0:4567...
+Press any key to exit...
+TCP connection accepted from: 127.0.0.1:51355
+TCP connection accepted from: 127.0.0.1:51356
+RECV 127.0.0.1:51355 | AUTH Username=tcp DisplayName=IPK_TCP_CLIENT1 Secret=secret
+SENT 127.0.0.1:51355 | REPLY Username=tcp DisplayName=IPK_TCP_CLIENT1 Secret=secret
+User IPK_TCP_CLIENT1 joined channel general
+RECV 127.0.0.1:51356 | AUTH Username=tcp DisplayName=IPK_TCP_CLIENT2 Secret=secret
+SENT 127.0.0.1:51356 | REPLY Username=tcp DisplayName=IPK_TCP_CLIENT2 Secret=secret
+User IPK_TCP_CLIENT2 joined channel general
+SENT 127.0.0.1:51355 | MSG
+RECV 127.0.0.1:60445 | AUTH
+SENT 127.0.0.1:60445 | CONFIRM
+SENT 127.0.0.1:60445 | REPLY
+RECV 127.0.0.1:60445 | CONFIRM 155
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51356 | MSG
+RECV 127.0.0.1:51724 | AUTH
+SENT 127.0.0.1:51724 | CONFIRM
+SENT 127.0.0.1:51724 | REPLY
+RECV 127.0.0.1:51724 | CONFIRM 170
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:60445 | MSG
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:51356 | MSG DisplayName=IPK_TCP_CLIENT2 MessageContent=************************
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:60445 | MSG
+SENT 127.0.0.1:51724 | MSG
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:51724 | CONFIRM 1
+RECV 127.0.0.1:60445 | MSG
+SENT 127.0.0.1:60445 | CONFIRM
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:51724 | MSG
+RECV 127.0.0.1:51724 | CONFIRM 1
+RECV 127.0.0.1:51724 | MSG
+SENT 127.0.0.1:51724 | CONFIRM
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:60445 | MSG
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:51724 | JOIN
+SENT 127.0.0.1:51724 | CONFIRM
+SENT 127.0.0.1:51724 | REPLY
+RECV 127.0.0.1:51724 | CONFIRM 10
+User IPK_UDP_CLIENT2 removed from channel general
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:60445 | MSG
+User IPK_UDP_CLIENT2 joined channel Please30bodu
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:60445 | JOIN
+SENT 127.0.0.1:60445 | CONFIRM
+SENT 127.0.0.1:60445 | REPLY
+RECV 127.0.0.1:60445 | CONFIRM 10
+User IPK_UDP_CLIENT1 removed from channel general
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51356 | MSG
+User IPK_UDP_CLIENT1 joined channel Please30bodu
+SENT 127.0.0.1:51724 | MSG
+RECV 127.0.0.1:51724 | CONFIRM 1
+RECV 127.0.0.1:51356 | JOIN ChannelID=Please30bodu DisplayName=IPK_TCP_CLIENT2
+SENT 127.0.0.1:51356 | REPLY DisplayName=IPK_TCP_CLIENT2 ChannelID=Please30bodu
+User IPK_TCP_CLIENT2 removed from channel general
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51724 | MSG
+SENT 127.0.0.1:60445 | MSG
+RECV 127.0.0.1:51724 | CONFIRM 1
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:51355 | JOIN ChannelID=Please30bodu DisplayName=IPK_TCP_CLIENT1
+SENT 127.0.0.1:51355 | REPLY DisplayName=IPK_TCP_CLIENT1 ChannelID=Please30bodu
+User IPK_TCP_CLIENT1 removed from channel general
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:51724 | MSG
+SENT 127.0.0.1:60445 | MSG
+RECV 127.0.0.1:51724 | CONFIRM 1
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:51356 | MSG DisplayName=IPK_TCP_CLIENT2 MessageContent=Please give me 30 boduuuuu
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51724 | MSG
+SENT 127.0.0.1:60445 | MSG
+RECV 127.0.0.1:51724 | CONFIRM 1
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:60445 | MSG
+SENT 127.0.0.1:60445 | CONFIRM
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:51724 | MSG
+RECV 127.0.0.1:51724 | CONFIRM 1
+RECV 127.0.0.1:51724 | MSG
+SENT 127.0.0.1:51724 | CONFIRM
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:60445 | MSG
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:51724 | BYE
+SENT 127.0.0.1:51724 | CONFIRM
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:51355 | MSG
+SENT 127.0.0.1:60445 | MSG
+RECV 127.0.0.1:60445 | CONFIRM 1
+RECV 127.0.0.1:60445 | BYE
+SENT 127.0.0.1:60445 | CONFIRM
+SENT 127.0.0.1:51356 | MSG
+SENT 127.0.0.1:51355 | MSG
+RECV 127.0.0.1:51356 | BYE DisplayName=IPK_TCP_CLIENT2
+SENT 127.0.0.1:51355 | MSG
+RECV 127.0.0.1:51355 | BYE DisplayName=IPK_TCP_CLIENT1
+Channel Please30bodu has become empty and was removed
+``` 
 
 Additionally, packet captures (`.pcapng` files) for further network analysis are available in the `tests/CustomServer/` directory. These captures provide in-depth verification of communication consistency and protocol adherence.  
 
