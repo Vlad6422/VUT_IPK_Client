@@ -598,7 +598,9 @@ The main components in the program are:
 
 3. **UDP Client** [[12]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient?view=net-9.0): The `UdpUser` class handles the UDP communication, including starting the client, sending messages, and receiving responses from the server.
 
-4. **Multithreading**: The program utilizes multithreading to manage the simultaneous execution of client-side operations, such as handling user input and maintaining the connection with the server. Actually can be changed to Async, working with Thread a little harder but gives more controll, this is for old programmers on C# old-school.
+4. **User:** ``TcpUser and UdpUser`` inherit common methods and fields, such as username, secret, display name,_isAuthorized checking messages,fields,commands for characters, length, etc. 
+
+5. **Multithreading**: The program utilizes multithreading to manage the simultaneous execution of client-side operations, such as handling user input and maintaining the connection with the server. Actually can be changed to Async, working with Thread a little harder but gives more controll, this is for old programmers on C# old-school.
 
 I want to note that TcpClient, UdpClient is not the same as TcpUser,UdpUser. The first pair goes to **System.Net.Sockets Namespace** [[10]](https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets?view=net-9.0) it just deals with sockets, connections, packages, essentially an abstraction over sockets. In its turn, a couple with the User endings, these are my classes that are responsible for logic. In truth, they could have been written better using more abstraction and techniques, for example, like **Strategy** [[20]](https://refactoring.guru/design-patterns/strategy) in order to write one logic for two and then simply substitute a solution, this would be more in line with OOP and would be more abstract and polymorphic. But the problem is that the Udp logic is still slightly different and it would be necessary to write additional logic only for it and insert it into the middle of the general solution. So, as the classic said and what all companies use now, it is better to write code quickly and working, than to write it for 10 years and get a very complex architecture where no senior can figure it out.
 
@@ -657,6 +659,70 @@ The `Main` method is responsible for initializing the client application. The te
 In short, the application is the main thread, which at the beginning is divided into 2 options, either tcp or udp. After one of of them starts, starts 2 processes(Threads), one for processing the console and sending packets to the server, and the other for receiving. This is done so that the application does not hang at the moment of writing a message and stops receiving packets from the server or outputting them to the console, and when receiving packets, it does not allow writing in the chat. This approach allows you to asynchronously process both outgoing and incoming packets without waiting.
 But it is Threads, so i had problems when Sending Thread close socket, and Revieve Thread throws SocketExeption, it was fixed in last commits. So was added bool checker if reciving must be closed and added before every closing socket function.
 
+1) Program Entry Point:
+
+-   The program starts in Program.cs in Main().
+-  Based on the command-line arguments(ServerSetings object), the program determines what to use TCP or UDP.
+-   Calls RunTcpClient() or RunUdpClient() from ProgramAdditional class.
+2) Client Initialization:
+- TCP Client:
+   - RunTcpClient() creates a TcpClient object to make connection (Stream).
+   - A TcpUser object is created with the NetworkStream from the TcpClient object.
+   - The EnableChatTcp() method is called to start the TCP chat loop.
+- UDP Client:
+  - RunUdpClient() creates a UdpUser object with server settings.
+  - The EnableChatUDP() method is called to start the UDP chat loop.
+3) User Authentication:
+   - The user enters the /auth command with their username, secret, and display name.
+   - The Authenticate method sends an AUTH message to the server.
+   - The server responds with a REPLY message indicating success or failure.
+   - If successful, the _isAuthorized flag is set to true.
+4) Main Chat Loop:
+   	- The main loop (EnableChatTcp or EnableChatUDP) handles user input:
+         - Commands:
+            /auth: Authenticates the user.
+            /join: Joins a chat channel.
+            /rename: Changes the display name.
+            /help: Displays available commands.
+            Messages: If the input is not a command, it is treated as a message and sent to the server.
+            The SendMessage() method is used to send messages.
+            Input validation is performed using methods like IsMessageValid() from User class.
+5) Termination:
+   - The program can terminate in several ways:
+     - The user presses Ctrl+C, triggering the Console_CancelKeyPress event handler.
+     - A BYE or ERR message is received from the server.
+     - The user manually exits the program.
+     - And specific situation described in IPK25-Protocol.
+#### Small illustration in text
+```
+                                           Main()
+                                             |
+                                             v
+                           Parse Command-Line Arguments (ServerSetings class)
+                                             |       
+                       (TcpUser) +---------------------------+ (UdpUser)
+                                 |                           |
+                                 v                           v
+                            RunTcpClient()           RunUdpClient()   <- ProgramAdditional.cs 
+                                 |                           |
+                                 v                           v
+                           Create TcpUser            Create UdpUser   <- new()
+                                 |                           |
+                                 v                           v
+                           EnableChatTcp()          EnableChatUDP()  <- Main loop
+                                 |                           |
+                                 v                           v
+                           Authenticate User        Authenticate User   <- Auth
+                                 |                           |
+                                 v                           v
+                           Main Chat Loop           Main Chat Loop      <- After reply success can use another command and send messages
+                                 |                           |
+                                 v                           v
+                           Send/Receive Messages    Send/Receive Messages <- 2 Threads
+                                 |                           |
+                                 v                           v
+                           Terminate Program        Terminate Program <- After BYE,ERR,Ctrl+C,EOF atd. EXIT(1)<->EXIT(0)
+```
 ### TCP Client Implementation (TcpUser)
 
 The `TcpUser` class is designed to handle communication between a client and a server using the **TCP** protocol. It supports various actions such as authenticating with the server, joining channels, sending and receiving messages, and processing different types of server responses. Additionally, it uses multithreading to manage simultaneous user input and message reception from the server like it was desribed earlier.
