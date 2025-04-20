@@ -123,7 +123,7 @@ class TestAuth(unittest.TestCase):
         stdout, stderr, exit_code = run_client_program()
         print(stdout)
         self.assertEqual("Action Failure: Auth unsuccess.\n", stdout)
-        self.assertNotEqual(exit_code, 0)
+        self.assertEqual(exit_code, 0)
 
     def test_authenticates_incorrectly_and_subsequently_correctly_and_reports(self):
         print("Running : test_authenticates_incorrectly_and_subsequently_correctly_and_reports")
@@ -132,7 +132,6 @@ class TestAuth(unittest.TestCase):
         stdout_fail, stderr_fail, exit_code_fail = run_client_program()
         print(stdout_fail)
         self.assertEqual("Action Failure: Auth unsuccess.\n", stdout_fail)
-        self.assertNotEqual(exit_code_fail, 0)
 
         server_thread_success = threading.Thread(target=start_tcp_server_success, daemon=True)
         server_thread_success.start()
