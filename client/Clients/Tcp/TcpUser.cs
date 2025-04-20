@@ -333,7 +333,7 @@ namespace ipk24chat_client.Clients.Tcp
             Console.WriteLine($"ERROR FROM {errorDisplayName}: {errorContent}");
             // SendMessage("BYE FROM " + _displayName + "\r\n"); // This is 50/50 situation, i would send bye message, but it is not required how i see at FSM
             _networkStream.Close();
-            Environment.Exit(0);
+            Environment.Exit(1);
         }
 
         /// <summary>
