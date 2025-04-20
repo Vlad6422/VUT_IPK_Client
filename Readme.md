@@ -1706,7 +1706,7 @@ At one time, on a virtual machine and in a NIX environment with .NET 9, Python t
 
 ### Closed Python Tests (Simulated Server)
 
-This is a set of additional Python tests that again test all functions, but with more emphasis on the correct termination of the application in case of errors, etc. Non-standard situations.
+This is a set of additional Python tests that again test all functions, but with more emphasis on the correct termination of the application in case of errors, etc. Non-standard situations. (Checking correct stdout,packets send,recieved and correct exit code).
 
 Examples of unstandart tests:
    - `test_terminates_on_eof`: Tests if the connection terminates correctly upon reaching the end of the input (EOF).
