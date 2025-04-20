@@ -18,6 +18,7 @@ namespace ipk24chat_client.Clients.Udp
         private List<ushort> confirmedMessages = new List<ushort>(); // List of confirmed messages. Need to check if message was confirmed by server and resend it if not.
         private Thread thread; // Thread for receiving UDP packets.
         private Dictionary<ushort, bool> _alreadyRecievedMessages = new Dictionary<ushort, bool>(); // This dictionary is used to track messages that have already been received, preventing duplicate processing.
+        private volatile bool _replyReceived = false; // Flag to indicate if a reply has been received.
         public UdpUser(ServerSetings server)
         {
             udpConfirmationTimeout = server.udpConfirmationTimeout;
@@ -172,6 +173,7 @@ namespace ipk24chat_client.Clients.Udp
         {
             AuthMessage authMessage = new AuthMessage(_messageId, _username, _displayName, _secret);
             bool isConfirmed = false;
+            _replyReceived = false;
             _client.Send(authMessage.GET(), authMessage.GET().Length, _serverEndPoint);
             
             for (int i = 0; i < maxUdpRetransmissions; i++)
@@ -195,6 +197,19 @@ namespace ipk24chat_client.Clients.Udp
                 _client.Close();
                 Environment.Exit(1);
             }
+            Task.Run(() =>
+    {
+        Thread.Sleep(5000);
+        if (!_replyReceived)
+        {
+             ErrMessage errMessage = new ErrMessage(_messageId,_displayName,"Reply timeout");
+            _client.Send(errMessage.ToByteArray(), errMessage.ToByteArray().Length, _serverEndPoint);
+            WriteInternalError("No REPLY message received in 5 seconds. Exiting.");
+            _recieveThreadRunning = false;
+            _client.Close();
+            Environment.Exit(1);
+        }
+    });
             _messageId++;
         }
 
@@ -209,8 +224,44 @@ namespace ipk24chat_client.Clients.Udp
             }
             else
             {
+                _replyReceived = false;
                 JoinMessage joinMessage = new JoinMessage(_messageId, channelName, _displayName);
                 _client.Send(joinMessage.GET(), joinMessage.GET().Length, _serverEndPoint);
+                bool isConfirmed = false;
+                for (int i = 0; i < maxUdpRetransmissions; i++)
+                {
+                    Thread.Sleep(udpConfirmationTimeout);
+                    if (!confirmedMessages.Contains(_messageId))
+                    {
+                        _client.Send(joinMessage.GET(), joinMessage.GET().Length, _serverEndPoint);
+                    }
+                    else
+                    {
+                        isConfirmed = true;
+                        confirmedMessages.Remove(_messageId);
+                        break;
+                    }
+                }
+                if (!isConfirmed)
+                {
+                    WriteInternalError("Message not confirmed by server. Exiting.");
+                    _recieveThreadRunning = false; // Stop the receiving thread
+                    _client.Close();
+                    Environment.Exit(1);
+                }
+                Task.Run(() =>
+                {
+                    Thread.Sleep(5000);
+                    if (!_replyReceived)
+                    {
+                        ErrMessage errMessage = new ErrMessage(_messageId, _displayName, "Reply timeout");
+                        _client.Send(errMessage.ToByteArray(), errMessage.ToByteArray().Length, _serverEndPoint);
+                        WriteInternalError("No REPLY message received in 5 seconds. Exiting.");
+                        _recieveThreadRunning = false;
+                        _client.Close();
+                        Environment.Exit(1);
+                    }
+                });
                 _messageId++;
             }
         }
@@ -290,6 +341,7 @@ namespace ipk24chat_client.Clients.Udp
                         if (buff[0] == 0x01)
                         {
                             ReplyMessage replyMessage = new ReplyMessage(buff);
+                             _replyReceived = true;
                             if (replyMessage.Result == 0x01)
                             {
                                 Console.WriteLine("Action Success: " + replyMessage.MessageContents);
